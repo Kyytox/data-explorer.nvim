@@ -19,14 +19,14 @@ end
 ---@param opts table: Options table containing highlight colors.
 local function set_highlights(opts)
 	local highlights = {
-		{ name = "DataExplorerWindow", opts = { bg = opts.hl_bg } },
-		{ name = "DataExplorerBorder", opts = { bg = opts.hl_bg, fg = opts.hl_fg } },
-		{ name = "DataExplorerTitle", opts = { bg = opts.hl_bg, fg = opts.hl_title, bold = true } },
-		{ name = "DataExplorerFooter", opts = { bg = opts.hl_bg, fg = opts.hl_footer, italic = true } },
-		{ name = "DataExplorerSQLBorder", opts = { bg = opts.hl_sql_bg, fg = opts.hl_sql_fg } },
-		{ name = "DataExplorerSQLWindow", opts = { bg = opts.hl_sql_bg } },
-		{ name = "DataExplorerSQLErrBorder", opts = { bg = opts.hl_sql_err_bg, fg = opts.hl_sql_err_fg } },
-		{ name = "DataExplorerSQLErrWindow", opts = { bg = opts.hl_sql_err_bg } },
+		{ name = "DataExplorerWindow", opts = { bg = opts.hl.bg } },
+		{ name = "DataExplorerBorder", opts = { bg = opts.hl.bg, fg = opts.hl.fg } },
+		{ name = "DataExplorerTitle", opts = { bg = opts.hl.bg, fg = opts.hl.title, bold = true } },
+		{ name = "DataExplorerFooter", opts = { bg = opts.hl.bg, fg = opts.hl.footer, italic = true } },
+		{ name = "DataExplorerSQLBorder", opts = { bg = opts.hl.sql_bg, fg = opts.hl.sql_fg } },
+		{ name = "DataExplorerSQLWindow", opts = { bg = opts.hl.sql_bg } },
+		{ name = "DataExplorerSQLErrBorder", opts = { bg = opts.hl.sql_err_bg, fg = opts.hl.sql_err_fg } },
+		{ name = "DataExplorerSQLErrWindow", opts = { bg = opts.hl.sql_err_bg } },
 	}
 	for _, hl in ipairs(highlights) do
 		vim.api.nvim_set_hl(0, hl.name, hl.opts)
@@ -57,7 +57,7 @@ function M.calculate_window_layout(nb_metadata_lines, nb_data_lines)
 	local width, height = vim.o.columns, vim.o.lines
 	vim.notify("Screen (width, height): " .. width .. "x" .. height)
 
-	--
+	-- Common parameters
 	local col_start = 2
 	local height_help = 1
 	local row_start = height_help + 3
