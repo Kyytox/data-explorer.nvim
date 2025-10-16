@@ -1,0 +1,67 @@
+local M = {}
+
+local VARIABLES = {
+	windows_infos = {
+		help_title = "Help",
+		meta_title = "Metadata",
+		data_title = "Data",
+		sql_title = "SQL Query",
+		sql_err_title = "SQL Error",
+	},
+}
+
+-- Get specific variable
+function M.get_variable(field)
+	return VARIABLES[field]
+end
+
+local STATE = {
+	files_metadata = {},
+	buffers = {},
+	windows = {},
+	current_file = nil,
+	windows_layout = {},
+}
+
+-- Get all state
+function M.get_all_state()
+	return STATE
+end
+
+-- Set state value
+---@param field string: STATE field name
+---@param key any: Key for the field table (or nil for direct value)
+---@param value any: Value to set
+function M.set_state(field, key, value)
+	if key ~= nil then
+		STATE[field][key] = value
+	else
+		STATE[field] = value
+	end
+end
+
+-- Get state value
+---@param field string: STATE field name
+---@param key any|nil: Key for the field table (optional)
+---@return any
+function M.get_state(field, key)
+	if key ~= nil then
+		return STATE[field][key]
+	end
+	return STATE[field]
+end
+
+-- Reset one or all state fields
+---@param field string|nil: STATE field name (optional)
+function M.reset_state(field)
+	vim.notify("Resetting state field: " .. tostring(field), vim.log.levels.DEBUG)
+	if field and STATE[field] then
+		STATE[field] = {}
+	else
+		for k in pairs(STATE) do
+			STATE[k] = {}
+		end
+	end
+end
+
+return M

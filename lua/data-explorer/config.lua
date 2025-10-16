@@ -18,13 +18,31 @@ M.defaults = {
 		},
 	},
 
+	-- Floating window options
+	window_opts = {
+		border = "rounded", -- Border style for floating windows.
+	},
+
+	-- Key mappings
+	mappings = {
+		quit = "q", -- Key to quit/close the main UI
+		back = "<BS>", -- Key to go back to file selection
+		focus_meta = "1", -- Key to focus the metadata window
+		focus_data = "2", -- Key to focus the data window
+		rotate_layout = "r", -- Key to rotate the layout (not implemented yet)
+		toggle_sql = "s", -- Key to toggle the SQL query window
+		execute_sql = "e", -- Key to execute the SQL query
+	},
+
 	-- Styling/Highlighting (for the floating windows)
-	hl_bg = "#171924", -- Background color for the window (e.g., a dark background)
-	hl_fg = "#f38ba8", -- Foreground color for the border (e.g., Catppuccin Rosewater)
-	hl_title = "#f5c2e7", -- Title color (e.g., Catppuccin Pink)
-	hl_footer = "#94e2d5", -- Footer color (e.g., Catpuccin Teal)
-	hl_sql_border = "#89b4fa", -- Border color for SQL window (e.g., Catppuccin Blue)
-	hl_sql_bg = "#1e1e2e", -- Background color for SQL window (e.g., a dark background)
+	hl_bg = "#171924", -- Background color for the window
+	hl_fg = "#f38ba8", -- Foreground color for the border
+	hl_title = "#f5c2e7", -- Title color
+	hl_footer = "#94e2d5", -- Footer color
+	hl_sql_fg = "#89b4fa", -- Border color for SQL window
+	hl_sql_bg = "#1e1e2e", -- Background color for SQL window
+	hl_sql_err_fg = "#c0653c", -- Border color for SQL error window
+	hl_sql_err_bg = "#431e2e", -- Background color for SQL
 }
 
 --- The current, merged configuration. This is what the rest of the plugin uses.
