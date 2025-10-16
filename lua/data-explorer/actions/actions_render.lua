@@ -26,8 +26,6 @@ function M.rotate_layout(opts)
 	local win_meta = state.get_state("windows", "win_meta")
 	local win_data = state.get_state("windows", "win_data")
 
-	vim.notify("Switching to " .. new_layout .. " layout", vim.log.levels.INFO)
-
 	-- Update data window
 	if new_layout == "vertical" then
 		-- Update metadata window
@@ -71,7 +69,6 @@ end
 --- Go back to file selection function (Uses the main module reference)
 ---@param opts table: Options table.
 function M.back_to_file_selection(opts)
-	vim.notify("Back to file selection", vim.log.levels.INFO)
 	-- Find all .parquet file
 	local parquet_files = utils.get_files_in_working_directory()
 

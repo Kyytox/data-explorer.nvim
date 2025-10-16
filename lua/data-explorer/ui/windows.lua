@@ -38,7 +38,6 @@ end
 function M.create_windows(opts, dims)
 	-- Clean up old windows
 	actions_windows.close_windows()
-	vim.notify("dims: " .. vim.inspect(dims))
 
 	-- Get windows infos
 	local wins_infos = state.get_variable("windows_infos")
@@ -76,17 +75,6 @@ function M.create_windows(opts, dims)
 		hide = true,
 	}, opts)
 
-	vim.notify(
-		"meta width: "
-			.. dims.meta_width
-			.. ", meta_height: "
-			.. dims.meta_height
-			.. ", row_start: "
-			.. dims.row_start
-			.. ", col_start: "
-			.. dims.col_start
-	)
-
 	-- Create Metadata and Data windows
 	local win_meta = create_floating_window(buffers.buf_meta, {
 		title = wins_infos.meta_title,
@@ -96,16 +84,6 @@ function M.create_windows(opts, dims)
 		col = dims.col_start,
 	}, opts)
 
-	vim.notify(
-		"data width: "
-			.. dims.data_width
-			.. ", data_height: "
-			.. dims.data_height
-			.. ", row_start: "
-			.. dims.data_row_start
-			.. ", col_start: "
-			.. dims.data_col_start
-	)
 	local win_data = create_floating_window(buffers.buf_data, {
 		title = wins_infos.data_title,
 		width = dims.data_width,

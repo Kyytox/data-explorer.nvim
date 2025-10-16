@@ -79,7 +79,6 @@ function M.render(opts, file)
 	local tbl_dimensions = config_windows.calculate_window_layout(nb_meta_lines, nb_data_lines)
 
 	-- get windows layout info according to the layout
-	vim.notify("layout: " .. layout)
 	tbl_dimensions = tbl_dimensions[layout]
 
 	-- Create Metadata and Data windows
