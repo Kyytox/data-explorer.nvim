@@ -39,25 +39,29 @@ end
 --- Main function Data Explorer
 function M.data_explorer()
 	local opts = config.get()
+	local files_types = opts.files_types
 
 	-- Set Autocommands
 	set_autocommands()
 
-	-- -- Find all .parquet file
-	local parquet_files = utils.get_files_in_working_directory()
+	-- Find all files with accepted extensions
+	local files = utils.get_files_in_working_directory(files_types)
+	vim.notify(vim.inspect(files))
 
-	if #parquet_files == 0 then
-		vim.notify("No .parquet files found in current directory", vim.log.levels.WARN)
+	if #files == 0 then
+		local type_str = table.concat(files_types, ", ")
+		vim.notify("No files found with extensions: " .. type_str, vim.log.levels.WARN)
 		return
 	end
 
 	-- Launch Data Explorer
-	picker.pickers_files(opts, parquet_files)
+	picker.pickers_files(opts, files)
 end
 
 --- Data Explorer File
 function M.data_explorer_file()
 	local opts = config.get()
+	local files_types = opts.files_types -- Get the configured file types
 
 	-- Set Autocommands
 	set_autocommands()
@@ -70,9 +74,11 @@ function M.data_explorer_file()
 		return
 	end
 
-	-- Check if file is a .parquet file
-	if not file:match("%.parquet$") then
-		vim.notify("Current file is not a .parquet file", vim.log.levels.WARN)
+	-- Check if file is an accepted file type
+	-- Use the helper function with the configured file types
+	if not utils.is_accepted_file_type(file, files_types) then
+		local type_str = table.concat(files_types, ", ")
+		vim.notify("Current file is not one of the accepted types: " .. type_str, vim.log.levels.WARN)
 		return
 	end
 
