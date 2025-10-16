@@ -20,7 +20,8 @@ local STATE = {
 	buffers = {},
 	windows = {},
 	current_file = nil,
-	windows_layout = {},
+	current_layout = nil,
+	tbl_dimensions = {},
 }
 
 -- Get all state

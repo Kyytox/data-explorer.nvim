@@ -52,7 +52,9 @@ end
 ---@param opts table: Options table.
 ---@param file string: Path to the parquet file.
 function M.render(opts, file)
+	-- Stock layout
 	local layout = opts.layout
+	state.set_state("current_layout", nil, layout)
 
 	-- Fetch and parse data
 	local data, err = duckdb.fetch_parse_data(file, "data")
@@ -72,20 +74,16 @@ function M.render(opts, file)
 
 	-- Create buffers
 	local nb_meta_lines, nb_data_lines = create_buffers(opts, file, metadata, data)
-	-- vim.notify(vim.inspect(state.get_state("buffers")), vim.log.levels.INFO)
 
 	-- Calculate window layout
-	local wins_layout = config_windows.calculate_window_layout(nb_meta_lines, nb_data_lines)
+	local tbl_dimensions = config_windows.calculate_window_layout(nb_meta_lines, nb_data_lines)
 
 	-- get windows layout info according to the layout
-	if layout == "vertical" then
-		wins_layout = wins_layout.vertical
-	elseif layout == "horizontal" then
-		wins_layout = wins_layout.horizontal
-	end
+	vim.notify("layout: " .. layout)
+	tbl_dimensions = tbl_dimensions[layout]
 
 	-- Create Metadata and Data windows
-	windows.create_windows(opts, wins_layout)
+	windows.create_windows(opts, tbl_dimensions)
 
 	-- Set keymaps for buffers
 	mappings.set_common_keymaps(opts)

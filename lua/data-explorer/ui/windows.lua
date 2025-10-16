@@ -10,19 +10,16 @@ local M = {}
 ---@param opts table: Options table (for border style, etc.).
 ---@return number: Buffer and window handles.
 local function create_floating_window(buffer, wins_infos, opts)
-	local width = wins_infos.width or math.floor(vim.o.columns * 0.7)
-	local height = wins_infos.height or math.floor(vim.o.lines * 0.6)
-
 	local conf = {
 		title = wins_infos.title,
-		title_pos = wins_infos.title_pos or "left",
+		title_pos = wins_infos.title_pos,
 		relative = "editor",
-		width = width,
-		height = height,
-		row = wins_infos.row or math.floor((vim.o.lines - height) / 2),
-		col = wins_infos.col or math.floor((vim.o.columns - width) / 2),
+		width = wins_infos.width,
+		height = wins_infos.height,
+		row = wins_infos.row,
+		col = wins_infos.col,
 		style = "minimal",
-		border = opts.window_opts.border or "rounded",
+		border = opts.window_opts.border,
 		focusable = wins_infos.focusable or true,
 		hide = wins_infos.hide or false,
 		footer = wins_infos.footer or "",
@@ -36,11 +33,12 @@ local function create_floating_window(buffer, wins_infos, opts)
 end
 
 --- Create Metadata and Data windows based on layout
----@param wins_layout table: Calculated window layout parameters.
+---@param dims table: Calculated dimensions for windows.
 ---@param opts table: Options table.
-function M.create_windows(opts, wins_layout)
+function M.create_windows(opts, dims)
 	-- Clean up old windows
 	actions_windows.close_windows()
+	vim.notify("dims: " .. vim.inspect(dims))
 
 	-- Get windows infos
 	local wins_infos = state.get_variable("windows_infos")
@@ -48,74 +46,73 @@ function M.create_windows(opts, wins_layout)
 	-- Retrieve buffers from state
 	local buffers = state.get_state("buffers")
 
+	-- Create help window
 	local win_help = create_floating_window(buffers.buf_help, {
 		title = wins_infos.help_title,
-		width = wins_layout.main_width,
-		height = wins_layout.height_help,
+		width = dims.main_width,
+		height = dims.help_height,
 		row = 1,
-		col = wins_layout.col_start,
+		col = dims.col_start,
 	}, opts)
 
-	-- Windows for Query buf_sql
+	-- Create SQL windows
 	local win_sql = create_floating_window(buffers.buf_sql, {
 		title = wins_infos.sql_title,
 		title_pos = "left",
-		width = wins_layout.main_width,
-		height = 7,
-		row = math.floor(wins_layout.height) * 0.3,
-		col = wins_layout.col_start,
+		width = dims.main_width,
+		height = dims.sql_height,
+		row = dims.sql_row_start,
+		col = dims.col_start,
 		hide = true,
-		-- footer = tostring(buffers.buf_sql_help),
 	}, opts)
 
-	-- Windows for Query buf_sql
 	local win_sql_err = create_floating_window(buffers.buf_sql_err, {
 		title = wins_infos.sql_err_title,
 		title_pos = "left",
-		width = wins_layout.main_width,
-		height = 7,
-		row = math.floor(wins_layout.height) * 0.3 + 9,
-		col = wins_layout.col_start,
+		width = dims.main_width,
+		height = dims.sql_err_height,
+		row = dims.sql_err_row_start,
+		col = dims.col_start,
 		hide = true,
 	}, opts)
 
-	-- Windows for Metadata and Data
-	local win_meta, win_data
+	vim.notify(
+		"meta width: "
+			.. dims.meta_width
+			.. ", meta_height: "
+			.. dims.meta_height
+			.. ", row_start: "
+			.. dims.row_start
+			.. ", col_start: "
+			.. dims.col_start
+	)
 
-	if layout == "vertical" then
-		-- Vertical Layout
-		win_meta = create_floating_window(buffers.buf_meta, {
-			title = wins_infos.meta_title,
-			width = wins_layout.main_width,
-			height = wins_layout.metadata_height,
-			row = wins_layout.row_start,
-			col = wins_layout.col_start,
-		}, opts)
+	-- Create Metadata and Data windows
+	local win_meta = create_floating_window(buffers.buf_meta, {
+		title = wins_infos.meta_title,
+		width = dims.meta_width,
+		height = dims.meta_height,
+		row = dims.row_start,
+		col = dims.col_start,
+	}, opts)
 
-		win_data = create_floating_window(buffers.buf_data, {
-			title = wins_infos.data_title,
-			width = wins_layout.main_width,
-			height = wins_layout.data_height,
-			row = wins_layout.row_start + wins_layout.metadata_height + 2, -- Directly stack them
-			col = wins_layout.col_start,
-		}, opts)
-	else
-		win_meta = create_floating_window(buffers.buf_meta, {
-			title = wins_infos.meta_title,
-			width = meta_width,
-			height = height_combined,
-			row = wins_layout.row_start,
-			col = wins_layout.col_start,
-		}, opts)
-
-		win_data = create_floating_window(buffers.buf_data, {
-			title = wins_infos.data_title,
-			width = data_width,
-			height = height_combined,
-			row = wins_layout.row_start,
-			col = wins_layout.col_start + meta_width + 2, -- Place next to metadata
-		}, opts)
-	end
+	vim.notify(
+		"data width: "
+			.. dims.data_width
+			.. ", data_height: "
+			.. dims.data_height
+			.. ", row_start: "
+			.. dims.data_row_start
+			.. ", col_start: "
+			.. dims.data_col_start
+	)
+	local win_data = create_floating_window(buffers.buf_data, {
+		title = wins_infos.data_title,
+		width = dims.data_width,
+		height = dims.data_height,
+		row = dims.data_row_start,
+		col = dims.data_col_start,
+	}, opts)
 
 	-- Store windows in state
 	state.set_state("windows", "win_help", win_help)

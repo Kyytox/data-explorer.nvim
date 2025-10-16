@@ -25,7 +25,7 @@ function M.set_common_keymaps(opts)
 
 		-- Layout rotation
 		vim.keymap.set("n", opts.mappings.rotate_layout, function()
-			actions_render.rotate_layout(opts, layout)
+			actions_render.rotate_layout(opts)
 		end, map_opts)
 
 		-- Back to file selection
