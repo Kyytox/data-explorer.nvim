@@ -39,7 +39,7 @@ function M.pickers_files(opts, lst_files)
 			layout_config = {
 				height = 0.8,
 				width = 0.7,
-				preview_cutoff = 1,
+				preview_cutoff = opts.telescope_opts.layout_config.preview_cutoff,
 				preview_height = (opts.layout == "vertical") and 0.4 or nil,
 				preview_width = (opts.layout == "horizontal") and 0.4 or nil,
 			},
