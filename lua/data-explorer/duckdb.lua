@@ -15,7 +15,17 @@ local METADATA_QUERIES = {
     stats_max AS Max,
     stats_null_count AS Null
     FROM parquet_metadata('%s');]],
-	csv = [[SELECT Columns FROM sniff_csv('%s');]],
+	-- csv = [[SELECT Columns FROM sniff_csv('%s');]],
+	csv = [[
+        WITH ligne_count AS (
+            SELECT COUNT(*) AS total FROM read_csv('%s', auto_detect=true)
+        )
+        SELECT
+            Columns,
+            (SELECT total FROM ligne_count) AS nombre_lignes
+        FROM
+            sniff_csv('%s', auto_detect=true);
+    ]],
 	tsv = [[SELECT Columns FROM sniff_csv('%s', header=true, sep='\t');]],
 }
 
@@ -31,49 +41,56 @@ local DATA_QUERIES = {
 ---@return string|nil, string|nil: Raw CSV output or error message.
 local function run_query(query)
 	local duckdb_cmd = config.get().duckdb_cmd -- Get the command path from config
-	local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query)
+	-- local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query)
+	-- vim.notify("Running command: " .. cmd, vim.log.levels.DEBUG)
 
 	-- Execute the command and capture output
-	local handle = io.popen(cmd)
-	if not handle then
-		return nil, "Error: Could not run DuckDB command. Check if DuckDB is installed and in your PATH."
-	end
+	-- local handle = io.popen(cmd)
+	-- vim.notify("handle: " .. vim.inspect(handle), vim.log.levels.INFO)
+	-- if not handle then
+	-- return nil, "Error: Could not run DuckDB command. Check if DuckDB is installed and in your PATH."
+	-- end
 
 	-- Read all output
-	local out = handle:read("*a")
-	local status = handle:close()
-	if out == "" then
-		return nil, "No output returned from DuckDB."
+	-- local out = handle:read("*a")
+	-- local success, exit_type, exit_code = handle:close()
+
+	-- vim.notify("status: " .. tostring(success), vim.log.levels.INFO)
+	-- vim.notify("exit_type: " .. vim.inspect(exit_type), vim.log.levels.INFO)
+	-- vim.notify("exit_code: " .. vim.inspect(exit_code), vim.log.levels.INFO)
+	-- vim.notify("output: " .. tostring(out), vim.log.levels.INFO)
+
+	local cmd = { duckdb_cmd, "-csv", "-c", query }
+	local result = vim.system(cmd, { text = true }):wait()
+	local out = result.stdout
+	local success = result.code == 0
+	local err = result.stderr
+
+	vim.notify("out: " .. tostring(out), vim.log.levels.DEBUG)
+	vim.notify("success: " .. tostring(success), vim.log.levels.DEBUG)
+	vim.notify("err: " .. tostring(err), vim.log.levels.DEBUG)
+
+	-- Check for command failure status
+	if not success or success ~= true then
+		return nil, err
 	end
 
-	-- Check for command failure status (optional, but good)
-	if not status or status ~= true then
-		return nil, "DuckDB command failed or returned non-zero exit code."
+	-- Check for empty output
+	if out == "" then
+		return nil, "Error: DuckDB returned empty output."
 	end
 
 	return out, nil
 end
 
---- Validates a given SQL query string against custom plugin rules.
+--- Validate the user-provided SQL query to ensure it meets required syntax.
 --- @param query string The raw SQL query string provided by the user.
 --- @return boolean success True if the query passes all validation checks.
 --- @return string message A status or error message explaining the result.
 local function validate_sql_query(query)
-	-- Check for the existence of SELECT (case-insensitive)
-	if not string.find(query, "select") then
-		return false, "Query must contain the 'SELECT' keyword."
-	end
-
-	-- Check for the specific 'FROM f' syntax (case-insensitive)
+	-- Check for the specific 'FROM f' syntax
 	if not string.find(query, "from%s+f") then
-		return false, "Query must use the required syntax 'FROM f' (case-insensitive)."
-	end
-
-	-- Check for the trailing semicolon (;)
-	local trimmed_query = query:match("^%s*(.-)%s*$")
-
-	if not trimmed_query:match(";$") then
-		return false, "Query must end with a semicolon (;) after trimming any whitespace."
+		return false, "Query must use the required syntax 'FROM f' to reference the file."
 	end
 
 	-- If all checks pass
@@ -87,7 +104,7 @@ end
 local function query_metadata(file, ext)
 	-- Get the appropriate query template based on file extension
 	local query = METADATA_QUERIES[ext:sub(2)] -- Remove the leading dot
-	query = string.format(query, file)
+	query = string.format(query, file, file)
 	return run_query(query)
 end
 
@@ -113,10 +130,9 @@ local function query_sql(file, query)
 	query = string.lower(query)
 
 	-- Validate SQL query
-	local is_valid, msg = validate_sql_query(query)
+	local is_valid, err = validate_sql_query(query)
 	if not is_valid then
-		vim.notify("Invalid SQL Query: " .. msg, vim.log.levels.WARN)
-		return nil, msg
+		return nil, err
 	end
 
 	-- transform to 'from ('path/to/file')'
@@ -155,40 +171,41 @@ end
 ---@return table|nil, table|nil: Parsed headers and data, or error message.
 local function parse_columns_string(input)
 	-- Extract the JSON-like substring
-	local s = input:match('"(.+)"')
-	if not s then
+	local text = input:match('"(.+)"')
+	if not text then
 		vim.notify("No valid Columns string found.", vim.log.levels.ERROR)
 		return nil, nil
 	end
 
 	-- Transform to valid JSON
-	s = s:gsub("'", '"')
+	text = text:gsub("'", '"')
+	vim.notify("Transformed Columns string to JSON: " .. text, vim.log.levels.DEBUG)
 
 	-- Quote the keys
-	s = s:gsub("(%w+)%s*:", '"%1":')
+	text = text:gsub("(%w+)%s*:", '"%1":')
 
 	-- Ensure that unquoted values are quoted (for 'name' and 'type' fields)
-	s = s:gsub(":(%s*)([%w_]+)", ': "%2"')
+	text = text:gsub(":(%s*)([%w_]+)", ': "%2"')
 
 	-- Decode the JSON string
-	local ok, decoded = pcall(vim.fn.json_decode, s)
+	local ok, decoded = pcall(vim.fn.json_decode, text)
 	if not ok then
 		vim.notify("Failed to decode Columns string: " .. decoded, vim.log.levels.ERROR)
 		return nil, nil
 	end
 
 	-- Transform into structured table
-	local Parsed_CSV_Headers = { "Column", "type" }
-	local Parsed_CSV_Data = {}
+	local parsed_headers = { "Column", "type" }
+	local parsed_data = {}
 
 	for _, col in ipairs(decoded) do
-		table.insert(Parsed_CSV_Data, {
+		table.insert(parsed_data, {
 			Column = col.name,
 			type = col.type,
 		})
 	end
 
-	return Parsed_CSV_Headers, Parsed_CSV_Data
+	return parsed_headers, parsed_data
 end
 
 --- Fetch and parse data for a parquet file.
@@ -201,6 +218,7 @@ function M.fetch_parse_data(file, type, query)
 	local err = nil
 
 	if not file or file == "" then
+		vim.notify("File path is empty!", vim.log.levels.WARN)
 		return nil, "File path is empty"
 	end
 
@@ -217,7 +235,7 @@ function M.fetch_parse_data(file, type, query)
 	end
 
 	if not csv_text then
-		vim.notify("DuckDB error: " .. (err or "unknown"), vim.log.levels.ERROR)
+		vim.notify("Error fetching data: " .. (err or "unknown"), vim.log.levels.ERROR)
 		return nil, err
 	end
 
@@ -230,14 +248,14 @@ function M.fetch_parse_data(file, type, query)
 			data_headers, data_content = parse_columns_string(csv_text)
 			if not data_headers then
 				vim.notify("Failed to parse metadata for CSV, TSV: " .. data_content, vim.log.levels.WARN)
-				return nil, "Failed to parse metadata for CSV, TSV: " .. (data_content or "unknown")
+				return nil, "Failed to parse metadata for CSV, TSV: "
 			end
 		elseif ext == ".parquet" then
 			-- For Parquet metadata, use standard CSV parsing
 			data_headers, data_content = parse_csv(csv_text)
 			if not data_headers then
 				vim.notify("Failed to parse Parquet metadata: " .. data_content, vim.log.levels.WARN)
-				return nil, "Failed to parse Parquet metadata: " .. (data_content or "unknown")
+				return nil, "Failed to parse Parquet metadata: "
 			end
 		end
 	else
@@ -248,9 +266,8 @@ function M.fetch_parse_data(file, type, query)
 end
 
 --- Execute the SQL query
----@param opts table: Options table.
 ---@param buf number: Buffer number containing the SQL query.
-function M.execute_sql_query(opts, buf)
+function M.execute_sql_query(buf)
 	local file = state.get_state("current_file")
 
 	-- Get SQL query from SQL buffer
@@ -267,7 +284,6 @@ function M.execute_sql_query(opts, buf)
 	local data, err = M.fetch_parse_data(file, "query", sql_query)
 
 	if not data then
-		vim.notify("Error executing query: " .. (err or "unknown"), vim.log.levels.ERROR)
 		return err
 	end
 

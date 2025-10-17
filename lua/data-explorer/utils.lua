@@ -51,8 +51,6 @@ end
 ---@return table|nil: Metadata table or nil if error occurs.
 ---@return string|nil: Error message if any.
 function M.get_cached_metadata(file)
-	local err = nil
-
 	-- Check cache first
 	local metadata = state.get_state("files_metadata", file)
 
@@ -61,9 +59,9 @@ function M.get_cached_metadata(file)
 	end
 
 	-- Fetch and parse metadata
-	metadata, err = duckdb.fetch_parse_data(file, "metadata")
+	metadata = duckdb.fetch_parse_data(file, "metadata")
 	if not metadata then
-		return nil, err
+		return nil
 	end
 
 	-- Set Cache metadata

@@ -7,6 +7,7 @@ local check_focus = require("data-explorer.check_focus")
 
 local M = {}
 
+--- Setup Data Explorer
 --- @param opts table|nil: User configuration options.
 function M.setup(opts)
 	config.setup(opts)

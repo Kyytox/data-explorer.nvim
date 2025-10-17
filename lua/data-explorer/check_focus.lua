@@ -34,7 +34,6 @@ function M.check_focus_and_close()
 
 	-- If the currently active window is NOT one of our main windows, close them all.
 	if not is_plugin_window_focused(wins) then
-		vim.notify("Focus lost from Data Explorer windows. Closing all windows.", vim.log.levels.WARN)
 		actions.close_windows()
 		clear_autocommands()
 		state.reset_state()

@@ -57,9 +57,8 @@ function M.render(opts, file)
 	state.set_state("current_layout", nil, layout)
 
 	-- Fetch and parse data
-	local data, err = duckdb.fetch_parse_data(file, "data")
+	local data = duckdb.fetch_parse_data(file, "data")
 	if not data then
-		vim.notify("Error fetching data: " .. (err or "unknown"), vim.log.levels.ERROR)
 		return
 	end
 
