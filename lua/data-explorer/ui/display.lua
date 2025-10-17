@@ -9,7 +9,7 @@ function M.prepare_metadata(file, metadata)
 	return {
 		"📦 File: " .. vim.fn.fnamemodify(file, ":t"),
 		"📂 Path: " .. file,
-		"Number of lines: " .. tonumber(metadata.data[1]["Count"]),
+		"Number of lines: " .. tonumber(metadata.count_lines),
 		"",
 		unpack(tbl_metadata),
 	}

@@ -15,7 +15,6 @@ local METADATA_QUERIES = {
     stats_max AS Max,
     stats_null_count AS Null
     FROM parquet_metadata('%s');]],
-	-- csv = [[SELECT Columns FROM sniff_csv('%s');]],
 	csv = [[
         WITH ligne_count AS (
             SELECT COUNT(*) AS total FROM read_csv('%s', auto_detect=true)
@@ -26,7 +25,16 @@ local METADATA_QUERIES = {
         FROM
             sniff_csv('%s', auto_detect=true);
     ]],
-	tsv = [[SELECT Columns FROM sniff_csv('%s', header=true, sep='\t');]],
+	tsv = [[
+        WITH ligne_count AS (
+            SELECT COUNT(*) AS total FROM read_csv('%s', header=true, sep='\t', auto_detect=true)
+        )
+        SELECT
+            Columns,
+            (SELECT total FROM ligne_count) AS nombre_lignes
+        FROM
+            sniff_csv('%s', header=true, sep='\t', auto_detect=true);
+    ]],
 }
 
 local DATA_QUERIES = {
@@ -41,38 +49,18 @@ local DATA_QUERIES = {
 ---@return string|nil, string|nil: Raw CSV output or error message.
 local function run_query(query)
 	local duckdb_cmd = config.get().duckdb_cmd -- Get the command path from config
-	-- local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query)
-	-- vim.notify("Running command: " .. cmd, vim.log.levels.DEBUG)
-
-	-- Execute the command and capture output
-	-- local handle = io.popen(cmd)
-	-- vim.notify("handle: " .. vim.inspect(handle), vim.log.levels.INFO)
-	-- if not handle then
-	-- return nil, "Error: Could not run DuckDB command. Check if DuckDB is installed and in your PATH."
-	-- end
-
-	-- Read all output
-	-- local out = handle:read("*a")
-	-- local success, exit_type, exit_code = handle:close()
-
-	-- vim.notify("status: " .. tostring(success), vim.log.levels.INFO)
-	-- vim.notify("exit_type: " .. vim.inspect(exit_type), vim.log.levels.INFO)
-	-- vim.notify("exit_code: " .. vim.inspect(exit_code), vim.log.levels.INFO)
-	-- vim.notify("output: " .. tostring(out), vim.log.levels.INFO)
-
 	local cmd = { duckdb_cmd, "-csv", "-c", query }
 	local result = vim.system(cmd, { text = true }):wait()
 	local out = result.stdout
 	local success = result.code == 0
-	local err = result.stderr
 
-	vim.notify("out: " .. tostring(out), vim.log.levels.DEBUG)
-	vim.notify("success: " .. tostring(success), vim.log.levels.DEBUG)
-	vim.notify("err: " .. tostring(err), vim.log.levels.DEBUG)
+	-- vim.notify("out: " .. tostring(out), vim.log.levels.DEBUG)
+	-- vim.notify("success: " .. tostring(success), vim.log.levels.DEBUG)
+	-- vim.notify("err: " .. tostring(err), vim.log.levels.DEBUG)
 
 	-- Check for command failure status
 	if not success or success ~= true then
-		return nil, err
+		return nil, result.stderr
 	end
 
 	-- Check for empty output
@@ -144,13 +132,14 @@ end
 
 --- Parse CSV text into a structured table.
 ---@param csv_text string: CSV text to parse.
----@return table|nil, table|nil: Headers and data, or error message.
+---@return table|nil, table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
 local function parse_csv(csv_text)
 	local lines = vim.split(vim.trim(csv_text), "\n", { plain = true })
 	if #lines < 2 then
-		return nil, nil
+		return nil, nil, nil
 	end
 
+	local count_lines = nil
 	local headers = vim.split(lines[1], ",", { plain = true })
 	local data = {}
 
@@ -158,18 +147,35 @@ local function parse_csv(csv_text)
 		local values = vim.split(lines[i], ",", { plain = true })
 		local row = {}
 		for j, key in ipairs(headers) do
-			row[key] = values[j] or ""
+			if key == "Count" then
+				count_lines = values[j]
+			else
+				row[key] = values[j] or ""
+			end
 		end
+
 		table.insert(data, row)
 	end
 
-	return headers, data
+	-- Remove Count from headers if present
+	for i, header in ipairs(headers) do
+		if header == "Count" then
+			table.remove(headers, i)
+			break
+		end
+	end
+
+	return headers, data, count_lines
 end
 
 --- Parse the 'Columns' string from CSV/TSV metadata into a structured table.
 ---@param input string: The raw 'Columns' string from DuckDB.
----@return table|nil, table|nil: Parsed headers and data, or error message.
+---@return table|nil, table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
 local function parse_columns_string(input)
+	-- Get Count of lines (last elemtnt after spli t by ,)
+	local parts = vim.split(input, ",")
+	local count_lines = parts[#parts]:gsub("[\r\n]+", "")
+
 	-- Extract the JSON-like substring
 	local text = input:match('"(.+)"')
 	if not text then
@@ -179,7 +185,6 @@ local function parse_columns_string(input)
 
 	-- Transform to valid JSON
 	text = text:gsub("'", '"')
-	vim.notify("Transformed Columns string to JSON: " .. text, vim.log.levels.DEBUG)
 
 	-- Quote the keys
 	text = text:gsub("(%w+)%s*:", '"%1":')
@@ -205,7 +210,7 @@ local function parse_columns_string(input)
 		})
 	end
 
-	return parsed_headers, parsed_data
+	return parsed_headers, parsed_data, count_lines
 end
 
 --- Fetch and parse data for a parquet file.
@@ -240,29 +245,29 @@ function M.fetch_parse_data(file, type, query)
 	end
 
 	-- Parse Data
-	local data_headers, data_content = nil, nil
+	local data_headers, data_content, count_lines = nil, nil, nil
 
 	if type == "metadata" then
 		if ext == ".csv" or ext == ".tsv" then
 			-- For CSV/TSV metadata, parse differently
-			data_headers, data_content = parse_columns_string(csv_text)
+			data_headers, data_content, count_lines = parse_columns_string(csv_text)
 			if not data_headers then
 				vim.notify("Failed to parse metadata for CSV, TSV: " .. data_content, vim.log.levels.WARN)
 				return nil, "Failed to parse metadata for CSV, TSV: "
 			end
 		elseif ext == ".parquet" then
 			-- For Parquet metadata, use standard CSV parsing
-			data_headers, data_content = parse_csv(csv_text)
+			data_headers, data_content, count_lines = parse_csv(csv_text)
 			if not data_headers then
 				vim.notify("Failed to parse Parquet metadata: " .. data_content, vim.log.levels.WARN)
 				return nil, "Failed to parse Parquet metadata: "
 			end
 		end
 	else
-		data_headers, data_content = parse_csv(csv_text)
+		data_headers, data_content, _ = parse_csv(csv_text)
 	end
 
-	return { headers = data_headers, data = data_content }, nil
+	return { headers = data_headers, data = data_content, count_lines = count_lines }, nil
 end
 
 --- Execute the SQL query
