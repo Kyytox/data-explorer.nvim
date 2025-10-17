@@ -5,7 +5,8 @@ local display = require("data-explorer.ui.display")
 local M = {}
 
 -- DuckDB SQL queries
-local QUERY_METADATA = [[
+local METADATA_QUERIES = {
+	parquet = [[
     SELECT
     path_in_schema AS Column,
     type AS Type,
@@ -13,9 +14,16 @@ local QUERY_METADATA = [[
     stats_min AS Min,
     stats_max AS Max,
     stats_null_count AS Null
-    FROM parquet_metadata('%s');]]
+    FROM parquet_metadata('%s');]],
+	csv = [[SELECT Columns FROM sniff_csv('%s');]],
+	tsv = [[SELECT Columns FROM sniff_csv('%s', header=true, sep='\t');]],
+}
 
-local QUERY_DATA = [[SELECT * FROM read_parquet('%s') LIMIT %d;]]
+local DATA_QUERIES = {
+	parquet = "SELECT * FROM read_parquet('%s') LIMIT %d;",
+	csv = "SELECT * FROM read_csv_auto('%s') LIMIT %d;",
+	tsv = "SELECT * FROM read_csv_auto('%s', sep='\t') LIMIT %d;",
+}
 
 --- Runs a DuckDB query and returns the raw CSV output.
 --- This function is the only one that interacts with the shell.
@@ -25,15 +33,15 @@ local function run_query(query)
 	local duckdb_cmd = config.get().duckdb_cmd -- Get the command path from config
 	local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query)
 
+	-- Execute the command and capture output
 	local handle = io.popen(cmd)
-
 	if not handle then
 		return nil, "Error: Could not run DuckDB command. Check if DuckDB is installed and in your PATH."
 	end
 
+	-- Read all output
 	local out = handle:read("*a")
 	local status = handle:close()
-
 	if out == "" then
 		return nil, "No output returned from DuckDB."
 	end
@@ -51,8 +59,6 @@ end
 --- @return boolean success True if the query passes all validation checks.
 --- @return string message A status or error message explaining the result.
 local function validate_sql_query(query)
-	vim.notify("Validating SQL Query..." .. query, vim.log.levels.INFO)
-
 	-- Check for the existence of SELECT (case-insensitive)
 	if not string.find(query, "select") then
 		return false, "Query must contain the 'SELECT' keyword."
@@ -74,45 +80,27 @@ local function validate_sql_query(query)
 	return true, "Query is valid!"
 end
 
--- Example Usage (for testing purposes)
-local function valid_test()
-	local test_queries = {
-		-- Valid
-		"SELECT name, id FROM f WHERE id > 10;",
-		"select count(*) from f;",
-		"   SELECT * FROM F   ;  ", -- Test case and whitespace
-
-		-- Invalid: Missing semicolon
-		"SELECT * FROM f",
-		-- Invalid: Wrong FROM syntax
-		"SELECT * FROM users;",
-		-- Invalid: Missing SELECT
-		"COUNT(*) FROM f;",
-		-- Invalid: Missing semicolon AND wrong FROM syntax
-		"SELECT * FROM something",
-	}
-
-	print("\n--- Validating Test Queries ---")
-	for _, q in ipairs(test_queries) do
-		local success, message = validate_sql_query(q)
-		print(string.format("[PASS: %s] Query: '%s'\n\t-> Message: %s", tostring(success), q, message))
-	end
-end
-
 --- Get the raw CSV metadata for a parquet file.
 ---@param file string: Path to the parquet file.
+---@param ext string: File extension (e.g., ".parquet", ".csv").
 ---@return string|nil, string|nil: Raw CSV metadata or error message.
-local function query_metadata(file)
-	local query = string.format(QUERY_METADATA, file)
+local function query_metadata(file, ext)
+	-- Get the appropriate query template based on file extension
+	local query = METADATA_QUERIES[ext:sub(2)] -- Remove the leading dot
+	query = string.format(query, file)
 	return run_query(query)
 end
 
 --- Get the raw CSV data (limited rows) for a parquet file.
 ---@param file string: Path to the parquet file.
+---@param ext string: File extension (e.g., ".parquet", ".csv").
 ---@return string|nil, string|nil: Raw CSV data or error message.
-local function query_data(file)
+local function query_data(file, ext)
 	local limit = config.get().limit
-	local query = string.format(QUERY_DATA, file, limit)
+
+	-- Get the appropriate query template based on file extension
+	local query = DATA_QUERIES[ext:sub(2)] -- Remove the leading dot
+	query = string.format(query, file, limit)
 	return run_query(query)
 end
 
@@ -124,8 +112,8 @@ local function query_sql(file, query)
 	-- Convert query to lower case
 	query = string.lower(query)
 
+	-- Validate SQL query
 	local is_valid, msg = validate_sql_query(query)
-
 	if not is_valid then
 		vim.notify("Invalid SQL Query: " .. msg, vim.log.levels.WARN)
 		return nil, msg
@@ -134,9 +122,6 @@ local function query_sql(file, query)
 	-- transform to 'from ('path/to/file')'
 	local path_file = file:gsub("'", "\\'")
 	query = query:gsub("from%s+f", "FROM '" .. path_file .. "'")
-	-- query = string.format(query, file)
-
-	vim.notify("Transformed Query: " .. query, vim.log.levels.INFO)
 
 	return run_query(query)
 end
@@ -144,7 +129,7 @@ end
 --- Parse CSV text into a structured table.
 ---@param csv_text string: CSV text to parse.
 ---@return table|nil, table|nil: Headers and data, or error message.
-function M.parse_csv(csv_text)
+local function parse_csv(csv_text)
 	local lines = vim.split(vim.trim(csv_text), "\n", { plain = true })
 	if #lines < 2 then
 		return nil, nil
@@ -165,6 +150,47 @@ function M.parse_csv(csv_text)
 	return headers, data
 end
 
+--- Parse the 'Columns' string from CSV/TSV metadata into a structured table.
+---@param input string: The raw 'Columns' string from DuckDB.
+---@return table|nil, table|nil: Parsed headers and data, or error message.
+local function parse_columns_string(input)
+	-- Extract the JSON-like substring
+	local s = input:match('"(.+)"')
+	if not s then
+		vim.notify("No valid Columns string found.", vim.log.levels.ERROR)
+		return nil, nil
+	end
+
+	-- Transform to valid JSON
+	s = s:gsub("'", '"')
+
+	-- Quote the keys
+	s = s:gsub("(%w+)%s*:", '"%1":')
+
+	-- Ensure that unquoted values are quoted (for 'name' and 'type' fields)
+	s = s:gsub(":(%s*)([%w_]+)", ': "%2"')
+
+	-- Decode the JSON string
+	local ok, decoded = pcall(vim.fn.json_decode, s)
+	if not ok then
+		vim.notify("Failed to decode Columns string: " .. decoded, vim.log.levels.ERROR)
+		return nil, nil
+	end
+
+	-- Transform into structured table
+	local Parsed_CSV_Headers = { "Column", "type" }
+	local Parsed_CSV_Data = {}
+
+	for _, col in ipairs(decoded) do
+		table.insert(Parsed_CSV_Data, {
+			Column = col.name,
+			type = col.type,
+		})
+	end
+
+	return Parsed_CSV_Headers, Parsed_CSV_Data
+end
+
 --- Fetch and parse data for a parquet file.
 ---@param file string|nil: File path.
 ---@param type string: "data", "metadata", query"
@@ -178,11 +204,14 @@ function M.fetch_parse_data(file, type, query)
 		return nil, "File path is empty"
 	end
 
+	-- exrtact file extensions
+	local ext = file:match("^.+(%..+)$")
+
 	-- Fetch Data
 	if type == "data" then
-		csv_text, err = query_data(file)
+		csv_text, err = query_data(file, ext)
 	elseif type == "metadata" then
-		csv_text, err = query_metadata(file)
+		csv_text, err = query_metadata(file, ext)
 	elseif type == "query" and query then
 		csv_text, err = query_sql(file, query)
 	end
@@ -192,11 +221,27 @@ function M.fetch_parse_data(file, type, query)
 		return nil, err
 	end
 
-	-- Parse CSV data
-	local data_headers, data_content = M.parse_csv(csv_text)
-	if not data_headers then
-		vim.notify("Failed to parse CSV: " .. data_content, vim.log.levels.WARN)
-		return nil, "Failed to parse CSV: " .. (data_content or "unknown")
+	-- Parse Data
+	local data_headers, data_content = nil, nil
+
+	if type == "metadata" then
+		if ext == ".csv" or ext == ".tsv" then
+			-- For CSV/TSV metadata, parse differently
+			data_headers, data_content = parse_columns_string(csv_text)
+			if not data_headers then
+				vim.notify("Failed to parse metadata for CSV, TSV: " .. data_content, vim.log.levels.WARN)
+				return nil, "Failed to parse metadata for CSV, TSV: " .. (data_content or "unknown")
+			end
+		elseif ext == ".parquet" then
+			-- For Parquet metadata, use standard CSV parsing
+			data_headers, data_content = parse_csv(csv_text)
+			if not data_headers then
+				vim.notify("Failed to parse Parquet metadata: " .. data_content, vim.log.levels.WARN)
+				return nil, "Failed to parse Parquet metadata: " .. (data_content or "unknown")
+			end
+		end
+	else
+		data_headers, data_content = parse_csv(csv_text)
 	end
 
 	return { headers = data_headers, data = data_content }, nil

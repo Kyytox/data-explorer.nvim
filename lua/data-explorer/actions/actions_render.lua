@@ -69,8 +69,11 @@ end
 --- Go back to file selection function (Uses the main module reference)
 ---@param opts table: Options table.
 function M.back_to_file_selection(opts)
-	-- Find all .parquet file
-	local parquet_files = utils.get_files_in_working_directory()
+	-- Get files_types from config
+	local files_types = opts.files_types
+
+	-- Find all file
+	local parquet_files = utils.get_files_in_working_directory(files_types)
 
 	-- Launch Data Explorer
 	state.reset_state("windows")

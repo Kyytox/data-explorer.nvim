@@ -16,7 +16,7 @@ M.defaults = {
 	limit = 20,
 	duckdb_cmd = "duckdb",
 	layout = "vertical", -- Must be "vertical" or "horizontal"
-	files_types = { ".parquet", ".csv", ".tsv", ".orc" },
+	files_types = { ".parquet", ".csv", ".tsv" },
 
 	-- UI/Telescope options
 	telescope_opts = {
