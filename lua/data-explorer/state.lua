@@ -55,7 +55,6 @@ end
 -- Reset one or all state fields
 ---@param field string|nil: STATE field name (optional)
 function M.reset_state(field)
-	vim.notify("Resetting state field: " .. tostring(field), vim.log.levels.DEBUG)
 	if field and STATE[field] then
 		STATE[field] = {}
 	else

@@ -46,7 +46,6 @@ function M.data_explorer()
 
 	-- Find all files with accepted extensions
 	local files = utils.get_files_in_working_directory(files_types)
-	vim.notify(vim.inspect(files))
 
 	if #files == 0 then
 		local type_str = table.concat(files_types, ", ")

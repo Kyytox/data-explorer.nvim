@@ -36,7 +36,6 @@ end
 ---@return table: List of file paths.
 function M.get_files_in_working_directory(files_types)
 	local work_dir = vim.fn.getcwd()
-	vim.notify("Searching in directory: " .. work_dir, vim.log.levels.INFO)
 
 	-- Build the glob pattern
 	local pattern_suffix = build_glob_pattern(files_types)
