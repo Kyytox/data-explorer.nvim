@@ -1,5 +1,7 @@
 local utils = require("data-explorer.utils")
 local state = require("data-explorer.state")
+local log = require("data-explorer.log")
+local actions_windows = require("data-explorer.actions.actions_windows")
 
 local M = {}
 
@@ -19,8 +21,7 @@ function M.rotate_layout(opts)
 	state.set_state("current_layout", nil, new_layout)
 
 	-- Get dimensions for the new layout
-	local tbl_dimensions = state.get_state("tbl_dimensions")
-	local dim = tbl_dimensions[new_layout]
+	local dim = state.get_state("tbl_dimensions", new_layout)
 
 	-- Get window handles
 	local win_meta = state.get_state("windows", "win_meta")
@@ -50,7 +51,7 @@ function M.rotate_layout(opts)
 		vim.api.nvim_win_set_config(win_meta, {
 			relative = "editor",
 			width = dim.meta_width,
-			height = dim.data_height,
+			height = dim.meta_height,
 			row = dim.row_start,
 			col = dim.col_start,
 		})
@@ -76,9 +77,11 @@ function M.back_to_file_selection(opts)
 	local parquet_files = utils.get_files_in_working_directory(files_types)
 
 	-- Launch Data Explorer
+	actions_windows.close_windows()
 	state.reset_state("windows")
 	state.reset_state("buffers")
 	state.reset_state("current_file")
+
 	require("data-explorer.ui.picker").pickers_files(opts, parquet_files)
 end
 
