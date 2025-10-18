@@ -63,7 +63,7 @@ local function run_query(query)
 
 	-- Check for empty output
 	if out == "" then
-		return nil, "Error: DuckDB returned empty output."
+		return nil, "The request returned no data."
 	end
 
 	return out, nil
@@ -155,7 +155,7 @@ function M.fetch_parse_data(file, type, query)
 	end
 
 	if not csv_text then
-		vim.notify("Error fetching data: " .. (err or "unknown"), vim.log.levels.ERROR)
+		vim.notify("Error: " .. (err or "unknown"), vim.log.levels.ERROR)
 		return nil, err
 	end
 

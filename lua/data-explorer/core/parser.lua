@@ -3,11 +3,11 @@ local M = {}
 
 --- Parse CSV text into a structured table.
 ---@param csv_text string: CSV text to parse.
----@return table|nil, table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
+---@return table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
 function M.parse_csv(csv_text)
 	local lines = vim.split(vim.trim(csv_text), "\n", { plain = true })
 	if #lines < 2 then
-		return nil, nil, nil
+		return nil, "CSV data must have at least a header and one data row."
 	end
 
 	local count_lines = nil
