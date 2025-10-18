@@ -9,7 +9,6 @@ local function get_highlight_for_window(key)
 	local window_highlights = {
 		win_sql = "Normal:DataExplorerSQLWindow,FloatBorder:DataExplorerSQLBorder,FloatTitle:DataExplorerTitle,FloatFooter:DataExplorerFooter",
 		win_sql_err = "Normal:DataExplorerSQLErrWindow,FloatBorder:DataExplorerSQLErrBorder,FloatTitle:DataExplorerTitle,FloatFooter:DataExplorerFooter",
-		-- Default for all other windows
 		default = "Normal:DataExplorerWindow,FloatBorder:DataExplorerBorder,FloatTitle:DataExplorerTitle,FloatFooter:DataExplorerFooter",
 	}
 	return window_highlights[key] or window_highlights.default
@@ -50,13 +49,12 @@ function M.set_window_options(opts)
 end
 
 --- Calculate window layout for both vertical and horizontal layouts.
+---@param width number: Width of the available space.
+---@param height number: Height of the available space.
 ---@param nb_metadata_lines number: Number of lines in the metadata content.
 ---@param nb_data_lines number: Number of lines in the data content.
 ---@return table: Calculated dimensions for both vertical and horizontal layouts.
-function M.calculate_window_layout(nb_metadata_lines, nb_data_lines)
-	local width, height = vim.o.columns, vim.o.lines
-	vim.notify("Screen (width, height): " .. width .. "x" .. height)
-
+function M.calculate_window_layout(width, height, nb_metadata_lines, nb_data_lines)
 	-- Common parameters
 	local col_start = 2
 	local height_help = 1
@@ -91,7 +89,7 @@ function M.calculate_window_layout(nb_metadata_lines, nb_data_lines)
 	-- Horizontal layout
 	local meta_width_h = math.floor(main_width * 0.35)
 	local data_width_h = main_width - meta_width_h - col_start
-	local meta_height_h = math.max(4, math.min(nb_metadata_lines, available_height))
+	-- local meta_height_h = math.max(4, math.min(nb_metadata_lines, available_height))
 	local data_height_h = math.max(8, math.min(nb_data_lines, available_height))
 	local data_col_start_h = col_start + meta_width_h + 2
 
@@ -99,7 +97,7 @@ function M.calculate_window_layout(nb_metadata_lines, nb_data_lines)
 	local dimensions = {
 		horizontal = {
 			meta_width = meta_width_h,
-			meta_height = meta_height_h,
+			meta_height = data_height_h,
 			data_width = data_width_h,
 			data_height = data_height_h,
 			data_col_start = data_col_start_h,

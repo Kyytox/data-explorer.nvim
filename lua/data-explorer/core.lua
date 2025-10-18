@@ -42,7 +42,7 @@ local function create_buffers(opts, file, metadata, data)
 
 	-- Create SQL buffer
 	local buf_sql = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_sql, 0, -1, false, { "lect month from f;" })
+	vim.api.nvim_buf_set_lines(buf_sql, 0, -1, false, { "select nom, age from f;" })
 	state.set_state("buffers", "buf_sql", buf_sql)
 
 	return #metadata_lines, #data_lines
@@ -52,10 +52,6 @@ end
 ---@param opts table: Options table.
 ---@param file string: Path to the parquet file.
 function M.render(opts, file)
-	-- Stock layout
-	local layout = opts.layout
-	state.set_state("current_layout", nil, layout)
-
 	-- Fetch and parse data
 	local data = duckdb.fetch_parse_data(file, "data")
 	if not data then
@@ -70,15 +66,17 @@ function M.render(opts, file)
 
 	-- Store current file in state
 	state.set_state("current_file", nil, file)
+	state.set_state("current_layout", nil, opts.layout)
+	local width, height = vim.o.columns, vim.o.lines
 
 	-- Create buffers
 	local nb_meta_lines, nb_data_lines = create_buffers(opts, file, metadata, data)
 
 	-- Calculate window layout
-	local tbl_dimensions = config_windows.calculate_window_layout(nb_meta_lines, nb_data_lines)
+	local tbl_dimensions = config_windows.calculate_window_layout(width, height, nb_meta_lines, nb_data_lines)
 
 	-- get windows layout info according to the layout
-	tbl_dimensions = tbl_dimensions[layout]
+	tbl_dimensions = tbl_dimensions[opts.layout]
 
 	-- Create Metadata and Data windows
 	windows.create_windows(opts, tbl_dimensions)

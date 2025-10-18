@@ -66,7 +66,6 @@ function M.get_cached_metadata(file)
 
 	-- Set Cache metadata
 	state.set_state("files_metadata", file, metadata)
-
 	return metadata
 end
 

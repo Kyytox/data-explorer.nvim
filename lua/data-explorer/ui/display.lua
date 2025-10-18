@@ -1,6 +1,6 @@
 local M = {}
 
---- Prepare metadata display lines. (Moved from main module)
+--- Prepare metadata display lines.
 ---@param file string: File path.
 ---@param metadata table: Metadata table with headers and data.
 ---@return table: Lines to display.
@@ -15,32 +15,20 @@ function M.prepare_metadata(file, metadata)
 	}
 end
 
---- Prepare help display lines. (Moved from main module)
+--- Prepare help display lines.
 ---@param opts table A table containing configuration, including command keybindings.
 ---@return table: Lines to display.
 function M.prepare_help(opts)
-	-- Use string.format to build the main help string
-	local help_string = string.format(
-		"%s: Quit | %s: Rotate | %s: SQL Query | %s: Back to file selection | %s: Focus metadata | %s: Focus data",
-		opts.mappings.quit,
-		opts.mappings.rotate_layout,
-		opts.mappings.toggle_sql,
-		opts.mappings.back,
-		opts.mappings.focus_meta,
-		opts.mappings.focus_data
-	)
-
 	return {
-		help_string,
-	}
-end
-
---- Prepare SQL display
----@return table
-function M.prepare_sql_display()
-	return {
-		-- "SELECT * FROM f;",
-		-- "",
+		string.format(
+			"%s: Quit | %s: Rotate | %s: Back file selection | %s: SQL Query | %s: Metadata | %s: Data",
+			opts.mappings.quit,
+			opts.mappings.rotate_layout,
+			opts.mappings.back,
+			opts.mappings.toggle_sql,
+			opts.mappings.focus_meta,
+			opts.mappings.focus_data
+		),
 	}
 end
 
@@ -48,13 +36,13 @@ end
 ---@param opts table A table containing configuration, including command keybindings.
 ---@return table
 function M.prepare_sql_help(opts)
-	-- Use string.format to build the SQL help string using the keybindings from 'keys'
-	local help_string = string.format(
-		"Ex: SELECT * FROM f WHERE ... | %s: Hide | %s: Execute",
-		opts.mappings.toggle_sql,
-		opts.mappings.execute_sql
-	)
-	return { help_string }
+	return {
+		string.format(
+			"Ex: SELECT * FROM f WHERE ... | %s: Hide | %s: Execute",
+			opts.mappings.toggle_sql,
+			opts.mappings.execute_sql
+		),
+	}
 end
 
 --- Format data into a table with aligned columns.
@@ -107,6 +95,7 @@ function M.prepare_data(headers, data)
 		end
 		table.insert(tbl_lines, table.concat(parts, "│"))
 	end
+
 	return tbl_lines
 end
 
