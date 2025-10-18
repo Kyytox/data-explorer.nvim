@@ -1,4 +1,4 @@
-local plugin = require("data-explorer.parser")
+local plugin = require("data-explorer.core.parser")
 
 describe("Tests Parser module", function()
 	-- Test for parse_csv

@@ -1,4 +1,4 @@
-local utils = require("data-explorer.utils")
+local utils = require("data-explorer.core.utils")
 
 describe("Tests Utils module", function()
 	-- Test for is_accepted_file_type
