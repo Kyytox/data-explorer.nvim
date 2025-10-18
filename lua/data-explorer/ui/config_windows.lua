@@ -14,37 +14,15 @@ local function get_highlight_for_window(key)
 	return window_highlights[key] or window_highlights.default
 end
 
---- Set all necessary highlight groups based on provided options.
----@param opts table: Options table containing highlight colors.
-local function set_highlights(opts)
-	local highlights = {
-		{ name = "DataExplorerWindow", opts = { bg = opts.hl.bg } },
-		{ name = "DataExplorerBorder", opts = { bg = opts.hl.bg, fg = opts.hl.fg } },
-		{ name = "DataExplorerTitle", opts = { bg = opts.hl.bg, fg = opts.hl.title, bold = true } },
-		{ name = "DataExplorerFooter", opts = { bg = opts.hl.bg, fg = opts.hl.footer, italic = true } },
-		{ name = "DataExplorerSQLBorder", opts = { bg = opts.hl.sql_bg, fg = opts.hl.sql_fg } },
-		{ name = "DataExplorerSQLWindow", opts = { bg = opts.hl.sql_bg } },
-		{ name = "DataExplorerSQLErrBorder", opts = { bg = opts.hl.sql_err_bg, fg = opts.hl.sql_err_fg } },
-		{ name = "DataExplorerSQLErrWindow", opts = { bg = opts.hl.sql_err_bg } },
-	}
-	for _, hl in ipairs(highlights) do
-		vim.api.nvim_set_hl(0, hl.name, hl.opts)
-	end
-end
-
 --- Set window options and highlights for all managed windows.
----@param opts table: Options table containing highlight colors.
-function M.set_window_options(opts)
+function M.set_window_options()
 	local wins = state.get_state("windows")
-
-	-- Set all highlight groups
-	set_highlights(opts)
 
 	-- Set window options and highlights
 	for key, win in pairs(wins) do
 		local highlight = get_highlight_for_window(key)
-		vim.api.nvim_set_option_value("wrap", false, { win = win, scope = "local" })
 		vim.wo[win].winhighlight = highlight
+		vim.api.nvim_set_option_value("wrap", false, { win = win, scope = "local" })
 	end
 end
 

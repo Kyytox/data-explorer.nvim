@@ -100,7 +100,7 @@ function M.create_windows(opts, dims)
 	state.set_state("windows", "win_sql_err", win_sql_err)
 
 	-- Set window highlights
-	config_windows.set_window_options(opts)
+	config_windows.set_window_options()
 end
 
 return M

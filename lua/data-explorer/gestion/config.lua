@@ -62,13 +62,31 @@ M.defaults = {
 		sql_fg = "#89b4fa", -- Border color for SQL window
 		sql_bg = "#1e1e2e", -- Background color for SQL window
 		sql_err_fg = "#c0653c", -- Border color for SQL error window
-		sql_err_bg = "#431e2e", -- Background color for SQL
+		sql_err_bg = "#3a1726", -- Background color for SQL
 	},
 }
 
 M.options = {}
 
---- Merges user options with defaults and stores the result.
+--- Set all necessary highlight groups based on provided options.
+---@param opts table: Options table containing highlight colors.
+local function set_highlights(opts)
+	local highlights = {
+		{ name = "DataExplorerWindow", opts = { bg = opts.hl.bg } },
+		{ name = "DataExplorerBorder", opts = { bg = opts.hl.bg, fg = opts.hl.fg } },
+		{ name = "DataExplorerTitle", opts = { bg = opts.hl.bg, fg = opts.hl.title, bold = true } },
+		{ name = "DataExplorerFooter", opts = { bg = opts.hl.bg, fg = opts.hl.footer, italic = true } },
+		{ name = "DataExplorerSQLBorder", opts = { bg = opts.hl.sql_bg, fg = opts.hl.sql_fg } },
+		{ name = "DataExplorerSQLWindow", opts = { bg = opts.hl.sql_bg } },
+		{ name = "DataExplorerSQLErrBorder", opts = { bg = opts.hl.sql_err_bg, fg = opts.hl.sql_err_fg } },
+		{ name = "DataExplorerSQLErrWindow", opts = { bg = opts.hl.sql_err_bg } },
+	}
+	for _, hl in ipairs(highlights) do
+		vim.api.nvim_set_hl(0, hl.name, hl.opts)
+	end
+end
+
+---Merges user options with defaults and stores the result.
 --- @param user_opts table|nil: User-defined options.
 function M.setup(user_opts)
 	local opts_to_merge = vim.deepcopy(M.defaults)
@@ -88,6 +106,9 @@ function M.setup(user_opts)
 	-- Telescope uses preview_height for vertical layout and preview_width for horizontal
 	M.options.telescope_opts.layout_config.preview_height = is_vertical and 0.4 or nil
 	M.options.telescope_opts.layout_config.preview_width = not is_vertical and 0.4 or nil
+
+	-- Set all highlight groups
+	set_highlights(M.options)
 end
 
 --- Get the current configuration options.
