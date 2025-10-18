@@ -1,4 +1,4 @@
-local log = require("data-explorer.log")
+local log = require("data-explorer.gestion.log")
 local M = {}
 
 --- Parse CSV text into a structured table.

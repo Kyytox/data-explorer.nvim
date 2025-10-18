@@ -5,8 +5,8 @@ local finders = require("telescope.finders")
 local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
 
-local utils = require("data-explorer.utils")
-local core = require("data-explorer.core")
+local utils = require("data-explorer.core.utils")
+local core = require("data-explorer.core.core")
 local display = require("data-explorer.ui.display")
 
 local M = {}

@@ -1,6 +1,6 @@
-local utils = require("data-explorer.utils")
-local state = require("data-explorer.state")
-local log = require("data-explorer.log")
+local utils = require("data-explorer.core.utils")
+local state = require("data-explorer.gestion.state")
+local log = require("data-explorer.gestion.log")
 local actions_windows = require("data-explorer.actions.actions_windows")
 
 local M = {}

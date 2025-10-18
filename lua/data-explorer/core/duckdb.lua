@@ -1,8 +1,8 @@
-local log = require("data-explorer.log")
-local config = require("data-explorer.config")
-local state = require("data-explorer.state")
+local log = require("data-explorer.gestion.log")
+local config = require("data-explorer.gestion.config")
+local state = require("data-explorer.gestion.state")
 local display = require("data-explorer.ui.display")
-local parser = require("data-explorer.parser")
+local parser = require("data-explorer.core.parser")
 
 local M = {}
 
@@ -55,10 +55,6 @@ local function run_query(query)
 	local result = vim.system(cmd, { text = true }):wait()
 	local out = result.stdout
 	local success = result.code == 0
-
-	log.info("out: " .. tostring(out))
-	-- vim.notify("success: " .. tostring(success), vim.log.levels.DEBUG)
-	-- vim.notify("err: " .. tostring(err), vim.log.levels.DEBUG)
 
 	-- Check for command failure status
 	if not success or success ~= true then

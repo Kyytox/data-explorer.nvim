@@ -1,5 +1,5 @@
-local state = require("data-explorer.state")
-local duckdb = require("data-explorer.duckdb")
+local state = require("data-explorer.gestion.state")
+local duckdb = require("data-explorer.core.duckdb")
 local actions_windows = require("data-explorer.actions.actions_windows")
 local actions_render = require("data-explorer.actions.actions_render")
 

@@ -1,10 +1,10 @@
 -- Modules
-local state = require("data-explorer.state")
-local utils = require("data-explorer.utils")
+local state = require("data-explorer.gestion.state")
+local utils = require("data-explorer.core.utils")
 local windows = require("data-explorer.ui.windows")
 local display = require("data-explorer.ui.display")
 local config_windows = require("data-explorer.ui.config_windows")
-local duckdb = require("data-explorer.duckdb")
+local duckdb = require("data-explorer.core.duckdb")
 local mappings = require("data-explorer.ui.mappings")
 
 local M = {}

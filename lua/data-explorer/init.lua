@@ -1,9 +1,9 @@
 -- Modules
-local config = require("data-explorer.config")
-local utils = require("data-explorer.utils")
+local config = require("data-explorer.gestion.config")
+local utils = require("data-explorer.core.utils")
 local picker = require("data-explorer.ui.picker")
-local core = require("data-explorer.core")
-local check_focus = require("data-explorer.check_focus")
+local core = require("data-explorer.core.core")
+local check_focus = require("data-explorer.gestion.check_focus")
 
 local M = {}
 

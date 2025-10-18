@@ -1,6 +1,6 @@
 local Path = require("plenary.path")
-local duckdb = require("data-explorer.duckdb")
-local state = require("data-explorer.state")
+local duckdb = require("data-explorer.core.duckdb")
+local state = require("data-explorer.gestion.state")
 
 local M = {}
 
