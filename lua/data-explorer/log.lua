@@ -1,77 +1,73 @@
-local log = {}
+local M = {}
 
-local longest_scope = 15
+-- Niveaux de log
+M.levels = {
+	DEBUG = 1,
+	INFO = 2,
+	WARN = 3,
+	ERROR = 4,
+}
 
---- prints only if debug is true.
----
----@param scope string: the scope from where this function is called.
----@param str string: the formatted string.
----@param ... any: the arguments of the formatted string.
----@private
-function log.debug(scope, str, ...)
-	return log.notify(scope, vim.log.levels.DEBUG, false, str, ...)
+-- Chemin du fichier de log (par défaut : /tmp/nvim_data_explorer.log)
+M.log_file_path = "/media/kytox/Dev/data-explorer.nvim/logs/data_explorer.log"
+
+-- Niveau de log minimum à afficher (par défaut : INFO)
+M.min_level = M.levels.INFO
+
+-- Initialise le fichier de log (efface le contenu existant)
+function M.setup(log_file_path, min_level)
+	M.log_file_path = log_file_path or M.log_file_path
+	M.min_level = min_level or M.min_level
+	local file = io.open(M.log_file_path, "w")
+	if file then
+		file:write("=== Début des logs ===\n")
+		file:close()
+	end
 end
 
---- prints only if debug is true.
----
----@param scope string: the scope from where this function is called.
----@param level string: the log level of vim.notify.
----@param verbose boolean: when false, only prints when config.debug is true.
----@param str string: the formatted string.
----@param ... any: the arguments of the formatted string.
----@private
-function log.notify(scope, level, verbose, str, ...)
-	if not verbose and _G.YourPluginName.config ~= nil and not _G.YourPluginName.config.debug then
+-- Écrit un message dans le fichier de log
+local function write_log(level, message)
+	if level < M.min_level then
 		return
 	end
 
-	if string.len(scope) > longest_scope then
-		longest_scope = string.len(scope)
+	local level_str = "UNKNOWN"
+	if level == M.levels.DEBUG then
+		level_str = "DEBUG"
+	elseif level == M.levels.INFO then
+		level_str = "INFO "
+	elseif level == M.levels.WARN then
+		level_str = "WARN "
+	elseif level == M.levels.ERROR then
+		level_str = "ERROR"
 	end
 
-	for i = longest_scope, string.len(scope), -1 do
-		if i < string.len(scope) then
-			scope = string.format("%s ", scope)
-		else
-			scope = string.format("%s", scope)
-		end
-	end
+	local log_message = string.format("[%s] %s: %s\n", os.date("%Y-%m-%d %H:%M:%S"), level_str, message)
 
-	vim.notify(
-		string.format("[your-plugin-name.nvim@%s] %s", scope, string.format(str, ...)),
-		level,
-		{ title = "your-plugin-name.nvim" }
-	)
-end
-
---- analyzes the user provided `setup` parameters and sends a message if they use a deprecated option, then gives the new option to use.
----
----@param options table: the options provided by the user.
----@private
-function log.warn_deprecation(options)
-	local uses_deprecated_option = false
-	local notice = "is now deprecated, use `%s` instead."
-	local root_deprecated = {
-		foo = "bar",
-		bar = "baz",
-	}
-
-	for name, warning in pairs(root_deprecated) do
-		if options[name] ~= nil then
-			uses_deprecated_option = true
-			log.notify(
-				"deprecated_options",
-				vim.log.levels.WARN,
-				true,
-				string.format("`%s` %s", name, string.format(notice, warning))
-			)
-		end
-	end
-
-	if uses_deprecated_option then
-		log.notify("deprecated_options", vim.log.levels.WARN, true, "sorry to bother you with the breaking changes :(")
-		log.notify("deprecated_options", vim.log.levels.WARN, true, "use `:h YourPluginName.options` to read more.")
+	local file = io.open(M.log_file_path, "a")
+	if file then
+		file:write(log_message)
+		file:close()
+	else
+		error("Impossible d'ouvrir le fichier de log : " .. M.log_file_path)
 	end
 end
 
-return log
+-- Fonctions publiques pour chaque niveau de log
+function M.debug(message)
+	write_log(M.levels.DEBUG, message)
+end
+
+function M.info(message)
+	write_log(M.levels.INFO, message)
+end
+
+function M.warn(message)
+	write_log(M.levels.WARN, message)
+end
+
+function M.error(message)
+	write_log(M.levels.ERROR, message)
+end
+
+return M
