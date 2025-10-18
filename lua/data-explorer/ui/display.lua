@@ -5,10 +5,18 @@ local M = {}
 ---@param metadata table: Metadata table with headers and data.
 ---@return table: Lines to display.
 function M.prepare_metadata(file, metadata)
+	if tonumber(metadata.count_lines) == 0 then
+		return {
+			file,
+			"",
+			"",
+			"No data in the file.",
+		}
+	end
+
 	local tbl_metadata = M.prepare_data(metadata.headers, metadata.data)
 	return {
-		"📦 File: " .. vim.fn.fnamemodify(file, ":t"),
-		"📂 Path: " .. file,
+		file,
 		"Number of lines: " .. tonumber(metadata.count_lines),
 		"",
 		unpack(tbl_metadata),
