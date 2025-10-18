@@ -14,14 +14,35 @@ describe("Tests Display module", function()
 		}
 		local lines = display.prepare_metadata(file, metadata)
 		assert.are.same({
-			"📦 File: test.txt",
-			"📂 Path: /tmp/test.txt",
+			-- "📦 File: test.txt",
+			"/tmp/test.txt",
 			"Number of lines: 42",
 			"",
 			"column  │type    ",
 			"────────┼────────",
 			"header1 │VARCHAR ",
 			"header2 │VARCHAR ",
+		}, lines)
+	end)
+
+	-- Test for prepare_metadata with zero lines
+	it("prepare_metadata with 0 lines", function()
+		local file = "/tmp/test.txt"
+		local metadata = {
+			headers = { "column", "type" },
+			data = {
+				{ column = "header1", type = "VARCHAR" },
+				{ column = "header2", type = "VARCHAR" },
+			},
+			count_lines = 0,
+		}
+		local lines = display.prepare_metadata(file, metadata)
+		assert.are.same({
+			-- "📦 File: test.txt",
+			"/tmp/test.txt",
+			"",
+			"",
+			"No data in the file.",
 		}, lines)
 	end)
 
