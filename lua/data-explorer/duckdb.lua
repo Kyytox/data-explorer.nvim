@@ -1,6 +1,8 @@
+local log = require("data-explorer.log")
 local config = require("data-explorer.config")
 local state = require("data-explorer.state")
 local display = require("data-explorer.ui.display")
+local parser = require("data-explorer.parser")
 
 local M = {}
 
@@ -54,7 +56,7 @@ local function run_query(query)
 	local out = result.stdout
 	local success = result.code == 0
 
-	-- vim.notify("out: " .. tostring(out), vim.log.levels.DEBUG)
+	log.info("out: " .. tostring(out))
 	-- vim.notify("success: " .. tostring(success), vim.log.levels.DEBUG)
 	-- vim.notify("err: " .. tostring(err), vim.log.levels.DEBUG)
 
@@ -130,89 +132,6 @@ local function query_sql(file, query)
 	return run_query(query)
 end
 
---- Parse CSV text into a structured table.
----@param csv_text string: CSV text to parse.
----@return table|nil, table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
-local function parse_csv(csv_text)
-	local lines = vim.split(vim.trim(csv_text), "\n", { plain = true })
-	if #lines < 2 then
-		return nil, nil, nil
-	end
-
-	local count_lines = nil
-	local headers = vim.split(lines[1], ",", { plain = true })
-	local data = {}
-
-	for i = 2, #lines do
-		local values = vim.split(lines[i], ",", { plain = true })
-		local row = {}
-		for j, key in ipairs(headers) do
-			if key == "Count" then
-				count_lines = values[j]
-			else
-				row[key] = values[j] or ""
-			end
-		end
-
-		table.insert(data, row)
-	end
-
-	-- Remove Count from headers if present
-	for i, header in ipairs(headers) do
-		if header == "Count" then
-			table.remove(headers, i)
-			break
-		end
-	end
-
-	return headers, data, count_lines
-end
-
---- Parse the 'Columns' string from CSV/TSV metadata into a structured table.
----@param input string: The raw 'Columns' string from DuckDB.
----@return table|nil, table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
-local function parse_columns_string(input)
-	-- Get Count of lines (last elemtnt after spli t by ,)
-	local parts = vim.split(input, ",")
-	local count_lines = parts[#parts]:gsub("[\r\n]+", "")
-
-	-- Extract the JSON-like substring
-	local text = input:match('"(.+)"')
-	if not text then
-		vim.notify("No valid Columns string found.", vim.log.levels.ERROR)
-		return nil, nil
-	end
-
-	-- Transform to valid JSON
-	text = text:gsub("'", '"')
-
-	-- Quote the keys
-	text = text:gsub("(%w+)%s*:", '"%1":')
-
-	-- Ensure that unquoted values are quoted (for 'name' and 'type' fields)
-	text = text:gsub(":(%s*)([%w_]+)", ': "%2"')
-
-	-- Decode the JSON string
-	local ok, decoded = pcall(vim.fn.json_decode, text)
-	if not ok then
-		vim.notify("Failed to decode Columns string: " .. decoded, vim.log.levels.ERROR)
-		return nil, nil
-	end
-
-	-- Transform into structured table
-	local parsed_headers = { "Column", "type" }
-	local parsed_data = {}
-
-	for _, col in ipairs(decoded) do
-		table.insert(parsed_data, {
-			Column = col.name,
-			type = col.type,
-		})
-	end
-
-	return parsed_headers, parsed_data, count_lines
-end
-
 --- Fetch and parse data for a parquet file.
 ---@param file string|nil: File path.
 ---@param type string: "data", "metadata", query"
@@ -245,29 +164,24 @@ function M.fetch_parse_data(file, type, query)
 	end
 
 	-- Parse Data
-	local data_headers, data_content, count_lines = nil, nil, nil
-
+	local result = nil
 	if type == "metadata" then
 		if ext == ".csv" or ext == ".tsv" then
-			-- For CSV/TSV metadata, parse differently
-			data_headers, data_content, count_lines = parse_columns_string(csv_text)
-			if not data_headers then
-				vim.notify("Failed to parse metadata for CSV, TSV: " .. data_content, vim.log.levels.WARN)
-				return nil, "Failed to parse metadata for CSV, TSV: "
-			end
+			result = parser.parse_columns_string(csv_text)
+			-- log.info(vim.inspect(result))
 		elseif ext == ".parquet" then
-			-- For Parquet metadata, use standard CSV parsing
-			data_headers, data_content, count_lines = parse_csv(csv_text)
-			if not data_headers then
-				vim.notify("Failed to parse Parquet metadata: " .. data_content, vim.log.levels.WARN)
-				return nil, "Failed to parse Parquet metadata: "
-			end
+			result = parser.parse_csv(csv_text)
 		end
 	else
-		data_headers, data_content, _ = parse_csv(csv_text)
+		result = parser.parse_csv(csv_text)
 	end
 
-	return { headers = data_headers, data = data_content, count_lines = count_lines }, nil
+	if not result then
+		vim.notify("No result from parsing.", vim.log.levels.ERROR)
+		return nil, "No result from parsing."
+	end
+
+	return { headers = result.headers, data = result.data, count_lines = result.count_lines }, nil
 end
 
 --- Execute the SQL query
@@ -284,17 +198,23 @@ function M.execute_sql_query(buf)
 		vim.notify("SQL query is empty!", vim.log.levels.WARN)
 		return "SQL query is empty!"
 	end
+	local start = os.clock()
 
 	-- Execute SQL query
 	local data, err = M.fetch_parse_data(file, "query", sql_query)
-
 	if not data then
 		return err
 	end
 
 	-- Update SQL data buffer with new data
 	local formatted_lines = display.prepare_data(data.headers, data.data)
+
+	-- Updatebuffer data
 	vim.api.nvim_buf_set_lines(state.get_state("buffers", "buf_data"), 0, -1, false, formatted_lines)
+
+	local finish = os.clock()
+	local elapsed = finish - start
+	log.info(string.format("SQL query executed in %.4f seconds.", elapsed))
 
 	return nil
 end
