@@ -50,7 +50,7 @@ local DATA_QUERIES = {
 ---@param query string: The formatted SQL query.
 ---@return string|nil, string|nil: Raw CSV output or error message.
 local function run_query(query)
-	local duckdb_cmd = config.get().duckdb_cmd -- Get the command path from config
+	local duckdb_cmd = state.get_variable("duckdb_cmd")
 	local cmd = { duckdb_cmd, "-csv", "-c", query }
 	local result = vim.system(cmd, { text = true }):wait()
 	local out = result.stdout
