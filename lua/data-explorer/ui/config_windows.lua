@@ -14,6 +14,15 @@ local function get_highlight_for_window(key)
 	return window_highlights[key] or window_highlights.default
 end
 
+--- Update cursorline window options
+---@param bool boolean: Whether to enable or disable cursorline.
+---@param win integer: Window handle.
+function M.upd_cursorline_option(bool, win)
+	if vim.api.nvim_win_is_valid(win) then
+		vim.api.nvim_set_option_value("cursorline", bool, { win = win, scope = "local" })
+	end
+end
+
 --- Set window options and highlights for all managed windows.
 function M.set_window_options()
 	local wins = state.get_state("windows")
@@ -24,6 +33,9 @@ function M.set_window_options()
 		vim.wo[win].winhighlight = highlight
 		vim.api.nvim_set_option_value("wrap", false, { win = win, scope = "local" })
 	end
+
+	-- Enable cursorline for the data window by default
+	M.upd_cursorline_option(true, wins.win_data)
 end
 
 --- Calculate window layout for both vertical and horizontal layouts.

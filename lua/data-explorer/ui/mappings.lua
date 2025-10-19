@@ -2,6 +2,7 @@ local state = require("data-explorer.gestion.state")
 local duckdb = require("data-explorer.core.duckdb")
 local actions_windows = require("data-explorer.actions.actions_windows")
 local actions_render = require("data-explorer.actions.actions_render")
+local config_windows = require("data-explorer.ui.config_windows")
 
 local M = {}
 
@@ -15,11 +16,15 @@ function M.set_common_keymaps(opts)
 	for key, buf in pairs(buffers) do
 		local map_opts = { buffer = buf, nowait = true }
 		vim.keymap.set("n", opts.mappings.focus_meta, function()
-			actions_windows.focus_buffer(buffers.buf_meta)
+			actions_windows.focus_window(wins.win_meta)
+			config_windows.upd_cursorline_option(false, wins.win_data)
+			config_windows.upd_cursorline_option(true, wins.win_meta)
 		end, map_opts)
 
 		vim.keymap.set("n", opts.mappings.focus_data, function()
-			actions_windows.focus_buffer(buffers.buf_data)
+			actions_windows.focus_window(wins.win_data)
+			config_windows.upd_cursorline_option(true, wins.win_data)
+			config_windows.upd_cursorline_option(false, wins.win_meta)
 		end, map_opts)
 
 		-- Layout rotation
@@ -42,12 +47,18 @@ function M.set_common_keymaps(opts)
 			-- Toggle SQL window and focus on buffer
 			actions_windows.toggle_window_focus(wins.win_sql, wins.win_sql, wins.win_data)
 
+			-- Adjust cursorline settings
+			config_windows.upd_cursorline_option(false, wins.win_data)
+			config_windows.upd_cursorline_option(false, wins.win_meta)
+			config_windows.upd_cursorline_option(true, wins.win_sql)
+
 			-- Ensure SQL error window is hidden when SQL window is shown
 			local sql_err_hide = vim.api.nvim_win_get_config(wins.win_sql_err).hide
 			if not sql_err_hide then
 				actions_windows.toggle_window_focus(wins.win_sql_err)
 			end
 		end, map_opts)
+		::continue::
 	end
 
 	-- Execution of SQL query
@@ -73,8 +84,12 @@ function M.set_common_keymaps(opts)
 			actions_windows.toggle_window_focus(wins.win_sql_err)
 		end
 
-		-- Focus back on data window
+		-- Hide SQL window and refocus data window
 		actions_windows.toggle_window_focus(wins.win_sql, nil, wins.win_data)
+
+		-- Adjust cursorline settings
+		config_windows.upd_cursorline_option(true, wins.win_data)
+		config_windows.upd_cursorline_option(false, wins.win_meta)
 	end, { buffer = buffers.buf_sql, nowait = true })
 end
 
