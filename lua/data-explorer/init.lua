@@ -79,7 +79,7 @@ function M.data_explorer_file()
 	-- Use the helper function with the configured file types
 	if not utils.is_accepted_file_type(file, files_types) then
 		local type_str = table.concat(files_types, ", ")
-		log.display_notify(3, "Current file is not one of the accepted types: " .. type_str)
+		log.display_notify(3, "Current file is not an accepted file type. \nAccepted types: " .. type_str)
 		return
 	end
 

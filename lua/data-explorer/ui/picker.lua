@@ -33,16 +33,21 @@ end
 --- Select a parquet file using Telescope.
 ---@param lst_files table: List of parquet files.
 function M.pickers_files(opts, lst_files)
+	-- log.display_notify(2, vim.inspect(opts))
 	pickers
 		.new(opts, {
 			prompt_title = "Select Parquet File",
-			layout_strategy = opts.layout,
+			layout_strategy = opts.telescope_opts.layout_strategy,
 			layout_config = {
-				height = 0.8,
-				width = 0.7,
+				height = opts.telescope_opts.layout_config.height,
+				width = opts.telescope_opts.layout_config.width,
 				preview_cutoff = opts.telescope_opts.layout_config.preview_cutoff,
-				preview_height = (opts.layout == "vertical") and 0.4 or nil,
-				preview_width = (opts.layout == "horizontal") and 0.4 or nil,
+				preview_width = (opts.telescope_opts.layout_strategy == "horizontal")
+						and opts.telescope_opts.layout_config.preview_width
+					or nil,
+				preview_height = (opts.telescope_opts.layout_strategy == "vertical")
+						and opts.telescope_opts.layout_config.preview_height
+					or nil,
 			},
 			finder = finders.new_table({ results = lst_files }),
 			previewer = picker_previewer(),
