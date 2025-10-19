@@ -35,7 +35,6 @@ function M.parse_csv(csv_text)
 			break
 		end
 	end
-	log.info(tostring(vim.inspect(count_lines)))
 
 	return { headers = headers, data = data, count_lines = count_lines }
 end
@@ -51,7 +50,7 @@ function M.parse_columns_string(input)
 	-- Extract the JSON-like substring
 	local text = input:match('"(.+)"')
 	if not text then
-		vim.notify("No valid Columns string found.", vim.log.levels.ERROR)
+		log.display_notify(4, "No valid Columns string found.")
 		return nil, nil
 	end
 
@@ -67,7 +66,7 @@ function M.parse_columns_string(input)
 	-- Decode the JSON string
 	local ok, decoded = pcall(vim.fn.json_decode, text)
 	if not ok then
-		vim.notify("Failed to decode Columns string: " .. decoded, vim.log.levels.ERROR)
+		log.display_notify(4, "Failed to decode Columns string.")
 		return nil, nil
 	end
 

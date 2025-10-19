@@ -1,6 +1,21 @@
 local M = {}
 
--- Niveaux de log
+--- Display a notification in Neovim.
+---@param level number: Log level (1=DEBUG, 2=INFO, 3=WARN, 4=ERROR).
+---@param message string: Message to display.
+function M.display_notify(level, message)
+	local title = "Data Explorer"
+	if level == M.levels.DEBUG then
+		vim.notify(message, vim.log.levels.DEBUG, { title = title })
+	elseif level == M.levels.INFO then
+		vim.notify(message, vim.log.levels.INFO, { title = title })
+	elseif level == M.levels.WARN then
+		vim.notify(message, vim.log.levels.WARN, { title = title })
+	elseif level == M.levels.ERROR then
+		vim.notify(message, vim.log.levels.ERROR, { title = title })
+	end
+end
+
 M.levels = {
 	DEBUG = 1,
 	INFO = 2,
@@ -8,24 +23,20 @@ M.levels = {
 	ERROR = 4,
 }
 
--- Chemin du fichier de log (par défaut : /tmp/nvim_data_explorer.log)
 M.log_file_path = "/media/kytox/Dev/data-explorer.nvim/logs/data_explorer.log"
 
--- Niveau de log minimum à afficher (par défaut : INFO)
 M.min_level = M.levels.INFO
 
--- Initialise le fichier de log (efface le contenu existant)
 function M.setup(log_file_path, min_level)
 	M.log_file_path = log_file_path or M.log_file_path
 	M.min_level = min_level or M.min_level
 	local file = io.open(M.log_file_path, "w")
 	if file then
-		file:write("=== Début des logs ===\n")
+		file:write("=== Data Explorer Log Started at " .. os.date("%Y-%m-%d %H:%M:%S") .. " ===\n")
 		file:close()
 	end
 end
 
--- Écrit un message dans le fichier de log
 local function write_log(level, message)
 	if level < M.min_level then
 		return
@@ -49,11 +60,10 @@ local function write_log(level, message)
 		file:write(log_message)
 		file:close()
 	else
-		error("Impossible d'ouvrir le fichier de log : " .. M.log_file_path)
+		error("Could not open log file: " .. M.log_file_path)
 	end
 end
 
--- Fonctions publiques pour chaque niveau de log
 function M.debug(message)
 	write_log(M.levels.DEBUG, message)
 end

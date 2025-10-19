@@ -4,6 +4,7 @@ local action_state = require("telescope.actions.state")
 local finders = require("telescope.finders")
 local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
+local log = require("data-explorer.gestion.log")
 
 local utils = require("data-explorer.core.utils")
 local core = require("data-explorer.core.core")
@@ -54,7 +55,7 @@ function M.pickers_files(opts, lst_files)
 					if selection then
 						core.render(opts, selection.value)
 					else
-						vim.notify("No file selected", vim.log.levels.WARN)
+						log.display_notify(3, "No file selected")
 					end
 				end
 				map("i", "<CR>", on_select)

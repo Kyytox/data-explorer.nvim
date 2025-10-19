@@ -138,7 +138,7 @@ function M.fetch_parse_data(file, type, query)
 	local err = nil
 
 	if not file or file == "" then
-		vim.notify("File path is empty!", vim.log.levels.WARN)
+		log.display_notify(4, "File path is empty!")
 		return nil, "File path is empty"
 	end
 
@@ -155,7 +155,7 @@ function M.fetch_parse_data(file, type, query)
 	end
 
 	if not csv_text then
-		vim.notify("Error: " .. (err or "unknown"), vim.log.levels.ERROR)
+		log.display_notify(4, (err or "unknown"))
 		return nil, err
 	end
 
@@ -164,7 +164,6 @@ function M.fetch_parse_data(file, type, query)
 	if type == "metadata" then
 		if ext == ".csv" or ext == ".tsv" then
 			result = parser.parse_columns_string(csv_text)
-			-- log.info(vim.inspect(result))
 		elseif ext == ".parquet" then
 			result = parser.parse_csv(csv_text)
 		end
@@ -173,7 +172,7 @@ function M.fetch_parse_data(file, type, query)
 	end
 
 	if not result then
-		vim.notify("No result from parsing.", vim.log.levels.ERROR)
+		log.display_notify(4, "No result from parsing.")
 		return nil, "No result from parsing."
 	end
 
@@ -191,10 +190,9 @@ function M.execute_sql_query(buf)
 
 	-- Simple validation
 	if sql_query:match("^%s*$") then
-		vim.notify("SQL query is empty!", vim.log.levels.WARN)
+		log.display_notify(3, "SQL query is empty!")
 		return "SQL query is empty!"
 	end
-	local start = os.clock()
 
 	-- Execute SQL query
 	local data, err = M.fetch_parse_data(file, "query", sql_query)
@@ -208,9 +206,10 @@ function M.execute_sql_query(buf)
 	-- Updatebuffer data
 	vim.api.nvim_buf_set_lines(state.get_state("buffers", "buf_data"), 0, -1, false, formatted_lines)
 
-	local finish = os.clock()
-	local elapsed = finish - start
-	log.info(string.format("SQL query executed in %.4f seconds.", elapsed))
+	-- local start = os.clock()
+	-- local finish = os.clock()
+	-- local elapsed = finish - start
+	-- log.info(string.format("SQL query executed in %.4f seconds.", elapsed))
 
 	return nil
 end

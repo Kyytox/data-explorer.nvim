@@ -10,7 +10,6 @@ local M = {}
 function M.set_common_keymaps(opts)
 	local buffers = state.get_state("buffers")
 	local wins = state.get_state("windows")
-	local layout = opts.layout
 
 	-- Focus controls
 	for key, buf in pairs(buffers) do
@@ -30,7 +29,6 @@ function M.set_common_keymaps(opts)
 
 		-- Back to file selection
 		vim.keymap.set("n", opts.mappings.back, function()
-			-- actions_windows.close_windows()
 			actions_render.back_to_file_selection(opts)
 		end, map_opts)
 

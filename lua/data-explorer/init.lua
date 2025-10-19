@@ -4,6 +4,7 @@ local utils = require("data-explorer.core.utils")
 local picker = require("data-explorer.ui.picker")
 local core = require("data-explorer.core.core")
 local check_focus = require("data-explorer.gestion.check_focus")
+local log = require("data-explorer.gestion.log")
 
 local M = {}
 
@@ -50,7 +51,7 @@ function M.data_explorer()
 
 	if #files == 0 then
 		local type_str = table.concat(files_types, ", ")
-		vim.notify("No files found with extensions: " .. type_str, vim.log.levels.WARN)
+		log.display_notify(3, "No files found with extensions: " .. type_str)
 		return
 	end
 
@@ -70,7 +71,7 @@ function M.data_explorer_file()
 	local file = vim.api.nvim_buf_get_name(0)
 
 	if file == nil or file == "" then
-		vim.notify("No file found in current buffer", vim.log.levels.WARN)
+		log.display_notify(3, "No file found in current buffer")
 		return
 	end
 
@@ -78,7 +79,7 @@ function M.data_explorer_file()
 	-- Use the helper function with the configured file types
 	if not utils.is_accepted_file_type(file, files_types) then
 		local type_str = table.concat(files_types, ", ")
-		vim.notify("Current file is not one of the accepted types: " .. type_str, vim.log.levels.WARN)
+		log.display_notify(3, "Current file is not one of the accepted types: " .. type_str)
 		return
 	end
 
