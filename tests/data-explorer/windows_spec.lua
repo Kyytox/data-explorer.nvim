@@ -27,11 +27,16 @@ local config_windows = require("data-explorer.ui.config_windows")
 
 describe("calculate_window_layout", function()
 	it("returns correct dimensions for typical input", function()
+		local opts = {
+			window_opts = {
+				hide_window_help = true, -- Hide help window on main display
+			},
+		}
 		local width = 120
 		local height = 40
 		local nb_metadata_lines = 10
 		local nb_data_lines = 20
-		local dims = config_windows.calculate_window_layout(width, height, nb_metadata_lines, nb_data_lines)
+		local dims = config_windows.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_data_lines)
 		assert.is_table(dims)
 		assert.is_table(dims.vertical)
 		assert.is_table(dims.horizontal)
@@ -52,7 +57,12 @@ describe("calculate_window_layout", function()
 	end)
 
 	it("handles small terminal sizes gracefully", function()
-		local dims = config_windows.calculate_window_layout(200, 50, 5, 20)
+		local opts = {
+			window_opts = {
+				hide_window_help = false,
+			},
+		}
+		local dims = config_windows.calculate_window_layout(opts, 200, 50, 5, 20)
 		assert.is_true(dims.vertical.meta_height == 5)
 		assert.is_true(dims.vertical.data_height == 20)
 		assert.is_true(dims.vertical.meta_width == 194)

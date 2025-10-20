@@ -29,13 +29,13 @@ end
 function M.prepare_help(opts)
 	return {
 		string.format(
-			" %s: Quit | %s: Rotate | %s: Back file selection | %s: SQL Query | %s: Metadata | %s: Data ",
+			" %s: Quit | %s: Rotate | %s: Back file selection | %s: Metadata | %s: Data | %s: SQL Query ",
 			opts.mappings.quit,
 			opts.mappings.rotate_layout,
 			opts.mappings.back,
-			opts.mappings.toggle_sql,
 			opts.mappings.focus_meta,
-			opts.mappings.focus_data
+			opts.mappings.focus_data,
+			opts.mappings.toggle_sql
 		),
 	}
 end

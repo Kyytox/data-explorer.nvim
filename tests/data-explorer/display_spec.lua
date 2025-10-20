@@ -60,7 +60,7 @@ describe("Tests Display module", function()
 		}
 		local lines = display.prepare_help(opts)
 		assert.are.same({
-			"q: Quit | r: Rotate | b: Back file selection | s: SQL Query | m: Metadata | d: Data",
+			" q: Quit | r: Rotate | b: Back file selection | m: Metadata | d: Data | s: SQL Query ",
 		}, lines)
 	end)
 
