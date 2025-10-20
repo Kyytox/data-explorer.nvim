@@ -15,6 +15,7 @@ function M.set_common_keymaps(opts)
 	-- Focus controls
 	for key, buf in pairs(buffers) do
 		local map_opts = { buffer = buf, nowait = true }
+
 		vim.keymap.set("n", opts.mappings.focus_meta, function()
 			actions_windows.focus_window(wins.win_meta)
 			config_windows.upd_cursorline_option(false, wins.win_data)

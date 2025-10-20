@@ -32,6 +32,7 @@ M.defaults = {
 	-- Floating window options for main display windows
 	window_opts = {
 		border = "rounded",
+		hide_window_help = true, -- Hide help window on main display
 	},
 
 	-- Key mappings
@@ -118,7 +119,6 @@ end
 function M.setup(user_opts)
 	local opts = user_opts or {}
 	-- Deep merge user options with defaults
-	-- M.options = vim.tbl_deep_extend("force", M.defaults, opts)
 	M.options = apply_defaults(vim.deepcopy(opts), M.defaults)
 
 	-- Validate options
@@ -126,9 +126,7 @@ function M.setup(user_opts)
 
 	-- Set all highlight groups
 	set_highlights(M.options)
-	-- vim.notify = require("notify")
 	vim.notify(vim.inspect(M.options), vim.log.levels.INFO, { title = "Data Explorer Config" })
-	-- log.display_notify(1, vim.inspect(M.options))
 end
 
 --- Get the current configuration options.

@@ -29,7 +29,7 @@ end
 function M.prepare_help(opts)
 	return {
 		string.format(
-			"%s: Quit | %s: Rotate | %s: Back file selection | %s: SQL Query | %s: Metadata | %s: Data",
+			" %s: Quit | %s: Rotate | %s: Back file selection | %s: SQL Query | %s: Metadata | %s: Data ",
 			opts.mappings.quit,
 			opts.mappings.rotate_layout,
 			opts.mappings.back,

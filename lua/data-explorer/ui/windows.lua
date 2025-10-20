@@ -1,6 +1,7 @@
 local config_windows = require("data-explorer.ui.config_windows")
 local state = require("data-explorer.gestion.state")
 local actions_windows = require("data-explorer.actions.actions_windows")
+local display = require("data-explorer.ui.display")
 
 local M = {}
 
@@ -23,7 +24,7 @@ local function create_floating_window(buffer, wins_infos, opts)
 		focusable = wins_infos.focusable or true,
 		hide = wins_infos.hide or false,
 		footer = wins_infos.footer or "",
-		footer_pos = "left",
+		footer_pos = wins_infos.footer_pos or "left",
 	}
 
 	-- Create the floating window
@@ -37,7 +38,7 @@ end
 ---@param opts table: Options table.
 function M.create_windows(opts, dims)
 	-- Clean up old windows
-	actions_windows.close_windows()
+	-- actions_windows.close_windows()
 
 	-- Get windows infos
 	local wins_infos = state.get_variable("windows_infos")
@@ -46,13 +47,16 @@ function M.create_windows(opts, dims)
 	local buffers = state.get_state("buffers")
 
 	-- Create help window
-	local win_help = create_floating_window(buffers.buf_help, {
-		title = wins_infos.help_title,
-		width = dims.main_width,
-		height = dims.help_height,
-		row = 1,
-		col = dims.col_start,
-	}, opts)
+	local win_help = nil
+	if opts.window_opts.hide_window_help == false then
+		win_help = create_floating_window(buffers.buf_help, {
+			title = wins_infos.help_title,
+			width = dims.main_width,
+			height = dims.help_height,
+			row = 1,
+			col = dims.col_start,
+		}, opts)
+	end
 
 	-- Create SQL windows
 	local win_sql = create_floating_window(buffers.buf_sql, {
@@ -84,16 +88,22 @@ function M.create_windows(opts, dims)
 		col = dims.col_start,
 	}, opts)
 
+	vim.notify("Creating data window", vim.log.levels.DEBUG, { title = "Data Explorer - Windows" })
 	local win_data = create_floating_window(buffers.buf_data, {
 		title = wins_infos.data_title,
 		width = dims.data_width,
 		height = dims.data_height,
 		row = dims.data_row_start,
 		col = dims.data_col_start,
+		footer = (opts.window_opts.hide_window_help == true) and table.concat(display.prepare_help(opts), "\n") or nil,
+		footer_pos = "right",
 	}, opts)
 
-	-- Store windows in state
-	state.set_state("windows", "win_help", win_help)
+	-- Store window handles in state
+	-- Store all in one, because with WinEnter (autocmd) the time between creations can cause issues
+	if win_help then
+		state.set_state("windows", "win_help", win_help)
+	end
 	state.set_state("windows", "win_meta", win_meta)
 	state.set_state("windows", "win_data", win_data)
 	state.set_state("windows", "win_sql", win_sql)

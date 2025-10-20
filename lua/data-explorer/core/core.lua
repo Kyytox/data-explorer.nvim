@@ -11,11 +11,13 @@ local M = {}
 
 -- Create buffers
 local function create_buffers(opts, file, metadata, data)
-	-- Prepare display help
-	local help_lines = display.prepare_help(opts)
-	local buf_help = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_help, 0, -1, false, help_lines)
-	state.set_state("buffers", "buf_help", buf_help)
+	-- Prepare display help if not disabled
+	if opts.window_opts.hide_window_help == false then
+		local help_lines = display.prepare_help(opts)
+		local buf_help = vim.api.nvim_create_buf(false, true)
+		vim.api.nvim_buf_set_lines(buf_help, 0, -1, false, help_lines)
+		state.set_state("buffers", "buf_help", buf_help)
+	end
 
 	-- Prepare display metadata
 	local metadata_lines = display.prepare_metadata(file, metadata)
@@ -73,7 +75,7 @@ function M.render(opts, file)
 	local nb_meta_lines, nb_data_lines = create_buffers(opts, file, metadata, data)
 
 	-- Calculate window layout
-	local tbl_dimensions = config_windows.calculate_window_layout(width, height, nb_meta_lines, nb_data_lines)
+	local tbl_dimensions = config_windows.calculate_window_layout(opts, width, height, nb_meta_lines, nb_data_lines)
 
 	-- get windows layout info according to the layout
 	tbl_dimensions = tbl_dimensions[opts.layout]

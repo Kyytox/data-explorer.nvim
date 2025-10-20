@@ -33,7 +33,6 @@ end
 --- Select a parquet file using Telescope.
 ---@param lst_files table: List of parquet files.
 function M.pickers_files(opts, lst_files)
-	-- log.display_notify(2, vim.inspect(opts))
 	pickers
 		.new(opts, {
 			prompt_title = "Select Parquet File",

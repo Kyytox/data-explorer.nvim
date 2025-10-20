@@ -30,7 +30,7 @@ function M.setup(opts)
 	})
 end
 
--- Set Autocommands
+--- Set Autocommands for Data Explorer
 local function set_autocommands()
 	vim.api.nvim_create_autocmd({ "WinEnter" }, {
 		callback = check_focus.check_focus_and_close,

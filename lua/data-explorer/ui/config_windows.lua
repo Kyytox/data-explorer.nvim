@@ -39,16 +39,25 @@ function M.set_window_options()
 end
 
 --- Calculate window layout for both vertical and horizontal layouts.
+---@param opts table: Options table.
 ---@param width number: Width of the available space.
 ---@param height number: Height of the available space.
 ---@param nb_metadata_lines number: Number of lines in the metadata content.
 ---@param nb_data_lines number: Number of lines in the data content.
 ---@return table: Calculated dimensions for both vertical and horizontal layouts.
-function M.calculate_window_layout(width, height, nb_metadata_lines, nb_data_lines)
-	-- Common parameters
-	local col_start = 2
+function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_data_lines)
+	-- Help window height
 	local height_help = 1
 	local row_start = height_help + 3
+
+	-- Adjust if help window is hidden
+	if opts.window_opts.hide_window_help == true then
+		height_help = 0
+		row_start = 1
+	end
+
+	-- Common parameters
+	local col_start = 2
 	local available_height = height - row_start
 	local main_width = math.floor(width * 0.97)
 
