@@ -48,15 +48,25 @@ M.defaults = {
 
 	-- Highlight colors
 	hl = {
-		bg = "#171924", -- Background color for the window
-		fg = "#f38ba8", -- Foreground color for the border
-		title = "#f5c2e7", -- Title color
-		footer = "#94e2d5", -- Footer color
-		sql_fg = "#89b4fa", -- Border color for SQL window
-		sql_bg = "#1e1e2e", -- Background color for SQL window
-		sql_err_fg = "#c0653c", -- Border color for SQL error window
-		sql_err_bg = "#3a1726", -- Background color for SQL
+		bg = "#11111b", -- fond principal légèrement plus profond
+		fg = "#cdd6f4", -- texte principal clair
+		title = "#f5c2e7", -- titre : rose doux (identique, très bon choix)
+		footer = "#a6e3a1", -- footer : vert menthe plus lisible sur fond sombre
+		sql_fg = "#89b4fa", -- texte/bordure de la fenêtre SQL (bleu clair)
+		sql_bg = "#1e1e2e", -- fond SQL plus sombre pour créer du contraste
+		sql_err_fg = "#f38ba8", -- texte/bordure d’erreur plus saturé (rose vif)
+		sql_err_bg = "#3b1d2a", -- fond d’erreur un peu plus lisible que #3a1726
 	},
+	-- hl = {
+	-- 	bg = "#171924", -- background color for the window
+	-- 	fg = "#f38ba8", -- foreground color for the border
+	-- 	title = "#f5c2e7", -- title color
+	-- 	footer = "#94e2d5", -- footer color
+	-- 	sql_fg = "#89b4fa", -- border color for sql window
+	-- 	sql_bg = "#1e1e2e", -- background color for sql window
+	-- 	sql_err_fg = "#c0653c", -- border color for sql error window
+	-- 	sql_err_bg = "#3a1726", -- background color for sql
+	-- },
 }
 
 M.options = {}
@@ -98,6 +108,44 @@ local function validate_options(opts)
 		log.display_notify(3, "files_types must be a table. Reverting to default.")
 		opts.files_types = M.defaults.files_types
 	end
+
+	-- Ensure each file type is a string starting with a dot
+	for _, ft in ipairs(opts.files_types) do
+		if type(ft) ~= "string" or not ft:match("^%.%w+$") then
+			log.display_notify(
+				3,
+				"Each file type must be a string starting with a dot (e.g., .csv). Reverting to default."
+			)
+			opts.files_types = M.defaults.files_types
+			break
+		end
+	end
+
+	-- Ensure files types has accepted types
+	local accepted_types = M.defaults.files_types
+	local filtered_types = {}
+	for _, ft in ipairs(opts.files_types) do
+		local valid = false
+		for _, at in ipairs(accepted_types) do
+			if ft == at then
+				valid = true
+				break
+			end
+		end
+		if valid then
+			table.insert(filtered_types, ft)
+		else
+			log.display_notify(
+				3,
+				"Unsupported file type: "
+					.. ft
+					.. ". \nSupported types are: "
+					.. table.concat(accepted_types, ", ")
+					.. ".\nIt has been removed from the configuration."
+			)
+		end
+	end
+	opts.files_types = filtered_types
 end
 
 ---@param opts table
@@ -126,7 +174,6 @@ function M.setup(user_opts)
 
 	-- Set all highlight groups
 	set_highlights(M.options)
-	vim.notify(vim.inspect(M.options), vim.log.levels.INFO, { title = "Data Explorer Config" })
 end
 
 --- Get the current configuration options.
