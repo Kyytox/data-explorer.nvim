@@ -19,18 +19,18 @@ describe("Tests Parser module", function()
 		assert.are.equal("20", result.count_lines)
 	end)
 
-	-- Test for parse_columns_string
-	it("parse_columns_string", function()
-		local input = [[
-      Columns,nombre_lignes: "[{'name': 'Header1', 'type': 'STRING'}, {'name': 'Header2', 'type': 'STRING'}]",30]]
-
-		local result, err = plugin.parse_columns_string(input)
-		assert.is_nil(err)
-		assert.are.same({ "column", "type" }, result.headers)
-		assert.are.same({
-			{ column = "Header1", type = "STRING" },
-			{ column = "Header2", type = "STRING" },
-		}, result.data)
-		assert.are.equal("30", result.count_lines)
-	end)
+	-- -- Test for parse_columns_string
+	-- it("parse_columns_string", function()
+	-- 	local input = [[
+	--      Columns,nb_lines: "[{'name': 'Header1', 'type': 'STRING'}, {'name': 'Header2', 'type': 'STRING'}]",30]]
+	--
+	-- 	local result, err = plugin.parse_columns_string(input)
+	-- 	assert.is_nil(err)
+	-- 	assert.are.same({ "column", "type" }, result.headers)
+	-- 	assert.are.same({
+	-- 		{ column = "Header1", type = "STRING" },
+	-- 		{ column = "Header2", type = "STRING" },
+	-- 	}, result.data)
+	-- 	assert.are.equal("30", result.count_lines)
+	-- end)
 end)

@@ -21,7 +21,7 @@ function M.parse_csv(csv_text)
 			if key == "Count" then
 				count_lines = vim.trim(values[j]) or "0"
 			else
-				row[key] = vim.trim(values[j]) or ""
+				row[key] = values[j] or ""
 			end
 		end
 
@@ -37,51 +37,6 @@ function M.parse_csv(csv_text)
 	end
 
 	return { headers = headers, data = data, count_lines = count_lines }
-end
-
---- Parse the 'Columns' string from CSV/TSV metadata into a structured table.
----@param input string: The raw 'Columns' string from DuckDB.
----@return table|nil, table|nil, string|nil: Parsed headers, data, and count of lines, or error message.
-function M.parse_columns_string(input)
-	-- Get Count of lines (last elemtnt after spli t by ,)
-	local parts = vim.split(input, ",")
-	local count_lines = parts[#parts]:gsub("[\r\n]+", "")
-
-	-- Extract the JSON-like substring
-	local text = input:match('"(.+)"')
-	if not text then
-		log.display_notify(4, "No valid Columns string found.")
-		return nil, nil
-	end
-
-	-- Transform to valid JSON
-	text = text:gsub("'", '"')
-
-	-- Quote the keys
-	text = text:gsub("(%w+)%s*:", '"%1":')
-
-	-- Ensure that unquoted values are quoted (for 'name' and 'type' fields)
-	text = text:gsub(":(%s*)([%w_]+)", ': "%2"')
-
-	-- Decode the JSON string
-	local ok, decoded = pcall(vim.fn.json_decode, text)
-	if not ok then
-		log.display_notify(4, "Failed to decode Columns string.")
-		return nil, nil
-	end
-
-	-- Transform into structured table
-	local parsed_headers = { "column", "type" }
-	local parsed_data = {}
-
-	for _, col in ipairs(decoded) do
-		table.insert(parsed_data, {
-			column = col.name,
-			type = col.type,
-		})
-	end
-
-	return { headers = parsed_headers, data = parsed_data, count_lines = count_lines }
 end
 
 return M
