@@ -15,7 +15,8 @@ M.defaults = {
 	-- Data fetching options
 	limit = 10000, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
-	files_types = { ".parquet", ".csv", ".tsv" },
+	-- files_types = { "parquet", "csv", "tsv", "json" },
+	files_types = { "parquet", "csv", "tsv" },
 
 	-- UI/Telescope options
 	telescope_opts = {
@@ -107,18 +108,6 @@ local function validate_options(opts)
 	if type(opts.files_types) ~= "table" then
 		log.display_notify(3, "files_types must be a table. Reverting to default.")
 		opts.files_types = M.defaults.files_types
-	end
-
-	-- Ensure each file type is a string starting with a dot
-	for _, ft in ipairs(opts.files_types) do
-		if type(ft) ~= "string" or not ft:match("^%.%w+$") then
-			log.display_notify(
-				3,
-				"Each file type must be a string starting with a dot (e.g., .csv). Reverting to default."
-			)
-			opts.files_types = M.defaults.files_types
-			break
-		end
 	end
 
 	-- Ensure files types has accepted types
