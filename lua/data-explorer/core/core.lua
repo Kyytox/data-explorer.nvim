@@ -43,8 +43,9 @@ local function create_buffers(opts, file, metadata, data)
 	state.set_state("buffers", "buf_sql_err", buf_sql_err)
 
 	-- Create SQL buffer
+	local sql_lines = display.prepare_sql_display(opts)
 	local buf_sql = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_sql, 0, -1, false, { "select nom, age from f;" })
+	vim.api.nvim_buf_set_lines(buf_sql, 0, -1, false, sql_lines)
 	state.set_state("buffers", "buf_sql", buf_sql)
 
 	return #metadata_lines, #data_lines

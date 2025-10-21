@@ -18,6 +18,7 @@ function M.prepare_metadata(file, metadata)
 	return {
 		file,
 		"Number of lines: " .. tonumber(metadata.count_lines),
+		"File size (KB): " .. tostring(metadata.file_size),
 		"",
 		unpack(tbl_metadata),
 	}
@@ -37,6 +38,16 @@ function M.prepare_help(opts)
 			opts.mappings.focus_data,
 			opts.mappings.toggle_sql
 		),
+	}
+end
+
+--- Prepare SQL display
+---@param opts table A table containing configuration, including command keybindings.
+---@return table
+function M.prepare_sql_display(opts)
+	return {
+		"SELECT * FROM f LIMIT 1000;",
+		"-- Warning: Large result could slow down / crash Neovim.",
 	}
 end
 
