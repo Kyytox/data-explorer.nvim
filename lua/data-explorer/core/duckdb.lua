@@ -91,7 +91,6 @@ local function run_query(query)
 	end
 
 	-- log.info(out)
-
 	return out, nil
 end
 
@@ -126,7 +125,7 @@ local function query_data(file, ext)
 	local limit = config.get().limit
 
 	-- Get the appropriate query template based on file extension
-	local query = DATA_QUERIES[ext:sub(2)] -- Remove the leading dot
+	local query = DATA_QUERIES[ext:sub(2)]
 	query = string.format(query, file, limit)
 	return run_query(query)
 end
@@ -172,7 +171,6 @@ function M.fetch_parse_data(file, type, query)
 	if f then
 		size = math.floor((f:seek("end") or 0) / 1024)
 		f:close()
-		-- vim.notify("File size: " .. size .. " KB")
 	end
 
 	-- exrtact file extensions
