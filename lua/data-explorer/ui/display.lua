@@ -64,41 +64,50 @@ function M.prepare_sql_help(opts)
 	}
 end
 
---- Format data into a table with aligned columns.
+--- Prepare table data for display.
+--- Formats headers and data into aligned table lines.
 ---@param headers table: Column headers.
 ---@param data table: Table data.
 ---@return table: Formatted table lines.
 function M.prepare_data(headers, data)
 	local col_widths = {}
 
+	-- Determine maximum width for each column
 	for _, h in ipairs(headers) do
 		col_widths[h] = #h
 	end
-
 	for _, row in ipairs(data) do
 		for _, h in ipairs(headers) do
-			local val = row[h] or ""
+			local val = tostring(row[h] or "")
 			if #val > col_widths[h] then
 				col_widths[h] = #val
 			end
 		end
 	end
 
+	-- Add padding + apply maximum width limit
 	for k, w in pairs(col_widths) do
-		col_widths[k] = w + 1 -- padding
+		col_widths[k] = w + 1
 	end
 
-	local function pad(str, width)
-		return str .. string.rep(" ", width - #str)
+	-- Helper: pad and trim string
+	local function pad_right(str, width)
+		local truncated = str
+		if #truncated > width - 1 then
+			truncated = truncated:sub(1, width - 1)
+		end
+		return truncated .. string.rep(" ", width - #truncated)
 	end
 
+	-- Build header line
 	local header_line = table.concat(
 		vim.tbl_map(function(h)
-			return pad(h, col_widths[h])
+			return pad_right(h, col_widths[h])
 		end, headers),
 		"│"
 	)
 
+	-- Separator line
 	local separator = table.concat(
 		vim.tbl_map(function(h)
 			return string.rep("─", col_widths[h])
@@ -106,11 +115,13 @@ function M.prepare_data(headers, data)
 		"┼"
 	)
 
+	-- Table body
 	local tbl_lines = { header_line, separator }
 	for _, row in ipairs(data) do
 		local parts = {}
 		for _, h in ipairs(headers) do
-			table.insert(parts, pad(row[h] or "", col_widths[h]))
+			local val = tostring(row[h] or " ")
+			table.insert(parts, pad_right(val, col_widths[h]))
 		end
 		table.insert(tbl_lines, table.concat(parts, "│"))
 	end
