@@ -7,78 +7,168 @@ local parser = require("data-explorer.core.parser")
 local M = {}
 
 -- DuckDB SQL queries
+-- local METADATA_QUERIES = {
+-- 	parquet = [[
+--     SELECT
+--     path_in_schema AS Column,
+--     type AS Type,
+--     num_values AS Count,
+--     stats_min AS Min,
+--     stats_max AS Max,
+--     stats_null_count AS Nulls
+--     FROM parquet_metadata('%s');
+--     ]],
+-- 	csv = [[
+-- 	       CREATE TEMP TABLE tmp AS
+-- 	       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1, ALL_VARCHAR=FALSE);
+--
+--           WITH total AS (
+--             SELECT COUNT(*) AS total_rows FROM tmp
+--           )
+-- 	       SELECT
+-- 	         name AS Column,
+-- 	         type AS Type,
+-- 	         (SELECT total_rows FROM total) AS Count
+-- 	       FROM pragma_table_info('tmp');
+-- 	   ]],
+-- 	tsv = [[
+--         CREATE TEMP TABLE tmp AS
+--         SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t', sample_size=-1, ALL_VARCHAR=FALSE);
+--
+--         WITH total AS (
+--           SELECT COUNT(*) AS total_rows FROM tmp
+--         )
+--         SELECT
+--           name AS Column,
+--           type AS Type,
+--           (SELECT total_rows FROM total) AS Count
+--         FROM pragma_table_info('tmp');
+--     ]],
+-- 	json = [[
+--         CREATE TEMP TABLE tmp AS SELECT * FROM read_json_auto('%s', auto_detect=true);
+--         WITH total AS (
+--           SELECT COUNT(*) AS total_rows FROM tmp
+--         )
+--         SELECT
+--           name AS Column,
+--           replace(type, ',', ';') AS Type,
+--           dflt_value AS DefaultValue,
+--           pk AS PrimaryKey,
+--           (SELECT total_rows FROM total) AS Count
+--         FROM pragma_table_info('tmp');
+--     ]],
+-- }
+
 local METADATA_QUERIES = {
 	parquet = [[
-    SELECT 
-    path_in_schema AS Column,
-    type AS Type,
-    num_values AS Count,
-    stats_min AS Min,
-    stats_max AS Max,
-    stats_null_count AS Nulls
-    FROM parquet_metadata('%s');
+    COPY(
+      SELECT 
+      path_in_schema AS Column,
+      type AS Type,
+      num_values AS Count,
+      stats_min AS Min,
+      stats_max AS Max,
+      stats_null_count AS Nulls
+      FROM parquet_metadata('%s')
+    ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
     ]],
 	csv = [[
-        CREATE TEMP TABLE tmp AS
-        SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1, ALL_VARCHAR=FALSE);
+	       CREATE TEMP TABLE tmp AS
+	       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1, ALL_VARCHAR=FALSE);
 
-        WITH total AS (
-          SELECT COUNT(*) AS total_rows FROM tmp
-        )
-        SELECT 
-          name AS Column,
-          type AS Type,
-          (SELECT total_rows FROM total) AS Count
-        FROM pragma_table_info('tmp');
-    ]],
+         COPY(
+            WITH total AS (SELECT COUNT(*) AS total_rows FROM tmp)
+            SELECT
+              name AS Column,
+              type AS Type,
+              (SELECT total_rows FROM total) AS Count
+            FROM pragma_table_info('tmp')
+         ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+	   ]],
 	tsv = [[
         CREATE TEMP TABLE tmp AS
         SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t', sample_size=-1, ALL_VARCHAR=FALSE);
 
-        WITH total AS (
-          SELECT COUNT(*) AS total_rows FROM tmp
-        )
-        SELECT 
-          name AS Column,
-          type AS Type,
-          (SELECT total_rows FROM total) AS Count
-        FROM pragma_table_info('tmp');
+          COPY(
+              WITH total AS (
+                SELECT COUNT(*) AS total_rows FROM tmp
+              )
+              SELECT 
+                name AS Column,
+                type AS Type,
+                (SELECT total_rows FROM total) AS Count
+              FROM pragma_table_info('tmp')
+        ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
     ]],
 	json = [[
         CREATE TEMP TABLE tmp AS SELECT * FROM read_json_auto('%s', auto_detect=true);
-        WITH total AS (
-          SELECT COUNT(*) AS total_rows FROM tmp
-        )
+        COPY(
+        WITH total AS (SELECT COUNT(*) AS total_rows FROM tmp)
         SELECT 
           name AS Column,
           replace(type, ',', ';') AS Type,
           dflt_value AS DefaultValue,
           pk AS PrimaryKey,
           (SELECT total_rows FROM total) AS Count
-        FROM pragma_table_info('tmp');
+        FROM pragma_table_info('tmp')
+        ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
     ]],
 }
 
+-- local DATA_QUERIES = {
+-- 	parquet = "SELECT * FROM read_parquet('%s') LIMIT %d;",
+-- 	csv = "SELECT * FROM read_csv_auto('%s') LIMIT %d;",
+-- 	tsv = "SELECT * FROM read_csv_auto('%s', sep='\t') LIMIT %d;",
+-- 	json = "SELECT * FROM read_json('%s') LIMIT %d;",
+-- }
 local DATA_QUERIES = {
-	parquet = "SELECT * FROM read_parquet('%s') LIMIT %d;",
-	csv = "SELECT * FROM read_csv_auto('%s') LIMIT %d;",
-	tsv = "SELECT * FROM read_csv_auto('%s', sep='\t') LIMIT %d;",
-	json = "SELECT * FROM read_json('%s') LIMIT %d;",
+	parquet = [[
+    COPY(
+      SELECT * FROM read_parquet('%s') LIMIT %d
+    ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+  ]],
+	csv = [[
+      COPY(
+        SELECT * FROM read_csv_auto('%s') LIMIT %d
+      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+  ]],
+	tsv = [[
+      COPY(
+        SELECT * FROM read_csv_auto('%s', sep='\t') LIMIT %d
+      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+  ]],
+	json = [[
+      COPY(
+        SELECT * FROM read_json('%s') LIMIT %d
+      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+  ]],
 }
 
 --- Runs a DuckDB query and returns the raw CSV output.
 --- This function is the only one that interacts with the shell.
 ---@param query string: The formatted SQL query.
 ---@return string|nil, string|nil: Raw CSV output or error message.
-local function run_query(query)
+local function run_query(query, mode)
 	local duckdb_cmd = state.get_variable("duckdb_cmd")
+	local out
+	local success
+	local result
 
-	-- Construct the command to run DuckDB with CSV output
-	-- Use vim.system to run the command because we need to capture stdout AND stderr
-	local cmd = { duckdb_cmd, "-csv", "-c", query }
-	local result = vim.system(cmd, { text = true }):wait()
-	local out = result.stdout
-	local success = result.code == 0
+	if mode == "standard" then
+		-- using io.popen
+		log.info("Running standard query...")
+		local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query:gsub('"', '\\"'))
+		result = io.popen(cmd)
+		out = result:read("*a")
+		success = result:close() ~= nil
+	else
+		-- Construct the command to run DuckDB with CSV output
+		-- Use vim.system to run the command because we need to capture stdout AND stderr
+		local cmd = { duckdb_cmd, "-csv", "-c", query }
+		result = vim.system(cmd, { text = true }):wait()
+		out = result.stdout
+		success = result.code == 0
+	end
 
 	-- Check for command failure status
 	if not success or success ~= true then
@@ -94,12 +184,12 @@ local function run_query(query)
 	return out, nil
 end
 
---- Validate the user-provided SQL query to ensure it meets required syntax.
+--- Validate the user-provided SQL query.
+--- Will check for the presence of the required 'FROM f' syntax.
 --- @param query string The raw SQL query string provided by the user.
 --- @return boolean success True if the query passes all validation checks.
 --- @return string message A status or error message explaining the result.
 local function validate_sql_query(query)
-	-- Check for the specific 'FROM f' syntax
 	if not string.find(query, "from%s+f") then
 		return false, "Query must use the required syntax 'FROM f' to reference the file."
 	end
@@ -110,31 +200,28 @@ end
 ---@param file string: Path to the parquet file.
 ---@param ext string: File extension (e.g., ".parquet", ".csv").
 ---@return string|nil, string|nil: Raw CSV metadata or error message.
-local function query_metadata(file, ext)
-	-- Get the appropriate query template based on file extension
+local function query_metadata(file, ext, mode)
 	local query = METADATA_QUERIES[ext:sub(2)]
 	query = string.format(query, file)
-	return run_query(query)
+	return run_query(query, mode)
 end
 
 --- Get the raw CSV data (limited rows) for a parquet file.
 ---@param file string: Path to the parquet file.
 ---@param ext string: File extension (e.g., ".parquet", ".csv").
 ---@return string|nil, string|nil: Raw CSV data or error message.
-local function query_data(file, ext)
+local function query_data(file, ext, mode)
 	local limit = config.get().limit
-
-	-- Get the appropriate query template based on file extension
 	local query = DATA_QUERIES[ext:sub(2)]
 	query = string.format(query, file, limit)
-	return run_query(query)
+	return run_query(query, mode)
 end
 
 -- Get data based on a custom SQL query
 ---@param file string: Path to the parquet file.
 ---@param query string: Custom SQL query provided by the user.
 ---@return string|nil, string|nil: Raw CSV data or error message.
-local function query_sql(file, query)
+local function query_sql(file, query, mode)
 	-- Convert query to lower case
 	query = string.lower(query)
 
@@ -148,7 +235,7 @@ local function query_sql(file, query)
 	local path_file = file:gsub("'", "\\'")
 	query = query:gsub("from%s+f", "FROM '" .. path_file .. "'")
 
-	return run_query(query)
+	return run_query(query, mode)
 end
 
 --- Fetch and parse data for a parquet file.
@@ -164,6 +251,7 @@ function M.fetch_parse_data(file, type, query)
 		log.display_notify(4, "File path is empty!")
 		return nil, "File path is empty"
 	end
+	local start = os.clock()
 
 	-- Get file size in KB
 	local size = 0
@@ -177,40 +265,38 @@ function M.fetch_parse_data(file, type, query)
 	local ext = file:match("^.+(%..+)$")
 
 	-- Fetch Data
+	local mode = nil
+	local delim = "|"
 	if type == "data" then
-		csv_text, err = query_data(file, ext)
+		mode = "standard"
+		csv_text, err = query_data(file, ext, mode)
 	elseif type == "metadata" then
-		csv_text, err = query_metadata(file, ext)
+		mode = "standard"
+		csv_text, err = query_metadata(file, ext, mode)
 	elseif type == "query" and query then
-		csv_text, err = query_sql(file, query)
+		mode = "custom"
+		delim = ","
+		csv_text, err = query_sql(file, query, mode)
 	end
 
 	if not csv_text then
 		log.display_notify(4, (err or "unknown"))
 		return nil, err
 	end
-	-- local start = os.clock()
 
 	-- Parse Data
 	local result = nil
-	if type == "metadata" then
-		if ext == ".parquet" or ext == ".json" then
-			result, err = parser.parse_csv(csv_text)
-		else
-			result, err = parser.parse_csv(csv_text)
-		end
-	else
-		result, err = parser.parse_csv(csv_text)
-	end
+
+	result, err = parser.parse_csv(csv_text, delim)
 
 	if not result then
 		log.display_notify(4, (err or "No result from parsing."))
 		return nil, err
 	end
 
-	-- local finish = os.clock()
-	-- local elapsed = finish - start
-	-- log.info(string.format("SQL query executed for %s in %.4f seconds.", file, elapsed))
+	local finish = os.clock()
+	local elapsed = finish - start
+	log.info(string.format("SQL query executed for %s in %.4f seconds.", file, elapsed))
 
 	return { headers = result.headers, data = result.data, count_lines = result.count_lines, file_size = size }, nil
 end
