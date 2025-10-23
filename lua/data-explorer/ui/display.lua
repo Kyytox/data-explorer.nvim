@@ -64,6 +64,31 @@ function M.prepare_sql_help(opts)
 	}
 end
 
+--- Calculate UTF-8 string length.
+--- Useful because #str returns byte length, not character length.
+--- And when u have (é,è,ä, ...) it counts as 2 bytes.
+---@param str string: Input string.
+---@return number: Length of the string in UTF-8 characters.
+local function utf8_len(str)
+	local _, count = str:gsub("[^\128-\193]", "")
+	return count
+end
+
+--- Pad string on the right with spaces to a given width.
+--- Truncates the string if it exceeds the width.
+---@param str string: Input string.
+---@param width number: Desired width.
+---@return string: Padded or truncated string.
+local function pad_right(str, width)
+	local len = utf8_len(str)
+	if len > width - 1 then
+		local truncated = vim.fn.strcharpart(str, 0, width)
+		return truncated
+	else
+		return str .. string.rep(" ", width - len)
+	end
+end
+
 --- Prepare table data for display.
 --- Formats headers and data into aligned table lines.
 ---@param headers table: Column headers.
@@ -74,13 +99,13 @@ function M.prepare_data(headers, data)
 
 	-- Determine maximum width for each column
 	for _, h in ipairs(headers) do
-		col_widths[h] = #h
+		col_widths[h] = utf8_len(h)
 	end
 	for _, row in ipairs(data) do
 		for _, h in ipairs(headers) do
 			local val = tostring(row[h] or "")
-			if #val > col_widths[h] then
-				col_widths[h] = #val
+			if utf8_len(val) > col_widths[h] then
+				col_widths[h] = utf8_len(val)
 			end
 		end
 	end
@@ -88,15 +113,6 @@ function M.prepare_data(headers, data)
 	-- Add padding + apply maximum width limit
 	for k, w in pairs(col_widths) do
 		col_widths[k] = w + 1
-	end
-
-	-- Helper: pad and trim string
-	local function pad_right(str, width)
-		local truncated = str
-		if #truncated > width - 1 then
-			truncated = truncated:sub(1, width - 1)
-		end
-		return truncated .. string.rep(" ", width - #truncated)
 	end
 
 	-- Build header line
