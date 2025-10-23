@@ -20,7 +20,7 @@ local METADATA_QUERIES = {
 	   ]],
 	csv = [[
 	       CREATE TEMP TABLE tmp AS
-	       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1, ALL_VARCHAR=FALSE);
+	       SELECT * FROM read_csv_auto('%s', sample_size=-1, ALL_VARCHAR=FALSE);
          SELECT column_name AS Column,
                 column_type AS Type,
                 null_percentage AS Nulls,

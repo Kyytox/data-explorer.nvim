@@ -1,4 +1,5 @@
 local state = require("data-explorer.gestion.state")
+local log = require("data-explorer.gestion.log")
 
 local M = {}
 
@@ -50,53 +51,58 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 	local height_help = 1
 	local row_start = height_help + 3
 
-	-- Adjust if help window is hidden
-	if opts.window_opts.hide_window_help == true then
-		height_help = 0
-		row_start = 1
-	end
-
-	-- Common parameters
-	local col_start = 2
-	local available_height = height - row_start
-	local main_width = math.floor(width * 0.97)
-
 	-- SQL windows
 	local sql_row_start = math.floor(height * 0.3)
 	local sql_height = 7
 	local sql_err_row_start = sql_row_start + sql_height + 2
 	local sql_err_height = 7
 
-	-- Vertical layout
-	local meta_width_v = main_width
-	local data_width_v = main_width
-	local data_row_start_v = row_start + nb_metadata_lines + 2
-
-	-- Calculate target heights
-	local total_content_height = nb_metadata_lines + nb_data_lines
-	local target_height_meta = math.floor(available_height * 0.4)
-	local target_height_data = available_height - target_height_meta
-	local meta_height_v = math.max(4, math.min(nb_metadata_lines, target_height_meta))
-	local data_height_v = math.max(8, math.min(nb_data_lines, target_height_data))
-
-	-- Adjust if content is less than available height
-	if total_content_height < available_height then
-		meta_height_v = math.max(4, math.min(nb_metadata_lines, math.ceil(total_content_height * 0.4)))
-		data_height_v = math.max(8, total_content_height - meta_height_v)
+	-- Adjust if help window is hidden
+	if opts.window_opts.hide_window_help == true then
+		height_help = 0
+		row_start = 1
 	end
 
+	local col_start = 1
+	local available_height = height - row_start
+	local main_width = math.floor(width * 0.98)
+
+	-- Vertical layout
+	-- determine max height
+	local max_meta_height_v = math.floor(available_height * 0.30)
+	local max_data_height_v = math.floor(available_height * 0.68)
+
+	-- Calcul heights
+	local meta_height_v = math.min(nb_metadata_lines, max_meta_height_v)
+	local data_height_v = math.min(nb_data_lines, max_data_height_v) + 1
+
+	-- Calculate data row start
+	local data_row_start_v = row_start + meta_height_v + 2
+
 	-- Horizontal layout
-	local meta_width_h = math.floor(main_width * 0.35)
+	-- Calculate widths
+	local meta_width_h = math.floor(main_width * 0.25)
 	local data_width_h = main_width - meta_width_h - col_start
-	-- local meta_height_h = math.max(4, math.min(nb_metadata_lines, available_height))
-	local data_height_h = math.max(8, math.min(nb_data_lines, available_height))
+
+	-- Calculate heights
+	local meta_height_h = 0
+	local data_height_h = 0
+	if nb_metadata_lines > nb_data_lines then
+		meta_height_h = math.min(nb_metadata_lines, available_height)
+		data_height_h = meta_height_h
+	else
+		data_height_h = math.min(nb_data_lines, available_height)
+		meta_height_h = data_height_h
+	end
+
+	-- Calculate data column start
 	local data_col_start_h = col_start + meta_width_h + 2
 
 	--
 	local dimensions = {
 		horizontal = {
 			meta_width = meta_width_h,
-			meta_height = data_height_h,
+			meta_height = meta_height_h,
 			data_width = data_width_h,
 			data_height = data_height_h,
 			data_col_start = data_col_start_h,
@@ -112,9 +118,9 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 			height = height,
 		},
 		vertical = {
-			meta_width = meta_width_v,
+			meta_width = main_width, -- full width
 			meta_height = meta_height_v,
-			data_width = data_width_v,
+			data_width = main_width, -- full width
 			data_height = data_height_v,
 			data_col_start = col_start,
 			data_row_start = data_row_start_v,
