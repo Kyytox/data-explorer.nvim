@@ -1,3 +1,4 @@
+local log = require("data-explorer.gestion.log")
 local M = {}
 
 --- Prepare metadata display lines.
@@ -126,6 +127,70 @@ function M.prepare_data(headers, data)
 	end
 
 	return tbl_lines
+end
+
+--- Determine highlight group based on column index
+---@param line number: Line number in the buffer.
+---@param col_index number: Column index.
+---@return string: Highlight group name.
+local function determine_hl_group(line, col_index)
+	if line == 1 then
+		return "DataExplorerColHeader"
+	else
+		local y = col_index % 9
+		if y == 0 then
+			y = 9
+		end
+		local hl_group = "DataExplorerCol" .. tostring(y)
+		return hl_group
+	end
+end
+
+--- Update highlights in buffers using extmarks
+---@param buf number: Buffer number.
+---@param data_lines table: Lines of data in the buffer.
+---@return nil
+function M.update_highlights(buf, data_lines)
+	-- Create a namespace for highlights
+	local ns_id = vim.api.nvim_create_namespace("data_explorer_highlight_namespace")
+
+	-- Browse header line for find all | and create table
+	local header_line = data_lines[1]
+	local tbl_pos = {}
+	local col_start = 0
+	local col_index = 1
+	while true do
+		-- Find next |
+		local s, e = string.find(header_line, "│", col_start + 1, true)
+		if not s then
+			break
+		end
+
+		-- Store column positions
+		tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = s - 1 }
+		col_index = col_index + 1
+		col_start = e
+	end
+
+	-- Browse lines and highlight based on tbl_pos
+	for l = 1, #data_lines do
+		for _, col in pairs(tbl_pos) do
+			local value_start = col.start + 1
+			local value_end = col.finish
+			local hl_group = ""
+
+			if l ~= 2 then -- Skip separator line
+				-- Find highlight group
+				hl_group = determine_hl_group(l, col.col_index)
+
+				-- Set extmark for highlight
+				vim.api.nvim_buf_set_extmark(buf, ns_id, l - 1, value_start - 1, {
+					end_col = value_end - 1,
+					hl_group = hl_group,
+				})
+			end
+		end
+	end
 end
 
 return M

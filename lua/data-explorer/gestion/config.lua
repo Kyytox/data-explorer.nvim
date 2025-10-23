@@ -49,25 +49,30 @@ M.defaults = {
 
 	-- Highlight colors
 	hl = {
-		bg = "#11111b", -- fond principal légèrement plus profond
-		fg = "#cdd6f4", -- texte principal clair
-		title = "#f5c2e7", -- titre : rose doux (identique, très bon choix)
-		footer = "#a6e3a1", -- footer : vert menthe plus lisible sur fond sombre
-		sql_fg = "#89b4fa", -- texte/bordure de la fenêtre SQL (bleu clair)
-		sql_bg = "#1e1e2e", -- fond SQL plus sombre pour créer du contraste
-		sql_err_fg = "#f38ba8", -- texte/bordure d’erreur plus saturé (rose vif)
-		sql_err_bg = "#3b1d2a", -- fond d’erreur un peu plus lisible que #3a1726
+		windows = {
+			bg = "#11111b",
+			fg = "#cdd6f4",
+			title = "#f5c2e7",
+			footer = "#a6e3a1",
+			sql_fg = "#89b4fa",
+			sql_bg = "#1e1e2e",
+			sql_err_fg = "#f38ba8",
+			sql_err_bg = "#3b1d2a",
+		},
+		buffer = {
+			hl_enable = true,
+			header = "#8b1d21",
+			col1 = "#f38ba8",
+			col2 = "#89b4fa",
+			col3 = "#a6e3a1",
+			col4 = "#f9e2af",
+			col5 = "#cba6f7",
+			col6 = "#94e2d5",
+			col7 = "#f5c2e7",
+			col8 = "#89b4fa",
+			col9 = "#a6e3a1",
+		},
 	},
-	-- hl = {
-	-- 	bg = "#171924", -- background color for the window
-	-- 	fg = "#f38ba8", -- foreground color for the border
-	-- 	title = "#f5c2e7", -- title color
-	-- 	footer = "#94e2d5", -- footer color
-	-- 	sql_fg = "#89b4fa", -- border color for sql window
-	-- 	sql_bg = "#1e1e2e", -- background color for sql window
-	-- 	sql_err_fg = "#c0653c", -- border color for sql error window
-	-- 	sql_err_bg = "#3a1726", -- background color for sql
-	-- },
 }
 
 M.options = {}
@@ -76,14 +81,29 @@ M.options = {}
 ---@param opts table: Options table containing highlight colors.
 local function set_highlights(opts)
 	local highlights = {
-		{ name = "DataExplorerWindow", opts = { bg = opts.hl.bg } },
-		{ name = "DataExplorerBorder", opts = { bg = opts.hl.bg, fg = opts.hl.fg } },
-		{ name = "DataExplorerTitle", opts = { bg = opts.hl.bg, fg = opts.hl.title, bold = true } },
-		{ name = "DataExplorerFooter", opts = { bg = opts.hl.bg, fg = opts.hl.footer, italic = true } },
-		{ name = "DataExplorerSQLBorder", opts = { bg = opts.hl.sql_bg, fg = opts.hl.sql_fg } },
-		{ name = "DataExplorerSQLWindow", opts = { bg = opts.hl.sql_bg } },
-		{ name = "DataExplorerSQLErrBorder", opts = { bg = opts.hl.sql_err_bg, fg = opts.hl.sql_err_fg } },
-		{ name = "DataExplorerSQLErrWindow", opts = { bg = opts.hl.sql_err_bg } },
+		{ name = "DataExplorerWindow", opts = { bg = opts.hl.windows.bg } },
+		{ name = "DataExplorerBorder", opts = { bg = opts.hl.windows.bg, fg = opts.hl.windows.fg } },
+		{ name = "DataExplorerTitle", opts = { bg = opts.hl.windows.bg, fg = opts.hl.windows.title, bold = true } },
+		{ name = "DataExplorerFooter", opts = { bg = opts.hl.windows.bg, fg = opts.hl.windows.footer, italic = true } },
+		{ name = "DataExplorerSQLBorder", opts = { bg = opts.hl.windows.sql_bg, fg = opts.hl.windows.sql_fg } },
+		{ name = "DataExplorerSQLWindow", opts = { bg = opts.hl.windows.sql_bg } },
+		{
+			name = "DataExplorerSQLErrBorder",
+			opts = { bg = opts.hl.windows.sql_err_bg, fg = opts.hl.windows.sql_err_fg },
+		},
+		{ name = "DataExplorerSQLErrWindow", opts = { bg = opts.hl.windows.sql_err_bg } },
+		--
+		-- Highlight for buffer content
+		{ name = "DataExplorerColHeader", opts = { fg = opts.hl.buffer.header, bold = true } },
+		{ name = "DataExplorerCol1", opts = { fg = opts.hl.buffer.col1 } },
+		{ name = "DataExplorerCol2", opts = { fg = opts.hl.buffer.col2 } },
+		{ name = "DataExplorerCol3", opts = { fg = opts.hl.buffer.col3 } },
+		{ name = "DataExplorerCol4", opts = { fg = opts.hl.buffer.col4 } },
+		{ name = "DataExplorerCol5", opts = { fg = opts.hl.buffer.col5 } },
+		{ name = "DataExplorerCol6", opts = { fg = opts.hl.buffer.col6 } },
+		{ name = "DataExplorerCol7", opts = { fg = opts.hl.buffer.col7 } },
+		{ name = "DataExplorerCol8", opts = { fg = opts.hl.buffer.col8 } },
+		{ name = "DataExplorerCol9", opts = { fg = opts.hl.buffer.col9 } },
 	}
 	for _, hl in ipairs(highlights) do
 		vim.api.nvim_set_hl(0, hl.name, hl.opts)

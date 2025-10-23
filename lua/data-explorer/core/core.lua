@@ -5,6 +5,7 @@ local windows = require("data-explorer.ui.windows")
 local display = require("data-explorer.ui.display")
 local config_windows = require("data-explorer.ui.config_windows")
 local duckdb = require("data-explorer.core.duckdb")
+local log = require("data-explorer.gestion.log")
 local mappings = require("data-explorer.ui.mappings")
 
 local M = {}
@@ -31,6 +32,11 @@ local function create_buffers(opts, file, metadata, data)
 	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, data_lines)
 	state.set_state("buffers", "buf_data", buf_data)
 
+	if opts.hl.buffer.hl_enable then
+		-- Update highlights in data buffer
+		display.update_highlights(buf_data, data_lines)
+	end
+
 	-- Prepare display sql
 	local sql_help = display.prepare_sql_help(opts)
 	local buf_sql_help = vim.api.nvim_create_buf(false, true)
@@ -56,14 +62,20 @@ end
 ---@param file string: Path to the parquet file.
 function M.render(opts, file)
 	-- Fetch and parse data
-	local data = duckdb.fetch_parse_data(file, "data")
+	local err
+	local data = nil
+	local metadata = nil
+
+	data, err = duckdb.fetch_parse_data(file, "main_data")
 	if not data then
+		log.display_notify(4, "Error fetching data: " .. err)
 		return
 	end
 
 	-- Fetch and cache metadata
-	local metadata = utils.get_cached_metadata(file)
+	metadata, err = utils.get_cached_metadata(file)
 	if not metadata then
+		log.display_notify(4, "Error fetching metadata: " .. err)
 		return
 	end
 
