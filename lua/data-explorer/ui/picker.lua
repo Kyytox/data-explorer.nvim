@@ -20,8 +20,9 @@ local function picker_previewer()
 			local file = entry.value
 
 			-- Fetch and cache metadata
-			local cached = utils.get_cached_metadata(file)
+			local cached, err = utils.get_cached_metadata(file)
 			if not cached then
+				log.display_notify(4, "Error fetching metadata: " .. err)
 				return
 			end
 

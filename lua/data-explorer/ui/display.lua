@@ -5,7 +5,7 @@ local M = {}
 ---@param metadata table: Metadata table with headers and data.
 ---@return table: Lines to display.
 function M.prepare_metadata(file, metadata)
-	if tonumber(metadata.count_lines) == 0 then
+	if metadata.count_lines == 0 then
 		return {
 			file,
 			"",
@@ -14,13 +14,12 @@ function M.prepare_metadata(file, metadata)
 		}
 	end
 
-	local tbl_metadata = M.prepare_data(metadata.headers, metadata.data)
 	return {
 		file,
+		"File size: " .. tostring(metadata.file_size),
 		"Number of lines: " .. tonumber(metadata.count_lines),
-		"File size (KB): " .. tostring(metadata.file_size),
 		"",
-		unpack(tbl_metadata),
+		unpack(metadata.data),
 	}
 end
 

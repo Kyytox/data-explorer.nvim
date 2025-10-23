@@ -55,18 +55,18 @@ function M.get_cached_metadata(file)
 	local metadata = state.get_state("files_metadata", file)
 
 	if metadata then
-		return metadata
+		return metadata, nil
 	end
 
 	-- Fetch and parse metadata
-	metadata = duckdb.fetch_parse_data(file, "metadata")
+	metadata, err = duckdb.fetch_parse_data(file, "metadata")
 	if not metadata then
-		return nil
+		return nil, err
 	end
 
 	-- Set Cache metadata
 	state.set_state("files_metadata", file, metadata)
-	return metadata
+	return metadata, nil
 end
 
 return M
