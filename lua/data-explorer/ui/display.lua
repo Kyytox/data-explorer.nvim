@@ -188,6 +188,9 @@ function M.update_highlights(buf, data_lines)
 		col_start = e
 	end
 
+	-- Add last column (after last | to end of line)
+	tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = #header_line }
+
 	-- Browse lines and highlight based on tbl_pos
 	for l = 1, #data_lines do
 		for _, col in pairs(tbl_pos) do
