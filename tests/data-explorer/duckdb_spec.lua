@@ -1,0 +1,105 @@
+-- local duckdb = require("data-explorer.core.duckdb")
+-- local parser = require("data-explorer.core.parser")
+-- local utils = require("data-explorer.core.utils")
+-- local plenary = require("plenary")
+--
+-- describe("DuckDB Tests", function()
+-- 	local test_run = function(SQL, lst_files, delim, limit)
+-- 		local err
+--
+-- 		for _, file in ipairs(lst_files) do
+-- 			local ext = string.match(file, "%.([a-zA-Z0-9]+)$")
+--
+-- 			local query
+-- 			if limit == nil then
+-- 				query = string.format(SQL[ext], file)
+-- 			else
+-- 				query = string.format(SQL[ext], file, limit)
+-- 			end
+-- 			local out
+-- 			local success
+--
+-- 			local full_cmd = string.format('%s -csv -c "%s"', "duckdb", query:gsub('"', '\\"'))
+-- 			local result = io.popen(full_cmd)
+-- 			out = result:read("*a")
+-- 			success = result:close() ~= nil
+-- 			-- local cmd = { "duckdb", "-c", query }
+-- 			-- local result = vim.system(cmd, { text = true }):wait()
+-- 			-- out = result.stdout
+-- 			-- success = result.code == 0
+--
+-- 			-- result, err = parser.parse_csv(out, delim)
+--
+-- 			print("out \n", out)
+-- 			print("success ", success)
+-- 			print("result err ", result.stderr)
+-- 		end
+-- 	end
+--
+-- 	it("Duck DB test parquet", function()
+-- 		local SQL = {
+-- 			parquet = [[
+--           SELECT
+--           path_in_schema AS Column,
+--           type AS Type,
+--           num_values AS Count,
+--           stats_min AS Min,
+--           stats_max AS Max,
+--           stats_null_count AS Nulls
+--           FROM parquet_metadata('%s');
+--         ]],
+-- 		}
+--
+-- 		lst_files = {
+-- 			"/media/kytox/Dev/data-explorer.nvim/tests/data_test/flights-1m.parquet",
+-- 			"/media/kytox/Dev/data-explorer.nvim/tests/data_test/data_notes_status.parquet",
+-- 		}
+-- 		-- test_run(SQL, lst_files, "|", nil)
+-- 	end)
+--
+-- 	it("Duck DB test csv", function()
+-- 		-- local SQL = {
+-- 		-- 	csv = [[
+-- 		--       CREATE TEMP TABLE tmp AS
+-- 		--       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1, ALL_VARCHAR=FALSE);
+-- 		--
+-- 		--        COPY(
+-- 		--           WITH total AS (SELECT COUNT(*) AS total_rows FROM tmp)
+-- 		--           SELECT
+-- 		--             name AS Column,
+-- 		--             type AS Type,
+-- 		--             (SELECT total_rows FROM total) AS Count
+-- 		--           FROM pragma_table_info('tmp')
+-- 		--        ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+-- 		--   ]],
+-- 		-- }
+-- 		--
+--
+-- 		local SQL = {
+-- 			csv = [[
+-- 		    COPY(
+-- 		      SELECT * FROM read_csv_auto('%s') LIMIT %d;
+-- 		    ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+-- 		  ]],
+-- 		}
+-- 		-- local SQL = {
+-- 		-- 	csv = [[
+-- 		--         CREATE TEMP TABLE tmp AS
+-- 		--       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1, ALL_VARCHAR=FALSE);
+-- 		--        -- SUMMARIZE tmp;
+-- 		--        SELECT column_name,
+-- 		--               min,
+-- 		--               max,
+-- 		--               approx_unique,
+-- 		--               avg
+-- 		--         FROM (SUMMARIZE tmp);
+-- 		--   ]],
+-- 		-- }
+--
+-- 		local lst_files = {
+-- 			"/media/kytox/Dev/data-explorer.nvim/tests/data_test/Final_data_to_Kaggle.csv",
+-- 			"/media/kytox/Dev/data-explorer.nvim/tests/data_test/test_short.csv",
+-- 		}
+-- 		test_run(SQL, lst_files, "|", 200)
+-- 	end)
+-- end)
