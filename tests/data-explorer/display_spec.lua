@@ -11,17 +11,23 @@ describe("Tests Display module", function()
 				{ column = "header2", type = "VARCHAR" },
 			},
 			count_lines = 42,
+			file_size = "10 MB",
 		}
 		local lines = display.prepare_metadata(file, metadata)
 		assert.are.same({
 			-- "📦 File: test.txt",
 			"/tmp/test.txt",
+			"File size: 10 MB",
 			"Number of lines: 42",
 			"",
-			"column  │type    ",
-			"────────┼────────",
-			"header1 │VARCHAR ",
-			"header2 │VARCHAR ",
+			{
+				column = "header1",
+				type = "VARCHAR",
+			},
+			{
+				column = "header2",
+				type = "VARCHAR",
+			},
 		}, lines)
 	end)
 
