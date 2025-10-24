@@ -204,7 +204,7 @@ function M.update_highlights(buf, data_lines)
 
 				-- Set extmark for highlight
 				vim.api.nvim_buf_set_extmark(buf, ns_id, l - 1, value_start - 1, {
-					end_col = value_end - 1,
+					end_col = value_end,
 					hl_group = hl_group,
 				})
 			end
