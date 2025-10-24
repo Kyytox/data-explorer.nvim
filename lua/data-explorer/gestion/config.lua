@@ -15,8 +15,11 @@ M.defaults = {
 	-- Data fetching options
 	limit = 10000, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
-	-- files_types = { "parquet", "csv", "tsv", "json" },
-	files_types = { "parquet", "csv", "tsv" },
+	files_types = {
+		parquet = true,
+		csv = true,
+		tsv = true,
+	},
 
 	-- UI/Telescope options
 	telescope_opts = {
@@ -111,61 +114,64 @@ local function set_highlights(opts)
 end
 
 -- Check for valid options
-local function validate_options(opts)
+--- Validate user-provided options and revert to defaults if invalid.
+---@param opts table -- User-provided options.
+---@return string|nil -- Error message if validation fails, nil otherwise.
+function M.validate_options(opts)
 	-- Ensure limit is a positive integer
 	if type(opts.limit) ~= "number" or opts.limit <= 0 then
-		log.display_notify(3, "limit must be a positive number. Reverting to default.")
 		opts.limit = M.defaults.limit
+		return "limit must be a positive number. Reverting to default."
 	end
 
 	-- Ensure layout is valid
 	if opts.layout ~= "vertical" and opts.layout ~= "horizontal" then
-		log.display_notify(3, 'layout must be "vertical" or "horizontal". Reverting to default.')
 		opts.layout = M.defaults.layout
+		return 'layout must be "vertical" or "horizontal". Reverting to default.'
 	end
 
 	-- Ensure files_types is a table
 	if type(opts.files_types) ~= "table" then
-		log.display_notify(3, "files_types must be a table. Reverting to default.")
 		opts.files_types = M.defaults.files_types
+		return "files_types must be a table. Reverting to default."
 	end
 
 	-- Ensure files types has accepted types
 	local accepted_types = M.defaults.files_types
 	local filtered_types = {}
-	for _, ft in ipairs(opts.files_types) do
-		local valid = false
-		for _, at in ipairs(accepted_types) do
-			if ft == at then
-				valid = true
-				break
-			end
-		end
-		if valid then
-			table.insert(filtered_types, ft)
-		else
-			log.display_notify(
-				3,
-				"Unsupported file type: "
-					.. ft
-					.. ". \nSupported types are: "
-					.. table.concat(accepted_types, ", ")
-					.. ".\nIt has been removed from the configuration."
-			)
+	local success = true
+	local fail_key = {}
+	for key, value in pairs(opts.files_types) do
+		if accepted_types[key] and value == true then
+			filtered_types[key] = true
+		elseif not accepted_types[key] and value == true then
+			filtered_types[key] = false
+			success = false
+			table.insert(fail_key, key)
 		end
 	end
+
 	opts.files_types = filtered_types
+	if not success then
+		return "Unsupported file type: "
+			.. table.concat(fail_key, ", ")
+			.. ". \nSupported types are: "
+			.. table.concat(vim.tbl_keys(accepted_types), ", ")
+			.. "."
+			.. "\nTypes not supported have been disabled."
+	end
 end
 
----@param opts table
----@param defaults table
----@return table
-local function apply_defaults(opts, defaults)
+--- Recursively apply default options to user-provided options.
+---@param opts table -- User-provided options.
+---@param defaults table -- Default options.
+---@return table -- Merged options.
+function M.apply_defaults(opts, defaults)
 	for k, v in pairs(defaults) do
 		if opts[k] == nil then
 			opts[k] = vim.deepcopy(v)
 		elseif type(opts[k]) == "table" and type(v) == "table" then
-			apply_defaults(opts[k], v)
+			M.apply_defaults(opts[k], v)
 		end
 	end
 	return opts
@@ -176,10 +182,13 @@ end
 function M.setup(user_opts)
 	local opts = user_opts or {}
 	-- Deep merge user options with defaults
-	M.options = apply_defaults(vim.deepcopy(opts), M.defaults)
+	M.options = M.apply_defaults(vim.deepcopy(opts), M.defaults)
 
 	-- Validate options
-	validate_options(M.options)
+	local err = M.validate_options(M.options)
+	if err then
+		log.display_notify(3, "Config: " .. err)
+	end
 
 	-- Set all highlight groups
 	set_highlights(M.options)

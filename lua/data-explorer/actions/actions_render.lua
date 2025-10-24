@@ -70,8 +70,8 @@ end
 --- Go back to file selection function (Uses the main module reference)
 ---@param opts table: Options table.
 function M.back_to_file_selection(opts)
-	-- Get files_types from config
-	local files_types = opts.files_types
+	-- exctract file types from opts.files_types
+	local files_types = utils.aggregate_file_types(opts)
 
 	-- Find all file
 	local parquet_files = utils.get_files_in_working_directory(files_types)

@@ -69,4 +69,20 @@ function M.get_cached_metadata(file)
 	return metadata, nil
 end
 
+--- Aggragate files types
+---@param opts table: Configuration options.
+---@return table: List of file types.
+function M.aggregate_file_types(opts)
+	local files_types = opts.files_types
+	local file_types_list = {}
+
+	for key, top in pairs(files_types) do
+		if top then
+			table.insert(file_types_list, key)
+		end
+	end
+
+	return file_types_list
+end
+
 return M

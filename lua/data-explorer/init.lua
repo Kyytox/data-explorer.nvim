@@ -41,7 +41,9 @@ end
 --- Main function Data Explorer
 function M.data_explorer()
 	local opts = config.get()
-	local files_types = opts.files_types
+
+	-- exctract file types from opts.files_types
+	local files_types = utils.aggregate_file_types(opts)
 
 	-- Set Autocommands
 	set_autocommands()
@@ -62,7 +64,9 @@ end
 --- Data Explorer File
 function M.data_explorer_file()
 	local opts = config.get()
-	local files_types = opts.files_types -- Get the configured file types
+
+	-- exctract file types from opts.files_types
+	local files_types = utils.aggregate_file_types(opts)
 
 	-- Set Autocommands
 	set_autocommands()
