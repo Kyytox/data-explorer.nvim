@@ -107,6 +107,12 @@ local function run_query(query, mode)
 		result = io.popen(cmd)
 		out = result:read("*a")
 		success = result:close() ~= nil
+	elseif mode == "usr_query" then
+		-- Use vim.system to run the command because we need to capture stdout AND stderr
+		local cmd = { duckdb_cmd, "-csv", "-c", query }
+		result = vim.system(cmd, { text = true }):wait()
+		out = result.stdout
+		success = result.code == 0
 	else
 		-- Use vim.system to run the command because we need to capture stdout AND stderr
 		local cmd = { duckdb_cmd, "-c", query }
@@ -275,7 +281,13 @@ function M.execute_sql_query(buf)
 	local formatted_lines = display.prepare_data(data.headers, data.data)
 
 	-- Update buffer data
-	vim.api.nvim_buf_set_lines(state.get_state("buffers", "buf_data"), 0, -1, false, formatted_lines)
+	local buf_data = state.get_state("buffers", "buf_data")
+	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, formatted_lines)
+
+	local hl_enable = config.get().hl.buffer.hl_enable
+	if hl_enable then
+		display.update_highlights(buf_data, formatted_lines)
+	end
 
 	return nil
 end
