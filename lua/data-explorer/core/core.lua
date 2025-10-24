@@ -82,13 +82,13 @@ function M.render(opts, file)
 	-- Store current file in state
 	state.set_state("current_file", nil, file)
 	state.set_state("current_layout", nil, opts.layout)
-	local width, height = vim.o.columns, vim.o.lines
 
 	-- Create buffers
 	local nb_meta_lines, nb_data_lines = create_buffers(opts, file, metadata, data)
 
 	-- Calculate window layout
-	local tbl_dimensions = config_windows.calculate_window_layout(opts, width, height, nb_meta_lines, nb_data_lines)
+	local tbl_dimensions =
+		config_windows.calculate_window_layout(opts, vim.o.columns, vim.o.lines, nb_meta_lines, nb_data_lines)
 
 	-- get windows layout info according to the layout
 	tbl_dimensions = tbl_dimensions[opts.layout]

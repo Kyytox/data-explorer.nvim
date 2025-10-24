@@ -65,7 +65,7 @@ function M.set_common_keymaps(opts)
 	-- Execution of SQL query
 	vim.keymap.set("n", opts.mappings.execute_sql, function()
 		local sql_err_hide = vim.api.nvim_win_get_config(wins.win_sql_err).hide
-		local err = duckdb.execute_sql_query(buffers.buf_sql)
+		local err = duckdb.execute_sql_query(opts, buffers.buf_sql)
 
 		if err then
 			-- Update buffer with error message
