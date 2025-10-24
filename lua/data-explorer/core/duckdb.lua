@@ -102,7 +102,6 @@ local function run_query(query, mode)
 
 	if mode == "main_data" then
 		-- using io.popen
-		log.info("Running standard query...")
 		local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query:gsub('"', '\\"'))
 		result = io.popen(cmd)
 		out = result:read("*a")
