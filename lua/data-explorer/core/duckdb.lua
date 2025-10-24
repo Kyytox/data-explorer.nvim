@@ -3,6 +3,7 @@ local config = require("data-explorer.gestion.config")
 local state = require("data-explorer.gestion.state")
 local display = require("data-explorer.ui.display")
 local parser = require("data-explorer.core.parser")
+local config_windows = require("data-explorer.ui.config_windows")
 
 local M = {}
 
@@ -23,10 +24,10 @@ local METADATA_QUERIES = {
 	       SELECT * FROM read_csv_auto('%s', sample_size=-1, ALL_VARCHAR=FALSE);
          SELECT column_name AS Column,
                 column_type AS Type,
+                approx_unique AS Unique,
                 null_percentage AS Nulls,
                 SUBSTRING(min, 1, 40) AS Min,
                 SUBSTRING(max, 1, 40) AS Max,
-                approx_unique AS UniqueValues, 
                 avg AS Average,
                 std AS Std,
                 q25
@@ -38,12 +39,12 @@ local METADATA_QUERIES = {
 	tsv = [[
         CREATE TEMP TABLE tmp AS
         SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t', sample_size=-1, ALL_VARCHAR=FALSE);
-        SELECT column_name AS Column,
+         SELECT column_name AS Column,
                 column_type AS Type,
+                approx_unique AS Unique,
                 null_percentage AS Nulls,
                 SUBSTRING(min, 1, 40) AS Min,
                 SUBSTRING(max, 1, 40) AS Max,
-                approx_unique AS Unique, 
                 avg AS Average,
                 std AS Std,
                 q25
@@ -92,29 +93,21 @@ local DATA_QUERIES = {
 
 --- Runs a DuckDB query and returns the raw CSV output.
 --- This function is the only one that interacts with the shell.
----@param query string: The formatted SQL query.
+---@param cmd string|table: The command string or table to execute.
+---@param mode string: "main_data", "metadata", or "usr_query".
 ---@return string|nil, string|nil: Raw CSV output or error message.
-local function run_query(query, mode)
-	local duckdb_cmd = state.get_variable("duckdb_cmd")
+local function run_query(cmd, mode)
 	local out
 	local success
 	local result
 
 	if mode == "main_data" then
 		-- using io.popen
-		local cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query:gsub('"', '\\"'))
 		result = io.popen(cmd)
 		out = result:read("*a")
 		success = result:close() ~= nil
-	elseif mode == "usr_query" then
-		-- Use vim.system to run the command because we need to capture stdout AND stderr
-		local cmd = { duckdb_cmd, "-csv", "-c", query }
-		result = vim.system(cmd, { text = true }):wait()
-		out = result.stdout
-		success = result.code == 0
 	else
 		-- Use vim.system to run the command because we need to capture stdout AND stderr
-		local cmd = { duckdb_cmd, "-c", query }
 		result = vim.system(cmd, { text = true }):wait()
 		out = result.stdout
 		success = result.code == 0
@@ -134,6 +127,25 @@ local function run_query(query, mode)
 	return out, nil
 end
 
+--- Generate command to run DuckDB query
+---@param query string: The SQL query to execute.
+---@param mode string: "main_data", "metadata", or "usr_query".
+---@return string|table: The command string or table to execute.
+local function generate_duckdb_command(query, mode)
+	local duckdb_cmd = state.get_variable("duckdb_cmd")
+	local cmd = nil
+
+	if mode == "main_data" then
+		cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query:gsub('"', '\\"'))
+	elseif mode == "usr_query" then
+		cmd = { duckdb_cmd, "-csv", "-c", query }
+	else
+		cmd = { duckdb_cmd, "-c", query }
+	end
+
+	return cmd
+end
+
 --- Validate the user-provided SQL query.
 --- Will check for the presence of the required 'FROM f' syntax.
 --- @param query string The raw SQL query string provided by the user.
@@ -146,32 +158,39 @@ local function validate_sql_query(query)
 	return true, "Query is valid!"
 end
 
---- Get the raw CSV metadata for a parquet file.
+--- Prepare command for fetching metadata.
 ---@param file string: Path to the parquet file.
 ---@param ext string: File extension (e.g., ".parquet", ".csv").
 ---@return string|nil, string|nil: Raw CSV metadata or error message.
-local function query_metadata(file, ext, mode)
+local function prepare_cmd_metadata(file, ext, mode)
+	-- Format the query
 	local query = METADATA_QUERIES[ext:sub(2)]
 	query = string.format(query, file)
-	return run_query(query, mode)
+
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(query, mode)
+	return run_query(cmd, mode)
 end
 
---- Get the raw CSV data (limited rows) for a parquet file.
+--- Prepare command for fetching main data.
 ---@param file string: Path to the parquet file.
 ---@param ext string: File extension (e.g., ".parquet", ".csv").
 ---@return string|nil, string|nil: Raw CSV data or error message.
-local function query_data(file, ext, mode)
-	local limit = config.get().limit
+local function prepare_cmd_main_data(file, ext, mode)
+	-- Format the query
 	local query = DATA_QUERIES[ext:sub(2)]
-	query = string.format(query, file, limit)
-	return run_query(query, mode)
+	query = string.format(query, file, config.get().limit)
+
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(query, mode)
+	return run_query(cmd, mode)
 end
 
--- Get data based on a custom SQL query
+--- Prepare command for executing user-provided SQL query.
 ---@param file string: Path to the parquet file.
 ---@param query string: Custom SQL query provided by the user.
 ---@return string|nil, string|nil: Raw CSV data or error message.
-local function query_sql(file, query, mode)
+local function prepare_cmd_user_query(file, query, mode)
 	-- Convert query to lower case
 	query = string.lower(query)
 
@@ -185,7 +204,9 @@ local function query_sql(file, query, mode)
 	local path_file = file:gsub("'", "\\'")
 	query = query:gsub("from%s+f", "FROM '" .. path_file .. "'")
 
-	return run_query(query, mode)
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(query, mode)
+	return run_query(cmd, mode)
 end
 
 --- Get file size, determine KB or MB.
@@ -234,13 +255,13 @@ function M.fetch_parse_data(file, mode, query)
 
 	-- Fetch Data
 	if mode == "main_data" then
-		csv_text, err = query_data(file, ext, mode)
+		csv_text, err = prepare_cmd_main_data(file, ext, mode)
 		result, err = parser.parse_csv(csv_text, "|")
 	elseif mode == "metadata" then
-		csv_text, err = query_metadata(file, ext, mode)
+		csv_text, err = prepare_cmd_metadata(file, ext, mode)
 		result, err = parser.parse_raw_text(csv_text)
 	elseif mode == "usr_query" and query then
-		csv_text, err = query_sql(file, query, mode)
+		csv_text, err = prepare_cmd_user_query(file, query, mode)
 		result, err = parser.parse_csv(csv_text, ",")
 	end
 
@@ -255,9 +276,10 @@ function M.fetch_parse_data(file, mode, query)
 	return { headers = result.headers, data = result.data, count_lines = result.count_lines, file_size = size }, nil
 end
 
---- Execute the SQL query
+--- Execute the SQL query write by the user
+---@param opts table: Options table.
 ---@param buf number: Buffer number containing the SQL query.
-function M.execute_sql_query(buf)
+function M.execute_sql_query(opts, buf)
 	local file = state.get_state("current_file")
 
 	-- Get SQL query from SQL buffer
@@ -283,10 +305,41 @@ function M.execute_sql_query(buf)
 	local buf_data = state.get_state("buffers", "buf_data")
 	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, formatted_lines)
 
-	local hl_enable = config.get().hl.buffer.hl_enable
+	local hl_enable = opts.hl.buffer.hl_enable
 	if hl_enable then
 		display.update_highlights(buf_data, formatted_lines)
 	end
+
+	-- Update dimensions of windows
+	-- Calculate window layout
+	local tbl_dims = config_windows.calculate_window_layout(
+		opts,
+		vim.o.columns,
+		vim.o.lines,
+		tonumber(vim.inspect(state.get_state("tbl_dimensions", opts.layout).meta_height)),
+		#data.data
+	)
+
+	-- get windows layout info according to the layout
+	tbl_dims = tbl_dims[opts.layout]
+
+	-- Update metadata window
+	config_windows.update_window_dimensions(
+		state.get_state("windows", "win_meta"),
+		tbl_dims.meta_width,
+		tbl_dims.meta_height,
+		tbl_dims.row_start,
+		tbl_dims.col_start
+	)
+
+	-- Update data window
+	config_windows.update_window_dimensions(
+		state.get_state("windows", "win_data"),
+		tbl_dims.main_width,
+		tbl_dims.data_height,
+		tbl_dims.data_row_start,
+		tbl_dims.data_col_start
+	)
 
 	return nil
 end
