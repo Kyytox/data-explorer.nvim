@@ -2,6 +2,7 @@ local utils = require("data-explorer.core.utils")
 local state = require("data-explorer.gestion.state")
 local log = require("data-explorer.gestion.log")
 local actions_windows = require("data-explorer.actions.actions_windows")
+local config_windows = require("data-explorer.ui.config_windows")
 
 local M = {}
 
@@ -30,40 +31,28 @@ function M.rotate_layout(opts)
 	-- Update data window
 	if new_layout == "vertical" then
 		-- Update metadata window
-		vim.api.nvim_win_set_config(win_meta, {
-			relative = "editor",
-			width = dim.main_width,
-			height = dim.meta_height,
-			row = dim.row_start,
-			col = dim.col_start,
-		})
+		config_windows.update_window_dimensions(win_meta, dim.main_width, dim.meta_height, dim.row_start, dim.col_start)
 
 		-- Update data window
-		vim.api.nvim_win_set_config(win_data, {
-			relative = "editor",
-			width = dim.main_width,
-			height = dim.data_height,
-			row = dim.data_row_start,
-			col = dim.data_col_start,
-		})
+		config_windows.update_window_dimensions(
+			win_data,
+			dim.main_width,
+			dim.data_height,
+			dim.data_row_start,
+			dim.data_col_start
+		)
 	else
 		-- Update metadata window
-		vim.api.nvim_win_set_config(win_meta, {
-			relative = "editor",
-			width = dim.meta_width,
-			height = dim.meta_height,
-			row = dim.row_start,
-			col = dim.col_start,
-		})
+		config_windows.update_window_dimensions(win_meta, dim.meta_width, dim.meta_height, dim.row_start, dim.col_start)
 
 		-- Update data window
-		vim.api.nvim_win_set_config(win_data, {
-			relative = "editor",
-			width = dim.data_width,
-			height = dim.data_height,
-			row = dim.data_row_start,
-			col = dim.data_col_start,
-		})
+		config_windows.update_window_dimensions(
+			win_data,
+			dim.data_width,
+			dim.data_height,
+			dim.data_row_start,
+			dim.data_col_start
+		)
 	end
 end
 

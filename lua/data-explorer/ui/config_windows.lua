@@ -39,6 +39,24 @@ function M.set_window_options()
 	M.upd_cursorline_option(true, wins.win_data)
 end
 
+--- Update dimansions of a windows
+---@param win integer: Window handle.
+---@param width number: New width.
+---@param height number: New height.
+---@param row number: New row position.
+---@param col number: New column position.
+function M.update_window_dimensions(win, width, height, row, col)
+	if vim.api.nvim_win_is_valid(win) then
+		vim.api.nvim_win_set_config(win, {
+			relative = "editor",
+			width = width,
+			height = height,
+			row = row,
+			col = col,
+		})
+	end
+end
+
 --- Calculate window layout for both vertical and horizontal layouts.
 ---@param opts table: Options table.
 ---@param width number: Width of the available space.
