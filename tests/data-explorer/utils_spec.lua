@@ -24,4 +24,19 @@ describe("Tests Utils module", function()
 			assert.is_true(utils.is_accepted_file_type(file, accepted_types))
 		end
 	end)
+
+	-- Test for aggregate files types
+	it("Test aggregate files types", function()
+		local opts = {
+			files_types = {
+				parquet = true,
+				csv = true,
+				tsv = true,
+			},
+		}
+
+		local aggregated_types = utils.aggregate_file_types(opts)
+		table.sort(aggregated_types) --sorted alphabetically (for test consistency)
+		assert.are.same({ "csv", "parquet", "tsv" }, aggregated_types)
+	end)
 end)
