@@ -70,7 +70,7 @@ M.defaults = {
 		},
 		buffer = {
 			hl_enable = true,
-			header = "#8b1d21",
+			header = "white",
 			col1 = "#f38ba8",
 			col2 = "#89b4fa",
 			col3 = "#a6e3a1",
