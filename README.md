@@ -1,4 +1,204 @@
-# Data Explorer
+# <center>Data-Explorer.nvim</center>
+
+[![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
+[![Neovim](https://img.shields.io/badge/Neovim%200.8+-green.svg?style=for-the-badge&logo=neovim)](https://neovim.io)
+[![DuckDB](https://img.shields.io/badge/DuckDB-orange.svg?style=for-the-badge&logo=duckdb)](https://duckdb.org)
+[![Telescope.nvim](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://nvim-telescope.github.io/)
+
+Explore, preview, and query your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+
+---
+
+- [Caution](#caution)
+- [Requirements](#requirements)
+- [Features](#features)
+- [Installation](#installation)
+- [Config](#config)
+  - [Default Configuration](#default-configuration)
+  - [Parameters Details](#parameters-details)
+- [API](#api)
+  - [DataExplorer Command](#dataexplorer-command)
+  - [DataExplorerFile Command](#dataexplorerfile-command)
+- [SQL Queries](#sql-queries)
+- [Key Mappings (inside DataExplorer)](#key-mappings-inside-dataexplorer)
+- [Architecture](#architecture)
+- [Limitations](#limitations)
+- [Future Plans](#future-plans)
+- [Motivation](#motivation)
+- [Contribute & Bug Reports](#contribute--bug-reports)
+
+- [License](#license)
+
+---
+
+## 🚧 Caution
+
+This plugin is still under active development.
+If you encounter issues, have ideas for improvements, or want to contribute — please open an issue or a pull request!
+
+---
+
+## ⚡️ Requirements
+
+- **Neovim ≥ 0.8**
+- **DuckDB** installed and available in your PATH
+  (`duckdb` command must be executable from your terminal)
+- **nvim-telescope/telescope.nvim**
+- **nvim-lua/plenary.nvim**
+
+---
+
+## 🎄 Features
+
+| Feature      | Description                        |
+| ------------ | ---------------------------------- |
+| File types   | `.parquet`, `.csv`, `.tsv`         |
+| UI           | Telescope + floating windows       |
+| Commands     | `DataExplorer`, `DataExplorerFile` |
+| Configurable | Limit, Layouts, mappings, colors   |
+| SQL Support  | [DuckDB](https://duckdb.org)       |
+
+- **Telescope integration** – search and preview files with metadata preview
+- **Metadata display** – show column names, types, and other details
+- **Table view** – display file contents in a formatted, colorized table
+- **DuckDB backend** – use SQL to explore data interactively
+- **Custom SQL queries** – run SQL queries on your data, see results instantly
+- **Configurable UI & colors** – floating windows, layout control, highlights
+
+---
+
+## 🔌 Installation
+
+Example with **lazy.nvim**:
+
+```lua
+{
+  "yourname/DataExplorer.nvim",
+  dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+  config = function()
+    require("data-explorer").setup()
+  end,
+}
+```
+
+Or with **vim-plug**:
+
+```vim
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'kyytox/data-explorer.nvim'
+```
+
+---
+
+## SQL Queries
+
+From the main Data view:
+
+- Press **`3`** to toggle the SQL query window.
+- Write any valid DuckDB SQL query.
+- Press **`e`** to execute it.
+- Errors (if any) appear in a separate floating window.
+
+> Tip: When writing your own SQL queries, **remember to use a `LIMIT` clause** — otherwise large files may take a long time to load or cause high memory usage.
+
+---
+
+## ⚙️ Config
+
+### Default Configuration
+
+```lua
+require("dataexplorer").setup({
+  limit = 250, -- Max number of rows to fetch
+  layout = "vertical", -- "vertical" or "horizontal"
+  files_types = {
+    parquet = true,
+    csv = true,
+    tsv = true,
+  },
+
+  telescope_opts = {
+    layout_strategy = "vertical",
+    layout_config = {
+      height = 0.4,
+      width = 0.9,
+      preview_cutoff = 1,
+      preview_height = 0.5,
+      preview_width = 0.4,
+    },
+  },
+
+  window_opts = {
+    border = "rounded",
+  },
+
+  mappings = {
+    quit = "q",
+    back = "<BS>",
+    focus_meta = "1",
+    focus_data = "2",
+    toggle_sql = "3",
+    rotate_layout = "r",
+    execute_sql = "e",
+  },
+
+  hl = {
+    windows = {
+      bg = "#11111b",
+      fg = "#cdd6f4",
+      title = "#f5c2e7",
+      footer = "#a6e3a1",
+      sql_fg = "#89b4fa",
+      sql_bg = "#1e1e2e",
+      sql_err_fg = "#f38ba8",
+      sql_err_bg = "#3b1d2a",
+    },
+    buffer = {
+      hl_enable = true,
+      header = "#8b1d21",
+      col1 = "#f38ba8",
+      col2 = "#89b4fa",
+      col3 = "#a6e3a1",
+      col4 = "#f9e2af",
+      col5 = "#cba6f7",
+      col6 = "#94e2d5",
+      col7 = "#f5c2e7",
+      col8 = "#89b4fa",
+      col9 = "#a6e3a1",
+    },
+  },
+})
+```
+
+---
+
+## 🚀 API
+
+### DataExplorer
+
+Search for and preview supported data files:
+
+```vim
+:lua require("data-explorer").DataExplorer()
+```
+
+Telescope will show available `.parquet`, `.csv`, and `.tsv` files.
+Selecting a file opens it in the DataExplorer view with metadata and table view.
+
+### DataExplorerFile
+
+Open the currently edited file in DataExplorer (if supported):
+
+```vim
+:lua require("data-explorer").DataExplorerFile()
+```
+
+This bypasses Telescope and directly loads the file into the explorer.
+
+---
+
+## ⛩️ Architecture
 
 ```
                         ┌────────────┐
@@ -30,191 +230,38 @@
            └────────────────────┘
 ```
 
----
+## ⚠️ Limitations
 
-# 🦆 DataExplorer.nvim
-
-> Explore, preview, and query your data files (`.parquet`, `.csv`, `.tsv`, `.json`) directly inside Neovim — powered by [DuckDB](https://duckdb.org/) and [Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim).
-
----
-
-## ⚠️ WIP
-
-This plugin is still in early development.
-If you encounter bugs, want to suggest improvements, or just want to discuss ideas, please [open an issue](https://github.com/yourname/dataexplorer.nvim/issues) — feedback is super welcome!
+- Not optimized for **large datasets** — reading big `.parquet` or `.csv` files may consume significant memory.
+- Default view limits data to **250 rows** (configurable).
+- When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
+- Emojis and special characters (not all) in data may not render correctly (small column shifts)
 
 ---
 
-## 🎯 Motivation
+## 📜 Future Plans
 
-Working with `.parquet` files in Neovim was always a pain — there was no simple way to **inspect metadata** or **preview data** without leaving the editor.
-
-`DataExplorer.nvim` was born to fix that.
-It lets you **browse structured data files**, **view metadata**, and **run SQL queries** directly inside Neovim using DuckDB as the backend engine.
-
-It’s perfect for:
-
-- Data engineers exploring datasets
-- Developers debugging CSV/JSON logs
-- Anyone curious about the content of tabular files without opening a heavy IDE
+- Support for more formats (`.json`, `.sqlite`, etc.)
+- Smarter preview caching
+- SQL Query history and favorites
 
 ---
 
-## ⚙️ Requirements
+## 💪 Motivation
 
-- **Neovim ≥ 0.9**
-- **[DuckDB](https://duckdb.org/docs/installation/index.html)** installed and available in your `$PATH`
-- **[Telescope.nvim](https://github.com/nvim-telescope/telescope.nvim)**
-- **[plenary.nvim](https://github.com/nvim-lua/plenary.nvim)**
-
----
-
-## 🚀 Installation
-
-Example using [lazy.nvim](https://github.com/folke/lazy.nvim):
-
-```lua
-{
-  "yourname/dataexplorer.nvim",
-  dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
-  config = function()
-    require("dataexplorer").setup()
-  end,
-}
-```
+Inspecting `.parquet`, `.csv`, or `.tsv` files directly in Neovim has always been a pain.
+Most tools either require leaving the editor or converting data manually.
+**DataExplorer.nvim** was created to make exploring and querying structured data files easy — without leaving Neovim.
 
 ---
 
-## 🧩 Features
+## 🫵🏼 Contribute & Bug Reports
 
-- 📂 Browse `.parquet`, `.csv`, `.tsv`, `.json` files from Telescope
-- 🧠 Preview **file metadata** (columns, types, row count, etc.)
-- 📊 View data in a **scrollable table view** inside Neovim
-- 🧮 Run **SQL queries** directly on the selected file
-- ⚠️ Display **query errors** in a dedicated floating window
-- ⚡ Limit row preview size to avoid loading huge files (default: 10,000 rows)
+PRs and feedback are welcome!
+If you want to help improve performance, extend support for new formats, or enhance the UI — please open a PR or issue.
 
 ---
 
-## 🔧 Commands
+## License
 
-| Command             | Description                                                                                                        |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `:DataExplorer`     | Opens Telescope to select a supported data file and preview metadata. Once selected, displays the table view.      |
-| `:DataExplorerFile` | Opens the current buffer’s file directly (if it’s a supported format). Same as `DataExplorer` but skips Telescope. |
-
----
-
-## 🧠 Usage
-
-### 🔍 Browse & Preview
-
-Launch the file browser:
-
-```vim
-:DataExplorer
-```
-
-This opens Telescope where you can fuzzy-search for `.parquet`, `.csv`, `.tsv`, or `.json` files.
-Preview shows metadata (columns, types, number of rows).
-Press `<CR>` to open the selected file in **table view**.
-
-### 🧮 Query the Data
-
-Once in table view, open the query prompt:
-
-```
-:DataExplorerQuery
-```
-
-Write your SQL (DuckDB syntax). Example:
-
-```sql
-SELECT column1, COUNT(*) FROM file GROUP BY column1 LIMIT 100;
-```
-
-Results will be displayed in the same floating table window.
-If there’s a syntax or execution error, it appears in an **SQL Error window**.
-
-> ⚠️ DuckDB is not optimized for very large datasets —
-> a **default limit of 10,000 rows** is enforced when previewing data.
-> You can override this limit manually in your SQL query (e.g. `LIMIT 5000`).
-
----
-
-## 🧰 Configuration
-
-You can customize the behavior via `setup()`:
-
-```lua
-require("dataexplorer").setup({
-  default_limit = 10000, -- default row limit for previews
-  window = {
-    width = 0.8,
-    height = 0.6,
-  },
-})
-```
-
----
-
-## 🪶 Telescope Integration
-
-The plugin registers itself as a Telescope picker.
-
-To load it manually:
-
-```lua
-require("telescope").load_extension("dataexplorer")
-```
-
-Then call:
-
-```vim
-:Telescope dataexplorer files
-```
-
----
-
-## 🧱 Limitations
-
-- DuckDB works best with **small to medium-sized datasets**.
-  Large files may cause slowdowns or crashes.
-- When running custom SQL queries, **no limit** is enforced unless you add one manually (`LIMIT 10000`).
-- Currently, only **local files** are supported (no S3, HTTP, etc.).
-
----
-
-## 🧑‍💻 Example Workflow
-
-1. Run `:DataExplorer`
-2. Search for `users.parquet` via Telescope
-3. Preview metadata in the Telescope window
-4. Press `<CR>` → open data table
-5. Type `:DataExplorerQuery` and enter:
-
-   ```sql
-   SELECT country, COUNT(*) FROM users GROUP BY country ORDER BY COUNT(*) DESC LIMIT 50;
-   ```
-
-```
-
-6. View the result directly in Neovim 🎉
-
----
-
-## 🤝 Contributing
-
-Pull requests and ideas are welcome!
-Open an issue or PR on [GitHub](https://github.com/yourname/dataexplorer.nvim).
-
----
-
-## 🧵 Social
-
-- GitHub Discussions: _coming soon_
-
----
-
-<!-- panvimdoc/panvimdoc.sh --project-name data-explorer --input-file README.md --vim-version 0.11.3. --toc false --description test --dedup-subheadings false --treesitter true -->
-```
+MIT License © 2025 Kyytox
