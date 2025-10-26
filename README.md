@@ -3,7 +3,7 @@
 [![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
 [![Neovim](https://img.shields.io/badge/Neovim%200.8+-green.svg?style=for-the-badge&logo=neovim)](https://neovim.io)
 [![DuckDB](https://img.shields.io/badge/DuckDB-orange.svg?style=for-the-badge&logo=duckdb)](https://duckdb.org)
-[![Telescope.nvim](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://nvim-telescope.github.io/)
+[![Telescope](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://github.com/nvim-telescope/telescope.nvim)
 
 Explore, preview, and query your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
 
@@ -14,12 +14,9 @@ Explore, preview, and query your data files directly inside Neovim — powered b
 - [Features](#features)
 - [Installation](#installation)
 - [Config](#config)
-  - [Default Configuration](#default-configuration)
-  - [Parameters Details](#parameters-details)
 - [API](#api)
-  - [DataExplorer Command](#dataexplorer-command)
-  - [DataExplorerFile Command](#dataexplorerfile-command)
-- [SQL Queries](#sql-queries)
+  - [DataExplorer](#dataexplorer)
+  - [DataExplorerFile](#dataexplorerfile)
 - [Architecture](#architecture)
 - [Limitations](#limitations)
 - [Future Plans](#future-plans)
@@ -39,29 +36,25 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
 ## ⚡️ Requirements
 
 - **Neovim ≥ 0.8**
-- **DuckDB** installed and available in your PATH
+- [**DuckDB**](https://duckdb.org), installed and available in your PATH
   (`duckdb` command must be executable from your terminal)
-- **nvim-telescope/telescope.nvim**
-- **nvim-lua/plenary.nvim**
+- [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
+- [**plenary.nvim**](https://github.com/nvim-lua/plenary.nvim)
 
 ---
 
 ## 🎄 Features
 
-| Feature      | Description                        |
-| ------------ | ---------------------------------- |
-| File types   | `.parquet`, `.csv`, `.tsv`         |
-| UI           | Telescope + floating windows       |
-| Commands     | `DataExplorer`, `DataExplorerFile` |
-| Configurable | Limit, Layouts, mappings, colors   |
-| SQL Support  | [DuckDB](https://duckdb.org)       |
-
-- **Telescope integration** – search and preview files with metadata preview
-- **Metadata display** – show column names, types, and other details
-- **Table view** – display file contents in a formatted, colorized table
-- **DuckDB backend** – use SQL to explore data interactively
-- **Custom SQL queries** – run SQL queries on your data, see results instantly
-- **Configurable UI & colors** – floating windows, layout control, highlights
+| Feature            | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| Supported Formats  | `.parquet`, `.csv`, `.tsv`                            |
+| SQL system         | [DuckDB](https://duckdb.org)                          |
+| File Search        | Find data files using Telescope                       |
+| Metadata Display   | Show column names, types, and other details           |
+| Table View         | Display file contents in a formatted, colorized table |
+| Custom SQL Queries | Run SQL queries on your data, see results instantly   |
+| Configurable       | Limit, Layouts, mappings, colors, highlights          |
+| Commands           | `DataExplorer`, `DataExplorerFile`                    |
 
 ---
 
@@ -71,7 +64,7 @@ Example with **lazy.nvim**:
 
 ```lua
 {
-  "yourname/DataExplorer.nvim",
+  "kyytox/data-explorer.nvim",
   dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
   config = function()
     require("data-explorer").setup()
@@ -82,29 +75,12 @@ Example with **lazy.nvim**:
 Or with **vim-plug**:
 
 ```vim
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
 Plug 'kyytox/data-explorer.nvim'
 ```
 
 ---
 
-## SQL Queries
-
-From the main Data view:
-
-- Press **`3`** to toggle the SQL query window.
-- Write any valid DuckDB SQL query.
-- Press **`e`** to execute it.
-- Errors (if any) appear in a separate floating window.
-
-> Tip: When writing your own SQL queries, **remember to use a `LIMIT` clause** — otherwise large files may take a long time to load or cause high memory usage.
-
----
-
 ## ⚙️ Config
-
-### Default Configuration
 
 ```lua
 require("dataexplorer").setup({
@@ -162,7 +138,7 @@ require("dataexplorer").setup({
     },
     buffer = {
       hl_enable = true,
-      header = "#8b1d21",
+      header = "white",
       col1 = "#f38ba8",
       col2 = "#89b4fa",
       col3 = "#a6e3a1",
@@ -177,6 +153,8 @@ require("dataexplorer").setup({
 })
 ```
 
+For more details on configuration options: [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt)
+
 ---
 
 ## 🚀 API
@@ -189,7 +167,7 @@ Search for and preview supported data files:
 :lua require("data-explorer").DataExplorer()
 ```
 
-Telescope will show available `.parquet`, `.csv`, and `.tsv` files.
+Telescope will show a list of supported data files in your current working directory.
 Selecting a file opens it in the DataExplorer view with metadata and table view.
 
 ### DataExplorerFile
@@ -255,7 +233,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 ## 💪 Motivation
 
-Inspecting `.parquet`, `.csv`, or `.tsv` files directly in Neovim has always been a pain.
+Inspecting `.parquet` files directly in Neovim has always been a pain.
 Most tools either require leaving the editor or converting data manually.
 **DataExplorer.nvim** was created to make exploring and querying structured data files easy — without leaving Neovim.
 
