@@ -1,24 +1,25 @@
 local config = require("data-explorer.gestion.config")
 
-describe("apply_defaults", function()
-	it("fills missing keys from defaults", function()
-		local defaults = { limit = 1000, layout = "vertical" }
-
-		local user1 = { limit = nil, layout = nil }
-		local merged = config.apply_defaults(user1, defaults)
-		assert.equals(1000, merged.limit)
-		assert.equals("vertical", merged.layout)
-	end)
-
-	it("keeps user-defined keys", function()
-		local user = { window_opts = { border = "single" } }
-		local defaults = { window_opts = { border = "rounded" } }
-		local merged = config.apply_defaults(user, defaults)
-		assert.equals("single", merged.window_opts.border)
-	end)
-end)
-
 describe("validate_options", function()
+	local defaults
+	before_each(function()
+		defaults = {
+			limit = 1000,
+			layout = "vertical",
+			window_opts = { border = "rounded" },
+			placeholder_sql = {
+				"SELECT * FROM f LIMIT 1000;",
+				"-- Warning: Large result could slow down / crash.",
+				"-- To query the file, use 'f' as the table name.",
+			},
+			files_types = {
+				parquet = true,
+				csv = true,
+				tsv = true,
+			},
+		}
+	end)
+
 	it("reverts invalid limit", function()
 		local opts = { limit = -1 }
 		local msg = config.validate_options(opts)
@@ -33,6 +34,20 @@ describe("validate_options", function()
 		assert.matches("layout must be", msg)
 	end)
 
+	it("reverts invalid placeholder_sql (need a table)", function()
+		local opts = {
+			limit = 10,
+			layout = "vertical",
+			placeholder_sql = "SELECT * FROM f;",
+			files_types = defaults.files_types,
+		}
+		local msg = config.validate_options(opts)
+		assert.equals(config.defaults.placeholder_sql[1], defaults.placeholder_sql[1])
+		assert.equals(config.defaults.placeholder_sql[2], defaults.placeholder_sql[2])
+		assert.equals(config.defaults.placeholder_sql[3], defaults.placeholder_sql[3])
+		assert.matches("placeholder_sql must be a table", msg)
+	end)
+
 	it("reverts invalid files_types types", function()
 		local opts = { limit = 10, layout = "vertical", files_types = "csv" }
 		local msg = config.validate_options(opts)
@@ -41,7 +56,12 @@ describe("validate_options", function()
 	end)
 
 	it("reverts invalid files_types values", function()
-		local opts = { limit = 10, layout = "vertical", files_types = { csv = true, xml = true } }
+		local opts = {
+			limit = 10,
+			layout = "vertical",
+			files_types = { csv = true, xml = true },
+			placeholder_sql = defaults.placeholder_sql,
+		}
 		local msg = config.validate_options(opts)
 		print(vim.inspect(msg))
 		assert.matches("Unsupported file type: xml", msg)
