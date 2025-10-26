@@ -142,6 +142,12 @@ function M.validate_options(opts)
 		return "files_types must be a table. Reverting to default."
 	end
 
+	-- Ensure placeholder_sql is a table
+	if type(opts.placeholder_sql) ~= "table" then
+		opts.placeholder_sql = M.defaults.placeholder_sql
+		return "placeholder_sql must be a table. Reverting to default."
+	end
+
 	-- Ensure files types has accepted types
 	local accepted_types = M.defaults.files_types
 	local filtered_types = {}
