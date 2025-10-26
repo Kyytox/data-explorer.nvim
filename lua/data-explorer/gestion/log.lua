@@ -23,11 +23,24 @@ M.levels = {
 	ERROR = 4,
 }
 
-M.log_file_path = "/media/kytox/Dev/data-explorer.nvim/logs/data_explorer.log"
+M.log_file_path = "./logs/data_explorer.log"
 
-M.min_level = M.levels.INFO
+M.min_level = M.levels.DEBUG
+
+--- Create folder and file if they do not exist
+local function ensure_log_file_exists()
+	local log_dir = M.log_file_path:match("^(.*)/[^/]+$") or "."
+	os.execute("mkdir -p " .. log_dir)
+	local file = io.open(M.log_file_path, "a")
+	if file then
+		file:close()
+	else
+		error("Could not create log file: " .. M.log_file_path)
+	end
+end
 
 function M.setup(log_file_path, min_level)
+	ensure_log_file_exists()
 	M.log_file_path = log_file_path or M.log_file_path
 	M.min_level = min_level or M.min_level
 	local file = io.open(M.log_file_path, "w")
