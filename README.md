@@ -1,4 +1,6 @@
-# <center>Data-Explorer.nvim</center>
+<div align="center">
+
+# Data-Explorer.nvim
 
 [![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
 [![Neovim](https://img.shields.io/badge/Neovim%200.8+-green.svg?style=for-the-badge&logo=neovim)](https://neovim.io)
@@ -6,6 +8,8 @@
 [![Telescope](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://github.com/nvim-telescope/telescope.nvim)
 
 Explore, preview, and query your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+
+</div>
 
 ---
 
