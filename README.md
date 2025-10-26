@@ -20,13 +20,11 @@ Explore, preview, and query your data files directly inside Neovim — powered b
   - [DataExplorer Command](#dataexplorer-command)
   - [DataExplorerFile Command](#dataexplorerfile-command)
 - [SQL Queries](#sql-queries)
-- [Key Mappings (inside DataExplorer)](#key-mappings-inside-dataexplorer)
 - [Architecture](#architecture)
 - [Limitations](#limitations)
 - [Future Plans](#future-plans)
 - [Motivation](#motivation)
 - [Contribute & Bug Reports](#contribute--bug-reports)
-
 - [License](#license)
 
 ---
@@ -117,6 +115,14 @@ require("dataexplorer").setup({
     csv = true,
     tsv = true,
   },
+
+	-- Placeholder SQL query
+	-- This is shown when opening the SQL window before any query is written
+	placeholder_sql = {
+		"SELECT * FROM f LIMIT 1000;",
+		"-- Warning: Large result could slow down / crash.",
+		"-- To query the file, use 'f' as the table name.",
+	},
 
   telescope_opts = {
     layout_strategy = "vertical",
