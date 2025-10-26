@@ -46,9 +46,12 @@ end
 ---@return table
 function M.prepare_sql_display(opts)
 	return {
-		"SELECT * FROM f LIMIT 1000;",
-		"-- Warning: Large result could slow down / crash Neovim.",
+		unpack(opts.placeholder_sql),
 	}
+	-- return {
+	--      "SELECT * FROM f LIMIT 1000;",
+	-- 	"-- Warning: Large result could slow down / crash Neovim.",
+	-- }
 end
 
 --- Prepare SQL help display

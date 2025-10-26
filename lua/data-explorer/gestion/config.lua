@@ -32,6 +32,14 @@ M.defaults = {
 		},
 	},
 
+	-- Placeholder SQL query
+	-- This is shown when opening the SQL window before any query is written
+	placeholder_sql = {
+		"SELECT * FROM f LIMIT 1000;",
+		"-- Warning: Large result could slow down / crash.",
+		"-- To query the file, use 'f' as the table name.",
+	},
+
 	-- Floating window options for main display windows
 	window_opts = {
 		border = "rounded",
