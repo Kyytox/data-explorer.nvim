@@ -27,11 +27,6 @@ local config_windows = require("data-explorer.ui.config_windows")
 
 describe("calculate_window_layout", function()
 	it("returns correct dimensions for typical input", function()
-		local opts = {
-			window_opts = {
-				hide_window_help = true, -- Hide help window on main display
-			},
-		}
 		local width = 120
 		local height = 40
 		local nb_metadata_lines = 10
@@ -57,11 +52,6 @@ describe("calculate_window_layout", function()
 	end)
 
 	it("handles small terminal sizes gracefully", function()
-		local opts = {
-			window_opts = {
-				hide_window_help = false,
-			},
-		}
 		local dims = config_windows.calculate_window_layout(opts, 200, 50, 5, 20)
 		assert.is_true(dims.vertical.meta_height == 5)
 		assert.is_true(dims.vertical.data_height == 21)

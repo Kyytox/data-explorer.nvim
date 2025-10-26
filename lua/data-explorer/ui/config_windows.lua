@@ -65,25 +65,16 @@ end
 ---@param nb_data_lines number: Number of lines in the data content.
 ---@return table: Calculated dimensions for both vertical and horizontal layouts.
 function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_data_lines)
-	-- Help window height
-	local height_help = 1
-	local row_start = height_help + 3
+	local row_start = 2
+	local col_start = 1
+	local available_height = height - row_start
+	local main_width = math.floor(width * 0.98)
 
 	-- SQL windows
 	local sql_row_start = math.floor(height * 0.3)
 	local sql_height = 7
 	local sql_err_row_start = sql_row_start + sql_height + 2
 	local sql_err_height = 7
-
-	-- Adjust if help window is hidden
-	if opts.window_opts.hide_window_help == true then
-		height_help = 0
-		row_start = 1
-	end
-
-	local col_start = 1
-	local available_height = height - row_start
-	local main_width = math.floor(width * 0.98)
 
 	-- Vertical layout
 	-- determine max height
@@ -125,7 +116,6 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 			data_height = data_height_h,
 			data_col_start = data_col_start_h,
 			data_row_start = row_start,
-			help_height = height_help,
 			sql_row_start = sql_row_start,
 			sql_height = sql_height,
 			sql_err_row_start = sql_err_row_start,
@@ -142,7 +132,6 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 			data_height = data_height_v,
 			data_col_start = col_start,
 			data_row_start = data_row_start_v,
-			help_height = height_help,
 			sql_height = sql_height,
 			sql_row_start = sql_row_start,
 			sql_err_row_start = sql_err_row_start,

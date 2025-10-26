@@ -35,7 +35,6 @@ M.defaults = {
 	-- Floating window options for main display windows
 	window_opts = {
 		border = "rounded",
-		hide_window_help = true, -- Hide help window on main display
 	},
 
 	-- Key mappings

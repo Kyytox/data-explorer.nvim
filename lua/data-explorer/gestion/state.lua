@@ -3,7 +3,6 @@ local M = {}
 local VARIABLES = {
 	duckdb_cmd = "duckdb",
 	windows_infos = {
-		help_title = "Help",
 		meta_title = "Metadata",
 		data_title = "Data",
 		sql_title = "SQL Query",

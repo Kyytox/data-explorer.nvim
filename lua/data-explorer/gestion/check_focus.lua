@@ -14,7 +14,7 @@ end
 local function is_plugin_window_focused(wins)
 	local current_win = vim.api.nvim_get_current_win()
 
-	-- Check against the window handles (win_meta, win_data, win_help)
+	-- Check against the window handles (win_meta, win_data)
 	for key, win_id in pairs(wins) do
 		-- Only check if it's an actual window handle (not a buffer handle)
 		if type(win_id) == "number" and vim.api.nvim_win_is_valid(win_id) and current_win == win_id then

@@ -46,18 +46,6 @@ function M.create_windows(opts, dims)
 	-- Retrieve buffers from state
 	local buffers = state.get_state("buffers")
 
-	-- Create help window
-	local win_help = nil
-	if opts.window_opts.hide_window_help == false then
-		win_help = create_floating_window(buffers.buf_help, {
-			title = wins_infos.help_title,
-			width = dims.main_width,
-			height = dims.help_height,
-			row = 1,
-			col = dims.col_start,
-		}, opts)
-	end
-
 	-- Create SQL windows
 	local win_sql = create_floating_window(buffers.buf_sql, {
 		title = wins_infos.sql_title,
@@ -95,15 +83,12 @@ function M.create_windows(opts, dims)
 		height = dims.data_height,
 		row = dims.data_row_start,
 		col = dims.data_col_start,
-		footer = (opts.window_opts.hide_window_help == true) and table.concat(display.prepare_help(opts), "\n") or nil,
+		footer = table.concat(display.prepare_help(opts), "\n") or nil,
 		footer_pos = "right",
 	}, opts)
 
 	-- Store window handles in state
 	-- Store all in one, because with WinEnter (autocmd) the time between creations can cause issues
-	if win_help then
-		state.set_state("windows", "win_help", win_help)
-	end
 	state.set_state("windows", "win_meta", win_meta)
 	state.set_state("windows", "win_data", win_data)
 	state.set_state("windows", "win_sql", win_sql)

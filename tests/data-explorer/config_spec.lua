@@ -12,10 +12,9 @@ describe("apply_defaults", function()
 
 	it("keeps user-defined keys", function()
 		local user = { window_opts = { border = "single" } }
-		local defaults = { window_opts = { border = "rounded", hide_window_help = true } }
+		local defaults = { window_opts = { border = "rounded" } }
 		local merged = config.apply_defaults(user, defaults)
 		assert.equals("single", merged.window_opts.border)
-		assert.equals(true, merged.window_opts.hide_window_help)
 	end)
 end)
 
