@@ -7,7 +7,7 @@
 [![DuckDB](https://img.shields.io/badge/DuckDB-orange.svg?style=for-the-badge&logo=duckdb)](https://duckdb.org)
 [![Telescope](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://github.com/nvim-telescope/telescope.nvim)
 
-Explore, preview, and query your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+**Explore**, **preview**, and **query** your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
 
 </div>
 
@@ -21,8 +21,8 @@ Explore, preview, and query your data files directly inside Neovim — powered b
 - [API](#api)
   - [DataExplorer](#dataexplorer)
   - [DataExplorerFile](#dataexplorerfile)
-- [Architecture](#architecture)
 - [Limitations](#limitations)
+- [Architecture](#architecture)
 - [Future Plans](#future-plans)
 - [Motivation](#motivation)
 - [Contribute & Bug Reports](#contribute--bug-reports)
@@ -35,8 +35,6 @@ Explore, preview, and query your data files directly inside Neovim — powered b
 This plugin is still under active development.
 If you encounter issues, have ideas for improvements, or want to contribute — please open an issue or a pull request!
 
----
-
 ## ⚡️ Requirements
 
 - **Neovim ≥ 0.8**
@@ -44,8 +42,6 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
   (`duckdb` command must be executable from your terminal)
 - [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
 - [**plenary.nvim**](https://github.com/nvim-lua/plenary.nvim)
-
----
 
 ## 🎄 Features
 
@@ -82,8 +78,6 @@ Or with **vim-plug**:
 Plug 'kyytox/data-explorer.nvim'
 ```
 
----
-
 ## ⚙️ Config
 
 ```lua
@@ -117,6 +111,8 @@ require("dataexplorer").setup({
 
   window_opts = {
     border = "rounded",
+    max_height_metadata = 0.30, -- percent of total height (horizontal)
+		max_width_metadata = 0.25,  -- percent of total width (vertical)
   },
 
   mappings = {
@@ -159,8 +155,6 @@ require("dataexplorer").setup({
 
 For more details on configuration options: [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt)
 
----
-
 ## 🚀 API
 
 ### DataExplorer
@@ -184,11 +178,16 @@ Open the currently edited file in DataExplorer (if supported):
 
 This bypasses Telescope and directly loads the file into the explorer.
 
----
+## ⚠️ Limitations
+
+- Not optimized for **large datasets** — reading big `.parquet` or `.csv` files may consume significant memory.
+- Default view limits data to **250 rows** (configurable).
+- When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
+- Emojis and special characters (not all) in data may not render correctly (small column shifts)
 
 ## ⛩️ Architecture
 
-```
+````
                         ┌────────────┐
                    ┌────┼  Commands  ┼────┐
                    │    └────────────┘    │
@@ -201,12 +200,12 @@ This bypasses Telescope and directly loads the file into the explorer.
                              │                ┌────┤  Telescope  │
                        ┌─────▼──────────┐     │    └───▲─────────┘
                        │ ┌────────────┐ │     │        │
-                       │ └────────────┘ │     │        │
-    ┌─────────────┐    │ ┌────────────┐ ◄─────┘        │
-    │  SQL Error  │    │ │  Metadata  │ │              │
-    └──────▲──────┘    │ │  Metadata  │ │              │
-           │           │ └────────────┘ │              │Back
-           │           │ ┌────────────┐ │              │to Files
+                       │ │  Metadata  │ │     │        │
+    ┌─────────────┐    │ │  Metadata  │ ◄─────┘        │
+    │  SQL Error  │    │ └────────────┘ │              │
+    └──────▲──────┘    │ ┌────────────┐ │              │
+           │           │ │    Data    │ │              │Back
+           │           │ │            │ │              │to Files
            │           │ │    Data    │ │              │Selection
     ┌──────┴──────┐    │ │            │ │              │
     │  SQL Query  ◄────┤ │    Data    │ ├──────────────┘
@@ -215,17 +214,8 @@ This bypasses Telescope and directly loads the file into the explorer.
            │           │ └────────────┘ │
            │           └────────▲───────┘
            │                    │
-           └────────────────────┘
-```
-
-## ⚠️ Limitations
-
-- Not optimized for **large datasets** — reading big `.parquet` or `.csv` files may consume significant memory.
-- Default view limits data to **250 rows** (configurable).
-- When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
-- Emojis and special characters (not all) in data may not render correctly (small column shifts)
-
----
+           └────────────────────┘                                 ```
+````
 
 ## 📜 Future Plans
 
@@ -241,14 +231,10 @@ Inspecting `.parquet` files directly in Neovim has always been a pain.
 Most tools either require leaving the editor or converting data manually.
 **DataExplorer.nvim** was created to make exploring and querying structured data files easy — without leaving Neovim.
 
----
-
 ## 🫵🏼 Contribute & Bug Reports
 
 PRs and feedback are welcome!
 If you want to help improve performance, extend support for new formats, or enhance the UI — please open a PR or issue.
-
----
 
 ## License
 
