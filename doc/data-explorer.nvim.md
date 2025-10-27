@@ -62,12 +62,15 @@ require("data-explorer").setup({
     tsv = true,
   },
 
-  placeholder_sql = {
-    "SELECT * FROM f LIMIT 1000;",
-    "-- Warning: Large result could slow down / crash.",
-    "-- To query the file, use 'f' as the table name.",
-  },
+	-- Placeholder SQL query
+	-- This is shown when opening the SQL window before any query is written
+	placeholder_sql = {
+		"SELECT * FROM f LIMIT 1000;",
+		"-- Warning: Large result could slow down / crash.",
+		"-- To query the file, use 'f' as the table name.",
+	},
 
+  -- Telescope options
   telescope_opts = {
     layout_strategy = "vertical",
     layout_config = {
@@ -79,12 +82,14 @@ require("data-explorer").setup({
     },
   },
 
+  -- window options
   window_opts = {
     border = "rounded",
     max_height_metadata = 0.30, -- percent of total height (horizontal)
 		max_width_metadata = 0.25,  -- percent of total width (vertical)
   },
 
+  -- Key mappings in data-explorer windows
   mappings = {
     quit = "q",
     back = "<BS>",
@@ -95,6 +100,7 @@ require("data-explorer").setup({
     execute_sql = "e",
   },
 
+  -- Color highlights
   hl = {
     windows = {
       bg = "#11111b",
@@ -112,12 +118,13 @@ require("data-explorer").setup({
       col1 = "#f38ba8",
       col2 = "#89b4fa",
       col3 = "#a6e3a1",
-   col4 = "#f9e2af",
+      col4 = "#f9e2af",
       col5 = "#cba6f7",
       col6 = "#94e2d5",
       col7 = "#f5c2e7",
       col8 = "#89b4fa",
       col9 = "#a6e3a1",
+
     },
   },
 })
