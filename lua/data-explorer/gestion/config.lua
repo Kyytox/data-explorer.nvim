@@ -43,6 +43,8 @@ M.defaults = {
 	-- Floating window options for main display windows
 	window_opts = {
 		border = "rounded",
+		max_height_metadata = 0.30,
+		max_width_metadata = 0.25,
 	},
 
 	-- Key mappings

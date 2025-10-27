@@ -65,10 +65,10 @@ end
 ---@param nb_data_lines number: Number of lines in the data content.
 ---@return table: Calculated dimensions for both vertical and horizontal layouts.
 function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_data_lines)
-	local row_start = 2
-	local col_start = 1
-	local available_height = height - row_start
-	local main_width = math.floor(width * 0.98)
+	local row_start = 0
+	local col_start = 0
+	local available_height = height
+	local main_width = math.floor(width * 0.99)
 
 	-- SQL windows
 	local sql_row_start = math.floor(height * 0.3)
@@ -78,24 +78,24 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 
 	-- Vertical layout
 	-- determine max height
-	local max_meta_height_v = math.floor(available_height * 0.30)
-	local max_data_height_v = math.floor(available_height * 0.68)
+	local max_meta_height_v = math.floor(available_height * opts.window_opts.max_height_metadata)
 
 	-- Calcul heights
 	local meta_height_v = math.min(nb_metadata_lines, max_meta_height_v)
-	local data_height_v = math.min(nb_data_lines, max_data_height_v) + 1
+	local data_height_v = math.min(nb_data_lines, available_height - meta_height_v) - 4 -- leave space
 
 	-- Calculate data row start
 	local data_row_start_v = row_start + meta_height_v + 2
 
 	-- Horizontal layout
 	-- Calculate widths
-	local meta_width_h = math.floor(main_width * 0.25)
-	local data_width_h = main_width - meta_width_h - col_start
+	local meta_width_h = math.floor(main_width * opts.window_opts.max_width_metadata)
+	local data_width_h = math.floor(main_width - meta_width_h - col_start - 2)
 
 	-- Calculate heights
 	local meta_height_h = 0
 	local data_height_h = 0
+
 	if nb_metadata_lines > nb_data_lines then
 		meta_height_h = math.min(nb_metadata_lines, available_height)
 		data_height_h = meta_height_h
