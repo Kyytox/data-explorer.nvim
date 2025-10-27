@@ -12,7 +12,7 @@ local M = {}
 ---@field mappings table: Key mappings for various actions.
 ---@field hl table: Highlight colors for UI elements.
 M.defaults = {
-	limit = 10000, -- Maximum number of rows to fetch
+	limit = 250, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
 	files_types = {
 		parquet = true,
