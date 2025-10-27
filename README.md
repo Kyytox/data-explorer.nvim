@@ -13,7 +13,7 @@
 
 ---
 
-- [Caution](#Caution)
+- [Caution](#-caution)
 - [Requirements](#requirements)
 - [Features](#features)
 - [Installation](#installation)
