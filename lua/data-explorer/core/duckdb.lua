@@ -53,19 +53,6 @@ local METADATA_QUERIES = {
                 count AS Count
           FROM (SUMMARIZE tmp);
       ]],
-	-- json = [[
-	--        CREATE TEMP TABLE tmp AS SELECT * FROM read_json_auto('%s', auto_detect=true);
-	--        COPY(
-	--        WITH total AS (SELECT COUNT(*) AS total_rows FROM tmp)
-	--        SELECT
-	--          name AS Column,
-	--          replace(type, ',', ';') AS Type,
-	--          dflt_value AS DefaultValue,
-	--          pk AS PrimaryKey,
-	--          (SELECT total_rows FROM total) AS Count
-	--        FROM pragma_table_info('tmp')
-	--        ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
-	--    ]],
 }
 
 local DATA_QUERIES = {
@@ -84,11 +71,6 @@ local DATA_QUERIES = {
         SELECT * FROM read_csv_auto('%s', sep='\t') LIMIT %d
       ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
   ]],
-	-- json = [[
-	--      COPY(
-	--        SELECT * FROM read_json('%s') LIMIT %d
-	--      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
-	--  ]],
 }
 
 --- Runs a DuckDB query and returns the raw CSV output.
@@ -236,7 +218,7 @@ end
 ---@param query string|nil: Optional SQL query for data fetching.
 ---@return table|nil, string|nil: Metadata or error message.
 function M.fetch_parse_data(file, mode, query)
-	local start = os.clock()
+	-- local start = os.clock()
 	local csv_text = nil
 	local err = nil
 
@@ -270,9 +252,9 @@ function M.fetch_parse_data(file, mode, query)
 		return nil, err
 	end
 
-	local finish = os.clock()
-	local elapsed = finish - start
-	log.info(string.format("SQL query executed for %s in %.4f seconds.", file, elapsed))
+	-- local finish = os.clock()
+	-- local elapsed = finish - start
+	-- log.info(string.format("SQL query executed for %s in %.4f seconds.", file, elapsed))
 	return { headers = result.headers, data = result.data, count_lines = result.count_lines, file_size = size }, nil
 end
 
