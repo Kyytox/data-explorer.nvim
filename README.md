@@ -104,6 +104,7 @@ require("dataexplorer").setup({
 		"-- To query the file, use 'f' as the table name.",
 	},
 
+  -- Telescope options
   telescope_opts = {
     layout_strategy = "vertical",
     layout_config = {
@@ -115,12 +116,14 @@ require("dataexplorer").setup({
     },
   },
 
+  -- window options
   window_opts = {
     border = "rounded",
     max_height_metadata = 0.30, -- percent of total height (horizontal)
 		max_width_metadata = 0.25,  -- percent of total width (vertical)
   },
 
+  -- Key mappings in DataExplorer windows
   mappings = {
     quit = "q",
     back = "<BS>",
@@ -131,6 +134,7 @@ require("dataexplorer").setup({
     execute_sql = "e",
   },
 
+  -- Color highlights
   hl = {
     windows = {
       bg = "#11111b",
