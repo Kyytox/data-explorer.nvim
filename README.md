@@ -185,6 +185,8 @@ This bypasses Telescope and directly loads the file into the explorer.
 - When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
 - Emojis and special characters (not all) in data may not render correctly (small column shifts)
 
+---
+
 ## ⛩️ Architecture
 
 ````
