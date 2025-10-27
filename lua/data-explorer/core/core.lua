@@ -64,6 +64,11 @@ function M.render(opts, file)
 		return
 	end
 
+	if #data.data == 0 then
+		log.display_notify(4, "No data found in the file: " .. file)
+		return
+	end
+
 	-- Fetch and cache metadata
 	metadata, err = utils.get_cached_metadata(file)
 	if not metadata then
