@@ -14,10 +14,10 @@
 ---
 
 - [Caution](#-caution)
-- [Requirements](#-requirements)
+- [Requirements](#%EF%B8%8F-requirements)
 - [Features](#-features)
 - [Installation](#-installation)
-- [Config](#-config)
+- [Config](#%EF%B8%8F-config)
 - [API](#-api)
   - [DataExplorer](#dataexplorer)
   - [DataExplorerFile](#dataexplorerfile)
