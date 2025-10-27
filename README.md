@@ -227,7 +227,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 ## 💪 Motivation
 
-Inspecting `.parquet` files directly in Neovim has always been a pain.
+Exploring `.parquet` files directly in Neovim has always been a pain.
 Most tools either require leaving the editor or converting data manually.
 **DataExplorer.nvim** was created to make exploring and querying structured data files easy — without leaving Neovim.
 
