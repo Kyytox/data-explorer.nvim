@@ -1,13 +1,13 @@
 <div align="center">
 
-# Data-Explorer.nvim
+# data-explorer.nvim
 
 [![Lua](https://img.shields.io/badge/Lua-blue.svg?style=for-the-badge&logo=lua)](http://www.lua.org)
 [![Neovim](https://img.shields.io/badge/Neovim%200.8+-green.svg?style=for-the-badge&logo=neovim)](https://neovim.io)
 [![DuckDB](https://img.shields.io/badge/DuckDB-orange.svg?style=for-the-badge&logo=duckdb)](https://duckdb.org)
 [![Telescope](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://github.com/nvim-telescope/telescope.nvim)
 
-**Explore**, **preview**, and **query** your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+**Preview**, **Explore**, and **Query** your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
 
 </div>
 
@@ -35,6 +35,8 @@
 This plugin is still under active development.
 If you encounter issues, have ideas for improvements, or want to contribute — please open an issue or a pull request!
 
+<br>
+
 ## ⚡️ Requirements
 
 - **Neovim ≥ 0.8**
@@ -42,6 +44,8 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
   (`duckdb` command must be executable from your terminal)
 - [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
 - [**plenary.nvim**](https://github.com/nvim-lua/plenary.nvim)
+
+<br>
 
 ## 🎄 Features
 
@@ -56,7 +60,7 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
 | Configurable       | Limit, Layouts, mappings, colors, highlights          |
 | Commands           | `DataExplorer`, `DataExplorerFile`                    |
 
----
+<br>
 
 ## 🔌 Installation
 
@@ -77,6 +81,8 @@ Or with **vim-plug**:
 ```vim
 Plug 'kyytox/data-explorer.nvim'
 ```
+
+<br>
 
 ## ⚙️ Config
 
@@ -155,6 +161,8 @@ require("dataexplorer").setup({
 
 For more details on configuration options: [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt)
 
+<br>
+
 ## 🚀 API
 
 ### DataExplorer
@@ -178,6 +186,8 @@ Open the currently edited file in DataExplorer (if supported):
 
 This bypasses Telescope and directly loads the file into the explorer.
 
+<br>
+
 ## ⚠️ Limitations
 
 - Not optimized for **large datasets** — reading big `.parquet` or `.csv` files may consume significant memory.
@@ -185,7 +195,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 - When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
 - Emojis and special characters (not all) in data may not render correctly (small column shifts)
 
----
+<br>
 
 ## ⛩️ Architecture
 
@@ -219,13 +229,17 @@ This bypasses Telescope and directly loads the file into the explorer.
            └────────────────────┘                                 ```
 ````
 
+<br>
+
 ## 📜 Future Plans
 
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
 - SQL Query history and favorites
 
----
+<!-- --- -->
+
+<br>
 
 ## 💪 Motivation
 
@@ -233,10 +247,14 @@ Exploring `.parquet` files directly in Neovim has always been a pain.
 Most tools either require leaving the editor or converting data manually.
 **DataExplorer.nvim** was created to make exploring and querying structured data files easy — without leaving Neovim.
 
+<br>
+
 ## 🫵🏼 Contribute & Bug Reports
 
 PRs and feedback are welcome!
 If you want to help improve performance, extend support for new formats, or enhance the UI — please open a PR or issue.
+
+<br>
 
 ## License
 
