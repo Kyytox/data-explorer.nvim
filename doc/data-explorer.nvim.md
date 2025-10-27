@@ -1,0 +1,450 @@
+# data-explorer.nvim
+
+Explore, preview, and query your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+
+# 🚧 Caution
+
+This plugin is still under active development.
+If you encounter issues, have ideas for improvements, or want to contribute — please open an issue or a pull request!
+
+# ⚡️ Requirements
+
+- **Neovim ≥ 0.8**
+- [**DuckDB**](https://duckdb.org), installed and available in your PATH
+  (`duckdb` command must be executable from your terminal)
+- [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
+- [**plenary.nvim**](https://github.com/nvim-lua/plenary.nvim)
+
+# 🎄 Features
+
+| Feature            | Description                                           |
+| ------------------ | ----------------------------------------------------- |
+| Supported Formats  | `.parquet`, `.csv`, `.tsv`                            |
+| SQL system         | [DuckDB](https://duckdb.org)                          |
+| File Search        | Find data files using Telescope                       |
+| Metadata Display   | Show column names, types, and other details           |
+| Table View         | Display file contents in a formatted, colorized table |
+| Custom SQL Queries | Run SQL queries on your data, see results instantly   |
+| Configurable       | limit, layouts, mappings, colors, highlights          |
+| Commands           | `DataExplorer`, `DataExplorerFile`                    |
+
+# 🔌 Installation
+
+Example with **lazy.nvim**:
+
+```lua
+{
+  "kyytox/data-explorer.nvim",
+  dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+  config = function()
+    require("data-explorer").setup()
+  end,
+}
+```
+
+Or with **vim-plug**:
+
+```vim
+Plug 'kyytox/data-explorer.nvim'
+```
+
+# ⚙️ Config
+
+## Default Configuration
+
+```lua
+require("data-explorer").setup({
+  limit = 250, -- Max number of rows to fetch
+  layout = "vertical", -- "vertical" or "horizontal"
+  files_types = {
+    parquet = true,
+    csv = true,
+    tsv = true,
+  },
+
+  placeholder_sql = {
+    "SELECT * FROM f LIMIT 1000;",
+    "-- Warning: Large result could slow down / crash.",
+    "-- To query the file, use 'f' as the table name.",
+  },
+
+  telescope_opts = {
+    layout_strategy = "vertical",
+    layout_config = {
+      height = 0.4,
+      width = 0.9,
+      preview_cutoff = 1,
+      preview_height = 0.5,
+      preview_width = 0.4,
+    },
+  },
+
+  window_opts = {
+    border = "rounded",
+    max_height_metadata = 0.30, -- percent of total height (horizontal)
+		max_width_metadata = 0.25,  -- percent of total width (vertical)
+  },
+
+  mappings = {
+    quit = "q",
+    back = "<BS>",
+    focus_meta = "1",
+    focus_data = "2",
+    toggle_sql = "3",
+    rotate_layout = "r",
+    execute_sql = "e",
+  },
+
+  hl = {
+    windows = {
+      bg = "#11111b",
+      fg = "#cdd6f4",
+      title = "#f5c2e7",
+      footer = "#a6e3a1",
+      sql_fg = "#89b4fa",
+      sql_bg = "#1e1e2e",
+      sql_err_fg = "#f38ba8",
+      sql_err_bg = "#3b1d2a",
+    },
+    buffer = {
+      hl_enable = true,
+      header = "white",
+      col1 = "#f38ba8",
+      col2 = "#89b4fa",
+      col3 = "#a6e3a1",
+   col4 = "#f9e2af",
+      col5 = "#cba6f7",
+      col6 = "#94e2d5",
+      col7 = "#f5c2e7",
+      col8 = "#89b4fa",
+      col9 = "#a6e3a1",
+    },
+  },
+})
+```
+
+## Parameters Details
+
+| Key                                               | Type      | Description                                                                              |
+| ------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- |
+| **`limit`**                                       | `number`  | Maximum number of rows fetched when displaying data. Use smaller values for large files. |
+| **`layout`**                                      | `string`  | Layout of the main UI: `"vertical"` or `"horizontal"`.                                   |
+| **`files_types`**                                 | `table`   | Which file formats are supported and enabled.                                            |
+| **`placeholder_sql`**                             | `table`   | Lines of placeholder SQL shown in the SQL editor before any query is written.            |
+| **`telescope_opts`**                              | `table`   | Telescope layout and preview configuration for file selection.                           |
+| **`telescope_opts.layout_strategy`**              | `string`  | Layout strategy for Telescope (`"vertical"`, `"horizontal"`, etc.).                      |
+| **`telescope_opts.layout_config.height`**         | `number`  | Height (ratio) of the Telescope window.                                                  |
+| **`telescope_opts.layout_config.width`**          | `number`  | Width (ratio) of the Telescope window.                                                   |
+| **`telescope_opts.layout_config.preview_cutoff`** | `number`  | Minimum width before disabling preview.                                                  |
+| **`telescope_opts.layout_config.preview_height`** | `number`  | Height ratio for preview in vertical mode.                                               |
+| **`telescope_opts.layout_config.preview_width`**  | `number`  | Width ratio for preview in horizontal mode.                                              |
+| **`window_opts.border`**                          | `string`  | Border style for floating windows (`"none"`, `"single"`, `"double"`, `"rounded"`, etc.). |
+| **`window_opts.max_height_metadata`**             | `number`  | Max height ratio for metadata window in horizontal layout (0.0 - 1.0).                   |
+| **`window_opts.max_width_metadata`**              | `number`  | Max width ratio for metadata window in vertical layout (0.0 - 1.0).                      |
+| **`mappings.quit`**                               | `string`  | Key to close the main UI.                                                                |
+| **`mappings.back`**                               | `string`  | Go back to file selection view.                                                          |
+| **`mappings.focus_meta`**                         | `string`  | Focus the metadata window.                                                               |
+| **`mappings.focus_data`**                         | `string`  | Focus the data table window.                                                             |
+| **`mappings.toggle_sql`**                         | `string`  | Toggle the SQL query editor window.                                                      |
+| **`mappings.rotate_layout`**                      | `string`  | Switch between vertical and horizontal layout.                                           |
+| **`mappings.execute_sql`**                        | `string`  | Execute the current SQL query.                                                           |
+| **`hl.windows.bg`**                               | `string`  | Background color for main UI windows.                                                    |
+| **`hl.windows.fg`**                               | `string`  | Default foreground (text) color.                                                         |
+| **`hl.windows.title`**                            | `string`  | Color of the window title.                                                               |
+| **`hl.windows.footer`**                           | `string`  | Color of the footer/help line.                                                           |
+| **`hl.windows.sql_fg`**                           | `string`  | Foreground color of SQL input.                                                           |
+| **`hl.windows.sql_bg`**                           | `string`  | Background color of SQL input.                                                           |
+| **`hl.windows.sql_err_fg`**                       | `string`  | Foreground color for SQL errors.                                                         |
+| **`hl.windows.sql_err_bg`**                       | `string`  | Background color for SQL errors.                                                         |
+| **`hl.buffer.hl_enable`**                         | `boolean` | Enable/disable syntax highlighting for table data.                                       |
+| **`hl.buffer.col1–col9`**                         | `string`  | Per-column alternating colors for table readability.                                     |
+
+# 🚀 API
+
+DataExplorer
+
+Search for and preview supported data files:
+
+```vim
+:lua require("data-explorer").DataExplorer()
+```
+
+Telescope will show a list of supported data files in your current working directory.
+Selecting a file opens it in the DataExplorer view with metadata and table view.
+
+---
+
+DataExplorerFile
+
+Open the currently edited file in DataExplorer (if supported):
+
+```vim
+:lua require("data-explorer").DataExplorerFile()
+```
+
+This bypasses Telescope and directly loads the file into the explorer.
+
+# 🧠 Usage Example
+
+1. Run `:DataExplorer` to open the Telescope file picker.
+2. Select a supported data file (`.csv`, `.tsv`, `.parquet`).
+3. Explore the file:
+
+- 1 → focus Metadata
+- 2 → focus Data Table
+- 3 → toggle SQL editor
+
+4. Write SQL queries using `f` as the table name.
+5. Press **e** to execute and view results instantly.
+6. Press **q** to quit the explorer.
+
+# ⛩️ Architecture
+
+```
+                        ┌────────────┐
+                   ┌────┼  Commands  ┼────┐
+                   │    └────────────┘    │
+                   │                      │
+         ┌─────────▼──────────┐  ┌────────▼───────┐
+         │  DataExplorerFile  │  │  DataExplorer  ├───────┐
+         └─────────────┬──────┘  └────────────────┘       │
+                       │                                  │
+                       └─────┐                     ┌──────▼──────┐
+                             │                ┌────┤  Telescope  │
+                       ┌─────▼──────────┐     │    └───▲─────────┘
+                       │ ┌────────────┐ │     │        │
+                       │ └────────────┘ │     │        │
+    ┌─────────────┐    │ ┌────────────┐ ◄─────┘        │
+    │  SQL Error  │    │ │  Metadata  │ │              │
+    └──────▲──────┘    │ │  Metadata  │ │              │
+           │           │ └────────────┘ │              │Back
+           │           │ ┌────────────┐ │              │to Files
+           │           │ │    Data    │ │              │Selection
+    ┌──────┴──────┐    │ │            │ │              │
+    │  SQL Query  ◄────┤ │    Data    │ ├──────────────┘
+    │    Prompt   │    │ │            │ │
+    └──────┬──────┘    │ │    Data    │ │
+           │           │ └────────────┘ │
+           │           └────────▲───────┘
+           │                    │
+           └────────────────────┘
+```
+
+# Windows Layout
+
+The main DataExplorer window is divided into multiple sections:
+
+- **Metadata View**: Displays column names, types, and statistics about the data.
+- **Data Table View**: Shows the actual data in a formatted table.
+- **SQL Query Prompt**: An optional window to write and execute custom SQL queries (hidden by default).
+
+The layout can be either vertical (metadata on the left, data on the right) or horizontal (metadata on top, data below).
+
+`Horizontal Layout:`
+
+```
+
+          ┌────────────────┐
+          │ ┌────────────┐ │
+          │ │  Metadata  │ │
+          │ │  Metadata  │ │
+          │ └────────────┘ │
+          │ ┌────────────┐ │
+          │ │    Data    │ │
+          │ │            │ │
+          │ │    Data    │ │
+          │ │            │ │
+          │ │    Data    │ │
+          │ │            │ │
+          │ │    Data    │ │
+          │ └────────────┘ │
+          └────────────────┘
+```
+
+The max height of metadata window is 30% (by default) of the total height, but can be configured via `max_height_metadata` option.
+The data window takes all the remaining height.
+
+`Vertical Layout:`
+
+```
+
+    ┌─────────────────────────────────┐
+    │┌───────┐┌──────────────────────┐│
+    ││       ││                      ││
+    ││ Meta  ││   Data     Data      ││
+    ││       ││                      ││
+    ││ Meta  ││   Data     Data      ││
+    ││       ││                      ││
+    ││ Meta  ││   Data     Data      ││
+    ││       ││                      ││
+    │└───────┘└──────────────────────┘│
+    └─────────────────────────────────┘
+```
+
+The max width of metadata window is 25% (by default) of the total width, but can be configured via `max_width_metadata` option.
+The data window takes all the remaining width.
+
+# Modules
+
+## Metadata View
+
+### Metadata Extraction
+
+There are read where you find a file in telescope and display it in the preview window.
+When a metadata is readed, he is saved in cache but only for the current session when you close the explorer, the cache is cleared.
+
+No transformation is done on the metadata received from DuckDB, they are displayed as is.
+The limitation is that only 40 rows can be displayed in DuckDB output, so if you have more than 40 columns, some will be truncated.
+
+#### csv-tsv extract
+
+For `.csv` and `.tsv` files, DuckDB creates a temporary table to infer column names and types by reading a sample of the data.
+
+The metadata table for `.csv` and `.tsv` files includes the foll owing columns:
+
+| Column Name | Description                                          |
+| ----------- | ---------------------------------------------------- |
+| `Column`    | Name of the column                                   |
+| `Type`      | Inferred data type of the column                     |
+| `Unique`    | Number of unique values in column in percent         |
+| `Nulls`     | Number of null values in column in percent           |
+| `Min`       | Minimum value in the column (Max 40 chars displayed) |
+| `Max`       | Maximum value in the column (Max 40 chars displayed) |
+| `Average`   | Average value for numeric columns                    |
+| `StdDev`    | Standard deviation for numeric columns               |
+| `q25`       | 25th percentile value for numeric columns            |
+| `q50`       | 50th percentile (median) for numeric columns         |
+| `q75`       | 75th percentile value for numeric columns            |
+| `Count`     | Total number of rows in the column                   |
+
+#### parquet display
+
+For `.parquet` files, DuckDB can directly read the schema without loading the entire file, making it efficient for large datasets, DuckDB use the function `parquet_metadata` to extract metadata.
+
+The metadata table for `.parquet` files includes the following columns:
+
+| Column Name | Description                        |
+| ----------- | ---------------------------------- |
+| `Column`    | Name of the column                 |
+| `Type`      | Data type of the column            |
+| `Min`       | Minimum value in the column        |
+| `Max`       | Maximum value in the column        |
+| `Nulls`     | Number of null values in column    |
+| `Count`     | Total number of rows in the column |
+
+---
+
+## Data Table View
+
+### Data Extraction
+
+Data is extracted by executing a simple `SELECT * FROM f LIMIT <limit>;` query on the file, where `<limit>` is defined in the config (default 250 rows).
+
+When you open the file, DuckDB handles reading the file using COPY TO STDOUT and returning the data in a csv-like format, with columns separated by `|` characters.
+So a simple parsing is done to split the data into rows and columns for display in the table view.
+
+When a custom SQL query is executed, the resulting data is fetched with delimiter ',' because we can't make a COPY TO STDOUT with '|' separator when the user can write any SQL query because we need to catch errors.
+So the parsing with ',' is more greedy of resources.
+
+### Displaying data
+
+The data table view displays the fetched data in a formatted table with borders and alternating row colors for readability.
+Column widths are adjusted based on the maximum width of data in each column.
+
+### Syntax Highlighting
+
+If enabled in the config, syntax highlighting is applied to the data table view.
+
+You can customize the colors used for 9 alternating columns via the `hl.buffer.col1` to `hl.buffer.col9` config options.
+
+The Group names used for highlighting are `DataExplorerCol1`, `DataExplorerCol2`, ..., `DataExplorerCol9`.
+
+---
+
+## User SQL Query
+
+You can write and execute custom SQL queries on the loaded data file.
+For displaying the SQL editor, press the mapping defined in the config (default `3`).
+
+The SQL editor window allows you to write any valid SQL query using `f` as the table name representing the loaded data file.
+To execute the SQL query, press the mapping defined in the config (default `e`).
+
+When the query is executed, the resulting data is stored in cache (stdout) and displayed in the data table view.
+The results of the queries are fetched and displayed in the data table view.
+
+### Error handling
+
+If there is an error in the SQL query (syntax error, invalid table/column names, etc.), the error message from DuckDB is captured and displayed in a separate SQL Error window.
+This allows you to see what went wrong and adjust your query accordingly.
+
+# Highlights
+
+You can customize the highlight colors used in DataExplorer via the `hl` config option.
+The following highlight groups are defined:
+
+| Highlight Group            | Options Used From Config             | Description                                       |
+| -------------------------- | ------------------------------------ | ------------------------------------------------- | ------------------------------------------------- |
+| `DataExplorerWindow`       | `hl.windows.bg`                      | Background color for main UI windows.             |
+| `DataExplorerBorder`       | `hl.windows.bg`, `hl.windows.fg`     | Border color for main UI windows.                 |
+| `DataExplorerTitle`        | `hl.windows.bg`, `hl.windows.title`  | Color of the window title.                        |
+| `DataExplorerFooter`       | `hl.windows.bg`, `hl.windows.footer` | Color of the footer/help line.                    |
+| `DataExplorerSQLBorder`    |                                      | `hl.windows.sql_bg`, `hl.windows.sql_fg`          | Border color for SQL editor window.               |
+| `DataExplorerSQLWindow`    | `hl.windows.sql_bg`                  | Background color for SQL editor window.           |
+| `DataExplorerSQLErrBorder` |                                      | `hl.windows.sql_err_bg`, `hl.windows.sql_err_fg`  | Border color for SQL error window.                |
+| `DataExplorerSQLErrWindow` | `hl.windows.sql_err_bg`              | Background color for SQL error window.            |
+| `DataExplorerColHeader`    | `hl.buffer.header`                   | Highlight for column headers in data table view.  |
+| `DataExplorerCol1`         | `hl.buffer.col1`                     | Foreground color for column 1 in data table view. |
+| `DataExplorerCol2`         | `hl.buffer.col2`                     | Foreground color for column 2 in data table view. |
+| `DataExplorerCol3`         |                                      | `hl.buffer.col3`                                  | Foreground color for column 3 in data table view. |
+| `DataExplorerCol4`         | `hl.buffer.col4`                     |                                                   | Foreground color for column 4 in data table view. |
+| `DataExplorerCol5`         | `hl.buffer.col5`                     | Foreground color for column 5 in data table view. |
+| `DataExplorerCol6`         | `hl.buffer.col6`                     | Foreground color for column 6 in data table view. |
+| `DataExplorerCol7`         | `hl.buffer.col7`                     | Foreground color for column 7 in data table view. |
+| `DataExplorerCol8`         | `hl.buffer.col8`                     | Foreground color for column 8 in data table view. |
+| `DataExplorerCol9`         | `hl.buffer.col9`                     | Foreground color for column 9 in data table view. |
+
+# ⚠️ Limitations
+
+**🧩 General**
+
+- Not optimized for large datasets — huge `.csv` / `.parquet` may slow down Neovim.
+- No persistent caching — everything resets when you quit.
+
+**📊 Metadata View**
+
+- DuckDB truncates metadata to **40 columns** max.
+- Type inference for `.csv`/`.tsv` is sample-based → can be inaccurate.
+
+**📈 Data Table View**
+
+- Default fetch: **250 rows**; increasing this may cause high memory usage.
+- Emojis and special characters may misalign columns.
+
+**🧠 SQL Query Editor**
+
+- Queries run synchronously (can block Neovim).
+- No auto-limit → always use `LIMIT` manually.
+- Minimal SQL editor — no autocomplete or highlighting.
+- Only the latest SQL error is shown.
+- Parsing uses `,` delimiter for custom queries, which may affect performance on large results.
+
+# 📜 Future Plans
+
+- Support for more formats (`.json`, `.sqlite`, etc.)
+- Smarter preview caching
+- SQL Query history and favorites
+
+# 💪 Motivation
+
+Exploring `.parquet` files directly in Neovim has always been a pain.
+Most tools either require leaving the editor or converting data manually.
+**DataExplorer.nvim** was created to make exploring and querying structured data files easy — without leaving Neovim.
+
+# 🫵🏼 Contribute & Bug Reports
+
+PRs and feedback are welcome!
+If you want to help improve performance, extend support for new formats, or enhance the UI — please open a PR or issue.
+
+# License
+
+MIT License © 2025 Kyytox
