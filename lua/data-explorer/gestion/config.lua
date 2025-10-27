@@ -150,6 +150,18 @@ function M.validate_options(opts)
 		return "placeholder_sql must be a table. Reverting to default."
 	end
 
+	-- Ensure max_height_metadata and max_width_metadata are numbers between 0 and 1
+	local max_height = opts.window_opts.max_height_metadata
+	local max_width = opts.window_opts.max_width_metadata
+	if
+		(type(max_height) ~= "number" or max_height <= 0 or max_height >= 1)
+		or (type(max_width) ~= "number" or max_width <= 0 or max_width >= 1)
+	then
+		opts.window_opts.max_height_metadata = M.defaults.window_opts.max_height_metadata
+		opts.window_opts.max_width_metadata = M.defaults.window_opts.max_width_metadata
+		return "max_height_metadata and max_width_metadata must be numbers between 0 and 1. Reverting to defaults."
+	end
+
 	-- Ensure files types has accepted types
 	local accepted_types = M.defaults.files_types
 	local filtered_types = {}
