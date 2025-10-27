@@ -14,19 +14,19 @@
 ---
 
 - [Caution](#-caution)
-- [Requirements](#requirements)
-- [Features](#features)
-- [Installation](#installation)
-- [Config](#config)
-- [API](#api)
+- [Requirements](#-requirements)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Config](#-config)
+- [API](#-api)
   - [DataExplorer](#dataexplorer)
   - [DataExplorerFile](#dataexplorerfile)
-- [Limitations](#limitations)
-- [Architecture](#architecture)
-- [Future Plans](#future-plans)
-- [Motivation](#motivation)
-- [Contribute & Bug Reports](#contribute--bug-reports)
-- [License](#license)
+- [Limitations](#-limitations)
+- [Architecture](#-architecture)
+- [Future Plans](#-future-plans)
+- [Motivation](#-motivation)
+- [Contribute & Bug Reports](#-contribute--bug-reports)
+- [License](#-license)
 
 ---
 
