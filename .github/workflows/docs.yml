@@ -1,21 +1,27 @@
-name: Docs
+name: Doc generation
+
 on: [push]
 
 jobs:
   docs:
     runs-on: ubuntu-latest
     name: pandoc to vimdoc
-    if: ${{ github.ref == 'refs/heads/master' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - name: panvimdoc
         uses: kdheepak/panvimdoc@main
         with:
           vimdoc: data-explorer.nvim
+          pandoc: "doc/data-explorer.nvim.md"
+          version: "NVIM v0.8.0"
+          toc: true
+          description: "Data Explorer is a Neovim plugin that allows you to explore and visualize data files (.parquet, .csv, .tsv) directly within Neovim."
+          titledatepattern: "%Y %B %d"
+          demojify: false
+          dedupsubheadings: false
           treesitter: true
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "chore(doc): auto generate docs"
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+          ignorerawblocks: true
+          docmapping: false
+          docmappingprojectname: true
+          shiftheadinglevelby: 0
+          incrementheadinglevelby: 0
