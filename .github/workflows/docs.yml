@@ -1,6 +1,11 @@
 name: Doc generation
 
-on: [push]
+on:
+  push:
+    branches:
+      - "master"
+    paths:
+      - "doc/data-explorer.nvim.md"
 
 jobs:
   docs:
