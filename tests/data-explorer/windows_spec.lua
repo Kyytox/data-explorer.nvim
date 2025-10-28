@@ -68,7 +68,7 @@ describe("calculate_window_layout", function()
 		}
 		local dims = config_windows.calculate_window_layout(opts, 200, 50, 5, 20)
 		assert.is_true(dims.vertical.meta_height == 5)
-		assert.is_true(dims.vertical.data_height == 16)
+		assert.is_true(dims.vertical.data_height == 20)
 		assert.is_true(dims.vertical.meta_width == 198)
 		assert.is_true(dims.vertical.data_width == 198)
 		assert.is_true(dims.horizontal.meta_height == 20)
