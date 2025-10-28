@@ -1,7 +1,7 @@
 local config_windows = require("data-explorer.ui.config_windows")
 local state = require("data-explorer.gestion.state")
-local actions_windows = require("data-explorer.actions.actions_windows")
 local display = require("data-explorer.ui.display")
+local log = require("data-explorer.gestion.log")
 
 local M = {}
 
