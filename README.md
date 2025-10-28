@@ -22,6 +22,7 @@
   - [DataExplorer](#dataexplorer)
   - [DataExplorerFile](#dataexplorerfile)
 - [Limitations](#%EF%B8%8F-limitations)
+- [Performances](#%EF%B8%8F-performances)
 - [Architecture](#%EF%B8%8F-architecture)
 - [Future Plans](#-future-plans)
 - [Motivation](#-motivation)
@@ -199,7 +200,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 - When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
 - Emojis and special characters (not all) in data may not render correctly (small column shifts)
 
-## Performances
+## 📏 Performances
 
 The following table shows approximate load and query times
 The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated
