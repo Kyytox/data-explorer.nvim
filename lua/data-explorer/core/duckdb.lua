@@ -157,11 +157,12 @@ end
 --- Prepare command for fetching main data.
 ---@param file string: Path to the parquet file.
 ---@param ext string: File extension (e.g., ".parquet", ".csv").
+---@param limit number: Number of rows to fetch.
 ---@return string|nil, string|nil: Raw CSV data or error message.
-local function prepare_cmd_main_data(file, ext, mode)
+local function prepare_cmd_main_data(file, ext, mode, limit)
 	-- Format the query
 	local query = DATA_QUERIES[ext:sub(2)]
-	query = string.format(query, file, config.get().limit)
+	query = string.format(query, file, limit)
 
 	-- Generate the duckdb command
 	local cmd = generate_duckdb_command(query, mode)
@@ -217,7 +218,7 @@ end
 ---@param mode string: "main_data", "metadata", or "usr_query".
 ---@param query string|nil: Optional SQL query for data fetching.
 ---@return table|nil, string|nil: Metadata or error message.
-function M.fetch_parse_data(file, mode, query)
+function M.fetch_parse_data(file, mode, query, limit)
 	-- local start = os.clock()
 	local csv_text = nil
 	local err = nil
@@ -237,7 +238,7 @@ function M.fetch_parse_data(file, mode, query)
 
 	-- Fetch Data
 	if mode == "main_data" then
-		csv_text, err = prepare_cmd_main_data(file, ext, mode)
+		csv_text, err = prepare_cmd_main_data(file, ext, mode, limit)
 		result, err = parser.parse_csv(csv_text, "|")
 	elseif mode == "metadata" then
 		csv_text, err = prepare_cmd_metadata(file, ext, mode)

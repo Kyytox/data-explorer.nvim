@@ -59,7 +59,7 @@ function M.get_cached_metadata(file)
 	end
 
 	-- Fetch and parse metadata
-	metadata, err = duckdb.fetch_parse_data(file, "metadata")
+	metadata, err = duckdb.fetch_parse_data(file, "metadata", nil, nil)
 	if not metadata then
 		return nil, err
 	end

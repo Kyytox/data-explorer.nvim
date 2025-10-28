@@ -58,7 +58,7 @@ function M.render(opts, file)
 	local data = nil
 	local metadata = nil
 
-	data, err = duckdb.fetch_parse_data(file, "main_data")
+	data, err = duckdb.fetch_parse_data(file, "main_data", nil, opts.limit)
 	if not data then
 		log.display_notify(4, "Error fetching data: " .. err)
 		return
