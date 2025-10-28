@@ -82,7 +82,7 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 
 	-- Calcul heights
 	local meta_height_v = math.min(nb_metadata_lines, max_meta_height_v)
-	local data_height_v = math.min(nb_data_lines, available_height - meta_height_v) - 4 -- leave space
+	local data_height_v = math.max(6, math.min(nb_data_lines, available_height - meta_height_v - 4)) -- leave space
 
 	-- Calculate data row start
 	local data_row_start_v = row_start + meta_height_v + 2
