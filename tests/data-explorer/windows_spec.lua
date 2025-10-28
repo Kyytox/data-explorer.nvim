@@ -76,4 +76,22 @@ describe("calculate_window_layout", function()
 		assert.is_true(dims.horizontal.meta_width == 49)
 		assert.is_true(dims.horizontal.data_width == 147)
 	end)
+
+	it("No negative number", function()
+		local opts = {
+			window_opts = {
+				max_height_metadata = 0.3,
+				max_width_metadata = 0.25,
+			},
+		}
+		local dims = config_windows.calculate_window_layout(opts, 60, 115, 27, 3)
+		assert.is_true(dims.vertical.meta_height >= 0)
+		assert.is_true(dims.vertical.data_height >= 0)
+		assert.is_true(dims.vertical.meta_width >= 0)
+		assert.is_true(dims.vertical.data_width >= 0)
+		assert.is_true(dims.horizontal.meta_height >= 0)
+		assert.is_true(dims.horizontal.data_height >= 0)
+		assert.is_true(dims.horizontal.meta_width >= 0)
+		assert.is_true(dims.horizontal.data_width >= 0)
+	end)
 end)
