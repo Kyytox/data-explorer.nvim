@@ -199,6 +199,50 @@ This bypasses Telescope and directly loads the file into the explorer.
 - When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
 - Emojis and special characters (not all) in data may not render correctly (small column shifts)
 
+## Performances
+
+The following table shows approximate load and query times
+The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated
+
+With a PC with:
+
+- CPU: AMD Ryzen™ 7 7700 x 16
+- RAM: 32 GB
+- OS: Arch Linux
+- DuckDB version: 0.8.1
+
+<br>
+
+| File Type | File Size | Rows    | Columns | Limit  | Load Time | Query Time (250 rows) |
+| --------- | --------- | ------- | ------- | ------ | --------- | --------------------- |
+| Parquet   | 80 MB     | 101 553 | 93      | 250    | ~0.00s    | ~0s                   |
+| Parquet   | 80 MB     | 101 553 | 93      | 1 000  | ~0.00s    | ~0s                   |
+| Parquet   | 80 MB     | 101 553 | 93      | 5 000  | ~0.00s    | ~0s                   |
+| Parquet   | 80 MB     | 101 553 | 93      | 10 000 | ~0.00s    | ~0s                   |
+
+<br>
+
+| File Type | File Size | Rows    | Columns | Limit  | Load Time | Query Time (250 rows) |
+| --------- | --------- | ------- | ------- | ------ | --------- | --------------------- |
+| CSV       | 80 MB     | 101 553 | 93      | 250    | ~0.0084s  | ~0s                   |
+| CSV       | 80 MB     | 101 553 | 93      | 1 000  | ~0.0172s  | ~0s                   |
+| CSV       | 80 MB     | 101 553 | 93      | 5 000  | ~0.1041s  | ~0s                   |
+| CSV       | 80 MB     | 101 553 | 93      | 20 000 | ~0.3742s  | ~0s                   |
+
+<br>
+
+| File Type | File Size | Rows    | Columns | Limit  | Load Time | Query Time (250 rows) |
+| --------- | --------- | ------- | ------- | ------ | --------- | --------------------- |
+| TSV       | 80 MB     | 101 553 | 93      | 250    | ~0.0071s  | ~0s                   |
+| TSV       | 80 MB     | 101 553 | 93      | 1 000  | ~0.0319s  | ~0s                   |
+| TSV       | 80 MB     | 101 553 | 93      | 5 000  | ~0.1042s  | ~0s                   |
+| TSV       | 80 MB     | 101 553 | 93      | 20 000 | ~0.4116s  | ~0s                   |
+
+<br>
+
+> [!NOTE]
+> anyway if you display, you are crazy. Who dsplays 20k rows
+
 <br>
 
 ## ⛩️ Architecture
