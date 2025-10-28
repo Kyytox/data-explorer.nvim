@@ -12,8 +12,7 @@ function M.check_duckdb_or_warn()
 	if not M.is_duckdb_installed() then
 		log.display_notify(
 			4,
-			"DuckDB is not installed or not in PATH. "
-				.. "Please install it from https://duckdb.org/docs/installation/index"
+			"DuckDB is not installed or not in PATH.\nPlease install\nhttps://duckdb.org/install/?platform=linux&environment=cli"
 		)
 		return false
 	end
