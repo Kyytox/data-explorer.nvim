@@ -4,6 +4,7 @@ local utils = require("data-explorer.core.utils")
 local picker = require("data-explorer.ui.picker")
 local core = require("data-explorer.core.core")
 local check_focus = require("data-explorer.gestion.check_focus")
+local check_duckdb = require("data-explorer.gestion.check_duckdb")
 local log = require("data-explorer.gestion.log")
 
 local M = {}
@@ -11,7 +12,13 @@ local M = {}
 --- Setup Data Explorer
 --- @param opts table|nil: User configuration options.
 function M.setup(opts)
+	-- Check DuckDB installation
+	if not check_duckdb.check_duckdb_or_warn() then
+		return
+	end
+
 	config.setup(opts)
+	log.setup() -- Decomment logging setup for dev
 
 	-- Launch Data Explorer
 	vim.api.nvim_create_user_command("DataExplorer", function()
@@ -40,6 +47,11 @@ end
 
 --- Main function Data Explorer
 function M.data_explorer()
+	-- Check DuckDB installation
+	if not check_duckdb.check_duckdb_or_warn() then
+		return
+	end
+
 	local opts = config.get()
 
 	-- exctract file types from opts.files_types
@@ -63,6 +75,11 @@ end
 
 --- Data Explorer File
 function M.data_explorer_file()
+	-- Check DuckDB installation
+	if not check_duckdb.check_duckdb_or_warn() then
+		return
+	end
+
 	local opts = config.get()
 
 	-- exctract file types from opts.files_types
