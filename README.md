@@ -22,7 +22,7 @@
   - [DataExplorer](#dataexplorer)
   - [DataExplorerFile](#dataexplorerfile)
 - [Limitations](#%EF%B8%8F-limitations)
-- [Performances](#%EF%B8%8F-performances)
+- [Performances](#-performances)
 - [Architecture](#%EF%B8%8F-architecture)
 - [Future Plans](#-future-plans)
 - [Motivation](#-motivation)
@@ -88,7 +88,7 @@ Plug 'kyytox/data-explorer.nvim'
 ## ⚙️ Config
 
 ```lua
-require("dataexplorer").setup({
+require("data-explorer").setup({
   limit = 250, -- Max number of rows to fetch
   layout = "vertical", -- "vertical" or "horizontal"
   files_types = {
@@ -164,7 +164,10 @@ require("dataexplorer").setup({
 })
 ```
 
-For more details on configuration options: [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt)
+For more details on configuration options:
+
+- [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt): TXT file
+- `:help data-explorer.nvim`: Neovim help
 
 <br>
 
@@ -176,6 +179,10 @@ Search for and preview supported data files:
 
 ```vim
 :lua require("data-explorer").DataExplorer()
+
+--or
+
+:DataExplorer
 ```
 
 Telescope will show a list of supported data files in your current working directory.
@@ -187,6 +194,10 @@ Open the currently edited file in DataExplorer (if supported):
 
 ```vim
 :lua require("data-explorer").DataExplorerFile()
+
+--or
+
+:DataExplorerFile
 ```
 
 This bypasses Telescope and directly loads the file into the explorer.
@@ -195,15 +206,17 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 ## ⚠️ Limitations
 
-- Not optimized for **large datasets** — reading big `.parquet` or `.csv` files may consume significant memory.
+- The larger the file, the more time it will take to display the metadata and data, and will consume significant memory.
 - Default view limits data to **250 rows** (configurable).
 - When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
-- Emojis and special characters (not all) in data may not render correctly (small column shifts)
+- Emojis and certain special characters (not all) in data may not render correctly (small column shifts)
+
+<br>
 
 ## 📏 Performances
 
 The following table shows approximate load and query times
-The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated
+The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated.
 
 With a PC with:
 
@@ -212,7 +225,7 @@ With a PC with:
 - OS: Arch Linux
 - DuckDB version: 0.8.1
 
-There Test are make with different limit for the data view: 250, 1000, 5000 and 20000 rows
+There Test are make with different limit for the data view: 250, 1000, 5000 and 20 000 rows.
 
 <br>
 
@@ -268,6 +281,7 @@ There Test are make with different limit for the data view: 250, 1000, 5000 and 
 
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
+- Metadata personalization
 - SQL Query history and favorites
 
 <!-- --- -->
@@ -289,6 +303,6 @@ If you want to help improve performance, extend support for new formats, or enha
 
 <br>
 
-## License
+## 📜 License
 
 MIT License © 2025 Kyytox

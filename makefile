@@ -1,5 +1,6 @@
 TESTS_INIT=tests/minimal_init.lua
-TESTS_DIR=tests/
+# TESTS_DIR=tests/other_tests/
+TESTS_DIR=tests/data-explorer/
 
 .PHONY: test
 
