@@ -49,9 +49,9 @@ end
 --- Main function Data Explorer
 function M.data_explorer()
 	-- Check DuckDB installation
-	if not check_duckdb.check_duckdb_or_warn() then
-		return
-	end
+	-- if not check_duckdb.check_duckdb_or_warn() then
+	-- 	return
+	-- end
 
 	local opts = config.get()
 
