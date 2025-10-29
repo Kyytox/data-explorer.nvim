@@ -40,7 +40,7 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
 
 ## ⚡️ Requirements
 
-- **Neovim ≥ 0.8**
+- [**Neovim ≥ 0.10**](https://neovim.io)
 - [**DuckDB**](https://duckdb.org), installed and available in your PATH
   (`duckdb` command must be executable from your terminal)
 - [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
@@ -212,34 +212,18 @@ With a PC with:
 - OS: Arch Linux
 - DuckDB version: 0.8.1
 
-<br>
-
-| File Type | File Size | Rows    | Columns | Limit  | Load Time | Query Time (250 rows) |
-| --------- | --------- | ------- | ------- | ------ | --------- | --------------------- |
-| Parquet   | 80 MB     | 101 553 | 93      | 250    | ~0.00s    | ~0s                   |
-| Parquet   | 80 MB     | 101 553 | 93      | 1 000  | ~0.00s    | ~0s                   |
-| Parquet   | 80 MB     | 101 553 | 93      | 5 000  | ~0.00s    | ~0s                   |
-| Parquet   | 80 MB     | 101 553 | 93      | 10 000 | ~0.00s    | ~0s                   |
+There Test are make with different limit for the data view: 250, 1000, 5000 and 20000 rows
 
 <br>
 
-| File Type | File Size | Rows    | Columns | Limit  | Load Time | Query Time (250 rows) |
-| --------- | --------- | ------- | ------- | ------ | --------- | --------------------- |
-| CSV       | 80 MB     | 101 553 | 93      | 250    | ~0.0084s  | ~0s                   |
-| CSV       | 80 MB     | 101 553 | 93      | 1 000  | ~0.0172s  | ~0s                   |
-| CSV       | 80 MB     | 101 553 | 93      | 5 000  | ~0.1041s  | ~0s                   |
-| CSV       | 80 MB     | 101 553 | 93      | 20 000 | ~0.3742s  | ~0s                   |
-
-<br>
-
-| File Type | File Size | Rows    | Columns | Limit  | Load Time | Query Time (250 rows) |
-| --------- | --------- | ------- | ------- | ------ | --------- | --------------------- |
-| TSV       | 80 MB     | 101 553 | 93      | 250    | ~0.0071s  | ~0s                   |
-| TSV       | 80 MB     | 101 553 | 93      | 1 000  | ~0.0319s  | ~0s                   |
-| TSV       | 80 MB     | 101 553 | 93      | 5 000  | ~0.1042s  | ~0s                   |
-| TSV       | 80 MB     | 101 553 | 93      | 20 000 | ~0.4116s  | ~0s                   |
-
-<br>
+| File Type | File Size | Total Rows | Avg Time (250) | Avg Time (1k) | Avg Time (5k) | Avg Time (20k) |
+| --------- | --------- | ---------- | -------------- | ------------- | ------------- | -------------- |
+| Parquet   | 9 MB      | 500 000    | 0.00339 s      | 0.01183 s     | 0.05608 s     | 0.23005 s      |
+| Parquet   | 19 MB     | 1 003 391  | 0.00352 s      | 0.01331 s     | 0.06220 s     | 0.26294 s      |
+| CSV       | 31 MB     | 38 170     | 0.00313 s      | 0.01181 s     | 0.05682 s     | 0.24263 s      |
+| CSV       | 84 MB     | 101 553    | 0.00352 s      | 0.01306 s     | 0.06429 s     | 0.27679 s      |
+| TSV       | 31 MB     | 38 170     | 0.00348 s      | 0.01219 s     | 0.06060 s     | 0.25841 s      |
+| TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
 
 > [!NOTE]
 > anyway if you display, you are crazy. Who dsplays 20k rows

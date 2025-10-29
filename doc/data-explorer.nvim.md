@@ -435,6 +435,29 @@ The following highlight groups are defined:
 - Only the latest SQL error is shown.
 - Parsing uses `,` delimiter for custom queries, which may affect performance on large results.
 
+# 📏 Performances
+
+The following table shows approximate load and query times
+The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated
+
+With a PC with:
+
+- CPU: AMD Ryzen™ 7 7700 x 16
+- RAM: 32 GB
+- OS: Arch Linux
+- DuckDB version: 0.8.1
+
+There Test are make with different limit for the data view: 250, 1000, 5000 and 20000 rows
+
+| File Type | File Size | Total Rows | Avg Time (250) | Avg Time (1k) | Avg Time (5k) | Avg Time (20k) |
+| --------- | --------- | ---------- | -------------- | ------------- | ------------- | -------------- |
+| Parquet   | 9 MB      | 500 000    | 0.00339 s      | 0.01183 s     | 0.05608 s     | 0.23005 s      |
+| Parquet   | 19 MB     | 1 003 391  | 0.00352 s      | 0.01331 s     | 0.06220 s     | 0.26294 s      |
+| CSV       | 31 MB     | 38 170     | 0.00313 s      | 0.01181 s     | 0.05682 s     | 0.24263 s      |
+| CSV       | 84 MB     | 101 553    | 0.00352 s      | 0.01306 s     | 0.06429 s     | 0.27679 s      |
+| TSV       | 31 MB     | 38 170     | 0.00348 s      | 0.01219 s     | 0.06060 s     | 0.25841 s      |
+| TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
+
 # 📜 Future Plans
 
 - Support for more formats (`.json`, `.sqlite`, etc.)

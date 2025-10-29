@@ -21,10 +21,11 @@ Table of Contents                       *data-explorer.nvim-table-of-contents*
   - User SQL Query                         |data-explorer.nvim-user-sql-query|
 12. Highlights                                 |data-explorer.nvim-highlights|
 13. Limitations                               |data-explorer.nvim-limitations|
-14. Future Plans                             |data-explorer.nvim-future-plans|
-15. Motivation                                 |data-explorer.nvim-motivation|
-16. Contribute & Bug Reports     |data-explorer.nvim-contribute-&-bug-reports|
-17. License                                       |data-explorer.nvim-license|
+14. Performances                             |data-explorer.nvim-performances|
+15. Future Plans                             |data-explorer.nvim-future-plans|
+16. Motivation                                 |data-explorer.nvim-motivation|
+17. Contribute & Bug Reports     |data-explorer.nvim-contribute-&-bug-reports|
+18. License                                       |data-explorer.nvim-license|
 
 ==============================================================================
 1. data-explorer.nvim                  *data-explorer.nvim-data-explorer.nvim*
@@ -112,12 +113,15 @@ DEFAULT CONFIGURATION               *data-explorer.nvim-default-configuration*
         tsv = true,
       },
     
-      placeholder_sql = {
-        "SELECT * FROM f LIMIT 1000;",
-        "-- Warning: Large result could slow down / crash.",
-        "-- To query the file, use 'f' as the table name.",
-      },
+        -- Placeholder SQL query
+        -- This is shown when opening the SQL window before any query is written
+        placeholder_sql = {
+            "SELECT * FROM f LIMIT 1000;",
+            "-- Warning: Large result could slow down / crash.",
+            "-- To query the file, use 'f' as the table name.",
+        },
     
+      -- Telescope options
       telescope_opts = {
         layout_strategy = "vertical",
         layout_config = {
@@ -129,12 +133,14 @@ DEFAULT CONFIGURATION               *data-explorer.nvim-default-configuration*
         },
       },
     
+      -- window options
       window_opts = {
         border = "rounded",
         max_height_metadata = 0.30, -- percent of total height (horizontal)
             max_width_metadata = 0.25,  -- percent of total width (vertical)
       },
     
+      -- Key mappings in data-explorer windows
       mappings = {
         quit = "q",
         back = "<BS>",
@@ -145,6 +151,7 @@ DEFAULT CONFIGURATION               *data-explorer.nvim-default-configuration*
         execute_sql = "e",
       },
     
+      -- Color highlights
       hl = {
         windows = {
           bg = "#11111b",
@@ -162,12 +169,13 @@ DEFAULT CONFIGURATION               *data-explorer.nvim-default-configuration*
           col1 = "#f38ba8",
           col2 = "#89b4fa",
           col3 = "#a6e3a1",
-       col4 = "#f9e2af",
+          col4 = "#f9e2af",
           col5 = "#cba6f7",
           col6 = "#94e2d5",
           col7 = "#f5c2e7",
           col8 = "#89b4fa",
           col9 = "#a6e3a1",
+    
         },
       },
     })
@@ -615,7 +623,40 @@ option. The following highlight groups are defined:
 
 
 ==============================================================================
-14. Future Plans                             *data-explorer.nvim-future-plans*
+14. Performances                             *data-explorer.nvim-performances*
+
+The following table shows approximate load and query times The file is a copy
+of nasa-exoplanet archive data
+<https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS>
+with lot of lines duplicated
+
+With a PC with:
+
+- CPU: AMD Ryzen 7 7700 x 16
+- RAM: 32 GB
+- OS: Arch Linux
+- DuckDB version: 0.8.1
+
+  ----------------------------------------------------------------------------
+  File Type File    Total    Avg Time     Avg Time    Avg Time    Avg Time
+            Size    Rows     (250)        (1k)        (5k)        (20k)
+  --------- ------- -------- ------------ ----------- ----------- ------------
+  Parquet   9 MB    500 000  0.00339 s    0.01183 s   0.05608 s   0.23005 s
+
+  Parquet   19 MB   1 003    0.00352 s    0.01331 s   0.06220 s   0.26294 s
+                    391                                           
+
+  CSV       31 MB   38 170   0.00313 s    0.01181 s   0.05682 s   0.24263 s
+
+  CSV       84 MB   101 553  0.00352 s    0.01306 s   0.06429 s   0.27679 s
+
+  TSV       31 MB   38 170   0.00348 s    0.01219 s   0.06060 s   0.25841 s
+
+  TSV       84 MB   101 553  0.00396 s    0.01302 s   0.06709 s   0.28249 s
+  ----------------------------------------------------------------------------
+
+==============================================================================
+15. Future Plans                             *data-explorer.nvim-future-plans*
 
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
@@ -623,7 +664,7 @@ option. The following highlight groups are defined:
 
 
 ==============================================================================
-15. Motivation                                 *data-explorer.nvim-motivation*
+16. Motivation                                 *data-explorer.nvim-motivation*
 
 Exploring `.parquet` files directly in Neovim has always been a pain. Most
 tools either require leaving the editor or converting data manually.
@@ -632,14 +673,14 @@ data files easy — without leaving Neovim.
 
 
 ==============================================================================
-16. Contribute & Bug Reports     *data-explorer.nvim-contribute-&-bug-reports*
+17. Contribute & Bug Reports     *data-explorer.nvim-contribute-&-bug-reports*
 
 PRs and feedback are welcome! If you want to help improve performance, extend
 support for new formats, or enhance the UI — please open a PR or issue.
 
 
 ==============================================================================
-17. License                                       *data-explorer.nvim-license*
+18. License                                       *data-explorer.nvim-license*
 
 MIT License 2025 Kyytox
 
