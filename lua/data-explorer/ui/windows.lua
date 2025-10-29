@@ -76,7 +76,6 @@ function M.create_windows(opts, dims)
 		col = dims.col_start,
 	}, opts)
 
-	vim.notify("Creating data window", vim.log.levels.DEBUG, { title = "Data Explorer - Windows" })
 	local win_data = create_floating_window(buffers.buf_data, {
 		title = wins_infos.data_title,
 		width = dims.data_width,
