@@ -18,7 +18,7 @@ function M.setup(opts)
 	end
 
 	config.setup(opts)
-	log.setup() -- Decomment logging setup for dev
+	-- log.setup() -- Decomment logging setup for dev
 
 	-- Launch Data Explorer
 	vim.api.nvim_create_user_command("DataExplorer", function()
