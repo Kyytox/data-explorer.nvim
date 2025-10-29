@@ -12,10 +12,11 @@ local M = {}
 --- Setup Data Explorer
 --- @param opts table|nil: User configuration options.
 function M.setup(opts)
+	vim.notify("Setting up Data Explorer...")
 	-- Check DuckDB installation
-	if not check_duckdb.check_duckdb_or_warn() then
-		return
-	end
+	-- if not check_duckdb.check_duckdb_or_warn() then
+	-- 	return
+	-- end
 
 	config.setup(opts)
 	-- log.setup() -- Decomment logging setup for dev
