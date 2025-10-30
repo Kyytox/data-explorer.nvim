@@ -44,7 +44,7 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
 - [**DuckDB**](https://duckdb.org), installed and available in your PATH
   (`duckdb` command must be executable from your terminal)
 - [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
-- [**plenary.nvim**](https://github.com/nvim-lua/plenary.nvim)
+- [**fd**](https://github.com/sharkdp/fd?tab=readme-ov-file#installation)
 
 <br>
 
