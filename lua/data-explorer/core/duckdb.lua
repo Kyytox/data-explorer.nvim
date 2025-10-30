@@ -21,7 +21,7 @@ local METADATA_QUERIES = {
 	   ]],
 	csv = [[
 	       CREATE TEMP TABLE tmp AS
-	       SELECT * FROM read_csv_auto('%s', auto_detect=true);
+	       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1);
          SELECT column_name AS Column,
                 column_type AS Type,
                 approx_unique AS Unique,
@@ -38,7 +38,7 @@ local METADATA_QUERIES = {
       ]],
 	tsv = [[
         CREATE TEMP TABLE tmp AS
-        SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t');
+        SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t', sample_size=-1);
          SELECT column_name AS Column,
                 column_type AS Type,
                 approx_unique AS Unique,
