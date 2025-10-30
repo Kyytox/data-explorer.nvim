@@ -1,4 +1,3 @@
-local Path = require("plenary.path")
 local duckdb = require("data-explorer.core.duckdb")
 local state = require("data-explorer.gestion.state")
 local log = require("data-explorer.gestion.log")
