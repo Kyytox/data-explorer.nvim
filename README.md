@@ -115,6 +115,10 @@ require("data-explorer").setup({
       preview_height = 0.5,
       preview_width = 0.4,
     },
+    finder = {
+			include_hidden = false, -- Show hidden files
+			exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
+		},
   },
 
   -- window options

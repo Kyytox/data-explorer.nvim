@@ -80,6 +80,10 @@ require("data-explorer").setup({
       preview_height = 0.5,
       preview_width = 0.4,
     },
+  	finder = {
+			include_hidden = false, -- Show hidden files
+			exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
+		},
   },
 
   -- window options
@@ -133,7 +137,7 @@ require("data-explorer").setup({
 ## Parameters Details
 
 | Key                                               | Type      | Description                                                                              |
-| ------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- |
+| ------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | **`limit`**                                       | `number`  | Maximum number of rows fetched when displaying data. Use smaller values for large files. |
 | **`layout`**                                      | `string`  | Layout of the main UI: `"vertical"` or `"horizontal"`.                                   |
 | **`files_types`**                                 | `table`   | Which file formats are supported and enabled.                                            |
@@ -145,6 +149,8 @@ require("data-explorer").setup({
 | **`telescope_opts.layout_config.preview_cutoff`** | `number`  | Minimum width before disabling preview.                                                  |
 | **`telescope_opts.layout_config.preview_height`** | `number`  | Height ratio for preview in vertical mode.                                               |
 | **`telescope_opts.layout_config.preview_width`**  | `number`  | Width ratio for preview in horizontal mode.                                              |
+| **`telescope_opts.finder.include_hidden`**        | `boolean` | Show hidden files in Telescope file picker.                                              |
+| **`telescope_opts.finder.exclude_dirs`**          | `table`   |                                                                                          | List of directories to exclude from file search. |
 | **`window_opts.border`**                          | `string`  | Border style for floating windows (`"none"`, `"single"`, `"double"`, `"rounded"`, etc.). |
 | **`window_opts.max_height_metadata`**             | `number`  | Max height ratio for metadata window in horizontal layout (0.0 - 1.0).                   |
 | **`window_opts.max_width_metadata`**              | `number`  | Max width ratio for metadata window in vertical layout (0.0 - 1.0).                      |
