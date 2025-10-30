@@ -4,11 +4,11 @@ local action_state = require("telescope.actions.state")
 local finders = require("telescope.finders")
 local conf = require("telescope.config").values
 local previewers = require("telescope.previewers")
-local log = require("data-explorer.gestion.log")
 
 local utils = require("data-explorer.core.utils")
 local core = require("data-explorer.core.core")
 local display = require("data-explorer.ui.display")
+local log = require("data-explorer.gestion.log")
 
 local M = {}
 
@@ -31,12 +31,15 @@ local function picker_previewer()
 	})
 end
 
---- Select a parquet file using Telescope.
----@param lst_files table: List of parquet files.
-function M.pickers_files(opts, lst_files)
+--- Telescope picker for Data Explorer
+---@param opts table: user options
+---@param extensions table: file extensions (e.g., {"csv", "tsv", "parquet"})
+function M.pickers_files(opts, extensions)
+	local find_command = utils.build_fd_command(extensions, opts)
+
 	pickers
 		.new(opts, {
-			prompt_title = "Select Parquet File",
+			prompt_title = "Data Explorer Files",
 			layout_strategy = opts.telescope_opts.layout_strategy,
 			layout_config = {
 				height = opts.telescope_opts.layout_config.height,
@@ -49,7 +52,10 @@ function M.pickers_files(opts, lst_files)
 						and opts.telescope_opts.layout_config.preview_height
 					or nil,
 			},
-			finder = finders.new_table({ results = lst_files }),
+
+			finder = finders.new_oneshot_job(find_command, {
+				cwd = vim.fn.getcwd(),
+			}),
 			previewer = picker_previewer(),
 			sorter = conf.generic_sorter(opts),
 			attach_mappings = function(prompt_bufnr, map)

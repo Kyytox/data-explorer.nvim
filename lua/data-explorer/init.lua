@@ -12,30 +12,23 @@ local M = {}
 --- Setup Data Explorer
 --- @param opts table|nil: User configuration options.
 function M.setup(opts)
-	vim.notify("Setting up Data Explorer...")
 	-- Check DuckDB installation
-	-- if not check_duckdb.check_duckdb_or_warn() then
-	-- 	return
-	-- end
+	if not check_duckdb.check_duckdb_or_warn() then
+		return
+	end
 
 	config.setup(opts)
-	-- log.setup() -- Decomment logging setup for dev
+	log.setup() -- Decomment logging setup for dev
 
 	-- Launch Data Explorer
 	vim.api.nvim_create_user_command("DataExplorer", function()
 		M.data_explorer()
-	end, {
-		desc = "Open Data Explorer",
-		nargs = 0,
-	})
+	end, { desc = "Open Data Explorer", nargs = 0 })
 
 	-- Launch Data Explorer for current files
 	vim.api.nvim_create_user_command("DataExplorerFile", function()
 		M.data_explorer_file()
-	end, {
-		desc = "Open Data Explorer for current file",
-		nargs = 0,
-	})
+	end, { desc = "Open Data Explorer for current file", nargs = 0 })
 end
 
 --- Set Autocommands for Data Explorer
@@ -49,29 +42,30 @@ end
 --- Main function Data Explorer
 function M.data_explorer()
 	-- Check DuckDB installation
-	-- if not check_duckdb.check_duckdb_or_warn() then
-	-- 	return
-	-- end
+	if not check_duckdb.check_duckdb_or_warn() then
+		return
+	end
 
 	local opts = config.get()
 
 	-- exctract file types from opts.files_types
 	local files_types = utils.aggregate_file_types(opts)
+	log.debug("Accepted file types: " .. table.concat(files_types, ", "))
 
 	-- Set Autocommands
 	set_autocommands()
 
 	-- Find all files with accepted extensions
-	local files = utils.get_files_in_working_directory(files_types)
+	-- local files = utils.get_files_in_working_directory(files_types)
 
-	if #files == 0 then
-		local type_str = table.concat(files_types, ", ")
-		log.display_notify(3, "No files found with extensions: " .. type_str)
-		return
-	end
+	-- if #files == 0 then
+	-- 	local type_str = table.concat(files_types, ", ")
+	-- 	log.display_notify(3, "No files found with extensions: " .. type_str)
+	-- 	return
+	-- end
 
 	-- Launch Data Explorer
-	picker.pickers_files(opts, files)
+	picker.pickers_files(opts, files_types)
 end
 
 --- Data Explorer File

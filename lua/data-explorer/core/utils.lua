@@ -1,6 +1,7 @@
 local Path = require("plenary.path")
 local duckdb = require("data-explorer.core.duckdb")
 local state = require("data-explorer.gestion.state")
+local log = require("data-explorer.gestion.log")
 
 local M = {}
 
@@ -18,32 +19,43 @@ function M.is_accepted_file_type(file, accepted_types)
 	return false
 end
 
---- Build the glob pattern string from a list of extensions.
---- @param files_types table: List of accepted file extensions (e.g., {".csv", ".parquet"}).
---- @return string: The glob pattern string (e.g., "{.csv,.parquet}").
-local function build_glob_pattern(files_types)
-	-- Remove the leading dot for globbing, though it works with or without it in vim.fn.glob
-	local patterns = vim.tbl_map(function(ext)
-		return "*" .. ext -- e.g., "*.parquet"
-	end, files_types)
+--- Build the fd/fdfind command for finding files.
+---@param extensions table: List of file extensions to include.
+---@param opts table: Options including include_hidden, exclude_dirs, exclude_files.
+---@return table: Command as a list of strings.
+function M.build_fd_command(extensions, opts)
+	local fd_cmd
+	if vim.fn.executable("fd") == 1 then
+		fd_cmd = "fd"
+	elseif vim.fn.executable("fdfind") == 1 then
+		fd_cmd = "fdfind"
+	else
+		log.display_notify(4, "fd or fdfind is not installed or not in PATH")
+		return {}
+	end
 
-	-- Join them into a format like "*.{parquet,csv}" for shell globbing
-	return "*{" .. table.concat(patterns, ",") .. "}"
-end
+	local cmd = { fd_cmd, "--type", "f" }
 
---- Get all files in working directory
----@param files_types table: List of accepted file extensions.
----@return table: List of file paths.
-function M.get_files_in_working_directory(files_types)
-	local work_dir = vim.fn.getcwd()
+	if opts.include_hidden then
+		table.insert(cmd, "--hidden")
+	end
 
-	-- Build the glob pattern
-	local pattern_suffix = build_glob_pattern(files_types)
-	local pattern = work_dir .. "/**/" .. pattern_suffix
+	for _, ext in ipairs(extensions or {}) do
+		table.insert(cmd, "--extension")
+		table.insert(cmd, ext)
+	end
 
-	return vim.tbl_map(function(f)
-		return Path:new(f):absolute()
-	end, vim.fn.glob(pattern, true, true))
+	for _, dir in ipairs(opts.exclude_dirs or {}) do
+		table.insert(cmd, "--exclude")
+		table.insert(cmd, dir)
+	end
+
+	for _, f in ipairs(opts.exclude_files or {}) do
+		table.insert(cmd, "--exclude")
+		table.insert(cmd, f)
+	end
+
+	return cmd
 end
 
 --- Get metadata and cache it

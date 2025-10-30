@@ -30,6 +30,10 @@ M.defaults = {
 			preview_height = 0.5, -- Used for vertical layout
 			preview_width = 0.4, -- Used for horizontal layout
 		},
+		finder = {
+			include_hidden = false, -- Show hidden files
+			exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
+		},
 	},
 
 	-- Placeholder SQL query
