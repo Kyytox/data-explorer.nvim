@@ -210,7 +210,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 # 🧠 Usage Example
 
 1. Run `:DataExplorer` to open the Telescope file picker.
-2. Select a supported data file (`.csv`, `.tsv`, `.parquet`).
+2. Select a file.
 3. Explore the file:
 
 - 1 → focus Metadata

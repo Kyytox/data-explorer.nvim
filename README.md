@@ -23,6 +23,7 @@ Powered by **DuckDB** and **Telescope**.
 - [API](#-api)
   - [DataExplorer](#dataexplorer)
   - [DataExplorerFile](#dataexplorerfile)
+- [Usage Example](#-usage-example)
 - [Limitations](#%EF%B8%8F-limitations)
 - [Performances](#-performances)
 - [Architecture](#%EF%B8%8F-architecture)
@@ -215,7 +216,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 # 🧠 Usage Example
 
 1. Run `:DataExplorer` to open the Telescope file picker.
-2. Select a supported data file
+2. Select a file
 3. Explore the file:
 
 - 1 → focus Metadata
