@@ -139,11 +139,11 @@ For more details on configuration options:
 ## Parameters Details
 
 | Key                                               | Type      | Description                                                                              |
-| ------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| ------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- |
 | **`limit`**                                       | `number`  | Maximum number of rows fetched when displaying data. Use smaller values for large files. |
 | **`layout`**                                      | `string`  | Layout of the main UI: `"vertical"` or `"horizontal"`.                                   |
 | **`files_types`**                                 | `table`   | Which file formats are supported and enabled.                                            |
-| **`placeholder_sql`**                             | `table`   | Lines of placeholder SQL shown in the SQL editor before any query is written.            |
+| **`placeholder_sql`**                             | `table`   | Lines display in the SQL editor when you open it.                                        |
 | **`telescope_opts`**                              | `table`   | Telescope layout and preview configuration for file selection.                           |
 | **`telescope_opts.layout_strategy`**              | `string`  | Layout strategy for Telescope (`"vertical"`, `"horizontal"`, etc.).                      |
 | **`telescope_opts.layout_config.height`**         | `number`  | Height (ratio) of the Telescope window.                                                  |
@@ -152,7 +152,7 @@ For more details on configuration options:
 | **`telescope_opts.layout_config.preview_height`** | `number`  | Height ratio for preview in vertical mode.                                               |
 | **`telescope_opts.layout_config.preview_width`**  | `number`  | Width ratio for preview in horizontal mode.                                              |
 | **`telescope_opts.finder.include_hidden`**        | `boolean` | Show hidden files in Telescope file picker.                                              |
-| **`telescope_opts.finder.exclude_dirs`**          | `table`   |                                                                                          | List of directories to exclude from file search. |
+| **`telescope_opts.finder.exclude_dirs`**          | `table`   | List of directories to exclude from file search.                                         |
 | **`window_opts.border`**                          | `string`  | Border style for floating windows (`"none"`, `"single"`, `"double"`, `"rounded"`, etc.). |
 | **`window_opts.max_height_metadata`**             | `number`  | Max height ratio for metadata window in horizontal layout (0.0 - 1.0).                   |
 | **`window_opts.max_width_metadata`**              | `number`  | Max width ratio for metadata window in vertical layout (0.0 - 1.0).                      |
@@ -302,7 +302,7 @@ The data window takes all the remaining height.
     └─────────────────────────────────┘
 ```
 
-The max width of metadata window is 25% (by default) of the total width, but can be configured via `max_width_metadata` option.
+The max width of the metadata window is 25% (by default) of the total width, but can be configured via `max_width_metadata` option.
 The data window takes all the remaining width.
 
 # Modules
@@ -312,7 +312,7 @@ The data window takes all the remaining width.
 ### Metadata Extraction
 
 There are read where you find a file in telescope and display it in the preview window.
-When a metadata is readed, he is saved in cache but only for the current session when you close the explorer, the cache is cleared.
+When a metadata is read, he is saved in cache but only for the current session when you close the explorer, the cache is cleared.
 
 No transformation is done on the metadata received from DuckDB, they are displayed as is.
 The limitation is that only 40 rows can be displayed in DuckDB output, so if you have more than 40 columns, some will be truncated.
