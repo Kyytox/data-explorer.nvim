@@ -1,3 +1,4 @@
+local config_validation = require("data-explorer.gestion.config_validation")
 local log = require("data-explorer.gestion.log")
 
 local M = {}
@@ -128,73 +129,6 @@ local function set_highlights(opts)
 	end
 end
 
--- Check for valid options
---- Validate user-provided options and revert to defaults if invalid.
----@param opts table -- User-provided options.
----@return string|nil -- Error message if validation fails, nil otherwise.
-function M.validate_options(opts)
-	-- Ensure limit is a positive integer
-	if type(opts.limit) ~= "number" or opts.limit <= 0 then
-		opts.limit = M.defaults.limit
-		return "limit must be a positive number. Reverting to default."
-	end
-
-	-- Ensure layout is valid
-	if opts.layout ~= "vertical" and opts.layout ~= "horizontal" then
-		opts.layout = M.defaults.layout
-		return 'layout must be "vertical" or "horizontal". Reverting to default.'
-	end
-
-	-- Ensure files_types is a table
-	if type(opts.files_types) ~= "table" then
-		opts.files_types = M.defaults.files_types
-		return "files_types must be a table. Reverting to default."
-	end
-
-	-- Ensure placeholder_sql is a table
-	if type(opts.query_sql.placeholder_sql) ~= "table" then
-		opts.query_sql.placeholder_sql = M.defaults.placeholder_sql
-		return "placeholder_sql must be a table. Reverting to default."
-	end
-
-	-- Ensure max_height_metadata and max_width_metadata are numbers between 0 and 1
-	local max_height = opts.window_opts.max_height_metadata
-	local max_width = opts.window_opts.max_width_metadata
-	if
-		(type(max_height) ~= "number" or max_height <= 0 or max_height >= 1)
-		or (type(max_width) ~= "number" or max_width <= 0 or max_width >= 1)
-	then
-		opts.window_opts.max_height_metadata = M.defaults.window_opts.max_height_metadata
-		opts.window_opts.max_width_metadata = M.defaults.window_opts.max_width_metadata
-		return "max_height_metadata and max_width_metadata must be numbers between 0 and 1. Reverting to defaults."
-	end
-
-	-- Ensure files types has accepted types
-	local accepted_types = M.defaults.files_types
-	local filtered_types = {}
-	local success = true
-	local fail_key = {}
-	for key, value in pairs(opts.files_types) do
-		if accepted_types[key] and value == true then
-			filtered_types[key] = true
-		elseif not accepted_types[key] and value == true then
-			filtered_types[key] = false
-			success = false
-			table.insert(fail_key, key)
-		end
-	end
-
-	opts.files_types = filtered_types
-	if not success then
-		return "Unsupported file type: "
-			.. table.concat(fail_key, ", ")
-			.. ". \nSupported types are: "
-			.. table.concat(vim.tbl_keys(accepted_types), ", ")
-			.. "."
-			.. "\nTypes not supported have been disabled."
-	end
-end
-
 --- Recursively apply default options to user-provided options.
 ---@param opts table -- User-provided options.
 ---@param defaults table -- Default options.
@@ -218,10 +152,8 @@ function M.setup(user_opts)
 	M.options = M.apply_defaults(vim.deepcopy(opts), M.defaults)
 
 	-- Validate options
-	local err = M.validate_options(M.options)
-	if err then
-		log.display_notify(3, "Config: " .. err)
-	end
+	log.info("Validating configuration options...")
+	config_validation.validate_options(M.defaults, M.options)
 
 	-- Set all highlight groups
 	set_highlights(M.options)
@@ -231,6 +163,12 @@ end
 --- @return table: The current configuration.
 function M.get()
 	return M.options
+end
+
+--- Get the default configuration options.
+--- @return table: The default configuration.
+function M.get_default_config()
+	return M.defaults
 end
 
 return M
