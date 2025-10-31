@@ -7,7 +7,7 @@
 [![DuckDB](https://img.shields.io/badge/DuckDB-orange.svg?style=for-the-badge&logo=duckdb)](https://duckdb.org)
 [![Telescope](https://img.shields.io/badge/Telescope-purple.svg?style=for-the-badge&logo=nvim-telescope)](https://github.com/nvim-telescope/telescope.nvim)
 
-**Preview**, **Explore**, and **Query** your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+**Preview**, **Explore**, and **Query** your data files (`parquet`, `csv`, `tsv`) directly inside Neovim — powered by **DuckDB** and **Telescope**.
 
 </div>
 
@@ -220,7 +220,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 ## 📏 Performances
 
 The following table shows approximate load and query times
-The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated.
+The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with a lot of lines duplicated.
 
 With a PC with:
 
@@ -229,7 +229,7 @@ With a PC with:
 - OS: Arch Linux
 - DuckDB version: 0.8.1
 
-There Test are make with different limit for the data view: 250, 1000, 5000 and 20 000 rows.
+There Test are made with different limits for the data view: 250, 1000, 5000 and 20 000 rows.
 
 <br>
 
@@ -243,7 +243,7 @@ There Test are make with different limit for the data view: 250, 1000, 5000 and 
 | TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
 
 > [!NOTE]
-> anyway if you display, you are crazy. Who dsplays 20k rows
+> anyway if you display, you are crazy. Who displays 20k rows
 
 <br>
 
