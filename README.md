@@ -99,14 +99,6 @@ require("data-explorer").setup({
     tsv = true,
   },
 
-	-- Placeholder SQL query
-	-- This is shown when opening the SQL window before any query is written
-	placeholder_sql = {
-		"SELECT * FROM f LIMIT 1000;",
-		"-- Warning: Large result could slow down / crash.",
-		"-- To query the file, use 'f' as the table name.",
-	},
-
   -- Telescope options
   telescope_opts = {
     layout_strategy = "vertical",
@@ -129,6 +121,16 @@ require("data-explorer").setup({
     max_height_metadata = 0.30, -- percent of total height (horizontal)
 		max_width_metadata = 0.25,  -- percent of total width (vertical)
   },
+
+  -- Query SQL
+	query_sql = {
+		-- Lines displayed in the SQL window when opened
+		placeholder_sql = {
+			"SELECT * FROM f LIMIT 1000;",
+			"-- Warning: Large result could slow down / crash.",
+			"-- To query the file, use 'f' as the table name.",
+		},
+	},
 
   -- Key mappings in DataExplorer windows
   mappings = {

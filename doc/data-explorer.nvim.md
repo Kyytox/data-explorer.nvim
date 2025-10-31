@@ -61,14 +61,6 @@ require("data-explorer").setup({
     tsv = true,
   },
 
-	-- Placeholder SQL query
-	-- This is shown when opening the SQL window before any query is written
-	placeholder_sql = {
-		"SELECT * FROM f LIMIT 1000;",
-		"-- Warning: Large result could slow down / crash.",
-		"-- To query the file, use 'f' as the table name.",
-	},
-
   -- Telescope options
   telescope_opts = {
     layout_strategy = "vertical",
@@ -91,6 +83,16 @@ require("data-explorer").setup({
     max_height_metadata = 0.30, -- percent of total height (horizontal)
 		max_width_metadata = 0.25,  -- percent of total width (vertical)
   },
+
+  -- Query SQL
+	query_sql = {
+		-- Lines displayed in the SQL window when opened
+		placeholder_sql = {
+			"SELECT * FROM f LIMIT 1000;",
+			"-- Warning: Large result could slow down / crash.",
+			"-- To query the file, use 'f' as the table name.",
+		},
+	},
 
   -- Key mappings in DataExplorer windows
   mappings = {
@@ -143,7 +145,6 @@ For more details on configuration options:
 | **`limit`**                                       | `number`  | Maximum number of rows fetched when displaying data. Use smaller values for large files. |
 | **`layout`**                                      | `string`  | Layout of the main UI: `"vertical"` or `"horizontal"`.                                   |
 | **`files_types`**                                 | `table`   | Which file formats are supported and enabled.                                            |
-| **`placeholder_sql`**                             | `table`   | Lines display in the SQL editor when you open it.                                        |
 | **`telescope_opts`**                              | `table`   | Telescope layout and preview configuration for file selection.                           |
 | **`telescope_opts.layout_strategy`**              | `string`  | Layout strategy for Telescope (`"vertical"`, `"horizontal"`, etc.).                      |
 | **`telescope_opts.layout_config.height`**         | `number`  | Height (ratio) of the Telescope window.                                                  |
@@ -156,6 +157,7 @@ For more details on configuration options:
 | **`window_opts.border`**                          | `string`  | Border style for floating windows (`"none"`, `"single"`, `"double"`, `"rounded"`, etc.). |
 | **`window_opts.max_height_metadata`**             | `number`  | Max height ratio for metadata window in horizontal layout (0.0 - 1.0).                   |
 | **`window_opts.max_width_metadata`**              | `number`  | Max width ratio for metadata window in vertical layout (0.0 - 1.0).                      |
+| **`query_sql.placeholder_sql`**                   | `table`   | Lines displayed in the SQL editor when opened.                                           |
 | **`mappings.quit`**                               | `string`  | Key to close the main UI.                                                                |
 | **`mappings.back`**                               | `string`  | Go back to file selection view.                                                          |
 | **`mappings.focus_meta`**                         | `string`  | Focus the metadata window.                                                               |

@@ -46,7 +46,7 @@ end
 ---@return table
 function M.prepare_sql_display(opts)
 	return {
-		unpack(opts.placeholder_sql),
+		unpack(opts.query_sql.placeholder_sql),
 	}
 end
 

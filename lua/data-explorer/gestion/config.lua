@@ -37,19 +37,21 @@ M.defaults = {
 		},
 	},
 
-	-- Placeholder SQL query
-	-- This is shown when opening the SQL window before any query is written
-	placeholder_sql = {
-		"SELECT * FROM f LIMIT 1000;",
-		"-- Warning: Large result could slow down / crash.",
-		"-- To query the file, use 'f' as the table name.",
-	},
-
 	-- Floating window options for main display windows
 	window_opts = {
 		border = "rounded",
 		max_height_metadata = 0.25,
 		max_width_metadata = 0.25,
+	},
+
+	-- Query SQL
+	query_sql = {
+		-- Lines displayed in the SQL window when opened
+		placeholder_sql = {
+			"SELECT * FROM f LIMIT 1000;",
+			"-- Warning: Large result could slow down / crash.",
+			"-- To query the file, use 'f' as the table name.",
+		},
 	},
 
 	-- Key mappings
@@ -150,8 +152,8 @@ function M.validate_options(opts)
 	end
 
 	-- Ensure placeholder_sql is a table
-	if type(opts.placeholder_sql) ~= "table" then
-		opts.placeholder_sql = M.defaults.placeholder_sql
+	if type(opts.query_sql.placeholder_sql) ~= "table" then
+		opts.query_sql.placeholder_sql = M.defaults.placeholder_sql
 		return "placeholder_sql must be a table. Reverting to default."
 	end
 
