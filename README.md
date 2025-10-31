@@ -70,7 +70,7 @@ Example with **lazy.nvim**:
 ```lua
 {
   "kyytox/data-explorer.nvim",
-  dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+  dependencies = { "nvim-telescope/telescope.nvim" },
   config = function()
     require("data-explorer").setup()
   end,
@@ -183,9 +183,9 @@ Search for and preview supported data files:
 
 ```vim
 :lua require("data-explorer").DataExplorer()
+```
 
---or
-
+```
 :DataExplorer
 ```
 
@@ -198,9 +198,9 @@ Open the currently edited file in DataExplorer (if supported):
 
 ```vim
 :lua require("data-explorer").DataExplorerFile()
+```
 
---or
-
+```
 :DataExplorerFile
 ```
 
