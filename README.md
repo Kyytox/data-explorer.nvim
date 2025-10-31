@@ -210,6 +210,22 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 <br>
 
+# 🧠 Usage Example
+
+1. Run `:DataExplorer` to open the Telescope file picker.
+2. Select a supported data file
+3. Explore the file:
+
+- 1 → focus Metadata
+- 2 → focus Data Table
+- 3 → toggle SQL editor
+
+4. Write SQL queries using `f` as the table name.
+5. Press **e** to execute and view results instantly.
+6. Press **q** to quit the explorer.
+
+<br>
+
 ## ⚠️ Limitations
 
 - The larger the file, the more time it will take to display the metadata and data, and will consume significant memory.
@@ -289,8 +305,6 @@ There Test are made with different limits for the data view: 250, 1000, 5000 and
 - Smarter preview caching
 - Metadata personalization
 - SQL Query history and favorites
-
-<!-- --- -->
 
 <br>
 

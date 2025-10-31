@@ -1,6 +1,7 @@
 # data-explorer.nvim
 
-Explore, preview, and query your data files directly inside Neovim — powered by **DuckDB** and **Telescope**.
+**Preview**, **Explore**, and **Query** your data files (`parquet`, `csv`, `tsv`) directly inside Neovim
+Powered by **DuckDB** and **Telescope**.
 
 # 🚧 Caution
 
@@ -9,7 +10,7 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
 
 # ⚡️ Requirements
 
-- **Neovim ≥ 0.8**
+- [**Neovim ≥ 0.10**](https://neovim.io)
 - [**DuckDB**](https://duckdb.org), installed and available in your PATH
   (`duckdb` command must be executable from your terminal)
 - [**telescope.nvim**](https://www.github.com/nvim-telescope/telescope.nvim)
@@ -25,7 +26,7 @@ If you encounter issues, have ideas for improvements, or want to contribute — 
 | Metadata Display   | Show column names, types, and other details           |
 | Table View         | Display file contents in a formatted, colorized table |
 | Custom SQL Queries | Run SQL queries on your data, see results instantly   |
-| Configurable       | limit, layouts, mappings, colors, highlights          |
+| Configurable       | Limit, Layouts, mappings, colors, highlights          |
 | Commands           | `DataExplorer`, `DataExplorerFile`                    |
 
 # 🔌 Installation
@@ -35,7 +36,7 @@ Example with **lazy.nvim**:
 ```lua
 {
   "kyytox/data-explorer.nvim",
-  dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
+  dependencies = { "nvim-telescope/telescope.nvim" },
   config = function()
     require("data-explorer").setup()
   end,
@@ -49,8 +50,6 @@ Plug 'kyytox/data-explorer.nvim'
 ```
 
 # ⚙️ Config
-
-## Default Configuration
 
 ```lua
 require("data-explorer").setup({
@@ -80,7 +79,7 @@ require("data-explorer").setup({
       preview_height = 0.5,
       preview_width = 0.4,
     },
-  	finder = {
+    finder = {
 			include_hidden = false, -- Show hidden files
 			exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
 		},
@@ -93,7 +92,7 @@ require("data-explorer").setup({
 		max_width_metadata = 0.25,  -- percent of total width (vertical)
   },
 
-  -- Key mappings in data-explorer windows
+  -- Key mappings in DataExplorer windows
   mappings = {
     quit = "q",
     back = "<BS>",
@@ -128,11 +127,14 @@ require("data-explorer").setup({
       col7 = "#f5c2e7",
       col8 = "#89b4fa",
       col9 = "#a6e3a1",
-
     },
   },
 })
 ```
+
+For more details on configuration options:
+
+- `:help data-explorer.nvim`: Neovim help
 
 ## Parameters Details
 
@@ -174,7 +176,7 @@ require("data-explorer").setup({
 
 # 🚀 API
 
-DataExplorer
+## DataExplorer
 
 Search for and preview supported data files:
 
@@ -182,17 +184,23 @@ Search for and preview supported data files:
 :lua require("data-explorer").DataExplorer()
 ```
 
+```
+:DataExplorer
+```
+
 Telescope will show a list of supported data files in your current working directory.
 Selecting a file opens it in the DataExplorer view with metadata and table view.
 
----
-
-DataExplorerFile
+## DataExplorerFile
 
 Open the currently edited file in DataExplorer (if supported):
 
 ```vim
 :lua require("data-explorer").DataExplorerFile()
+```
+
+```
+:DataExplorerFile
 ```
 
 This bypasses Telescope and directly loads the file into the explorer.
@@ -444,7 +452,7 @@ The following highlight groups are defined:
 # 📏 Performances
 
 The following table shows approximate load and query times
-The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with lot of lines duplicated
+The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with a lot of lines duplicated.
 
 With a PC with:
 
@@ -453,7 +461,9 @@ With a PC with:
 - OS: Arch Linux
 - DuckDB version: 0.8.1
 
-There Test are make with different limit for the data view: 250, 1000, 5000 and 20000 rows
+There Test are made with different limits for the data view: 250, 1000, 5000 and 20 000 rows.
+
+<br>
 
 | File Type | File Size | Total Rows | Avg Time (250) | Avg Time (1k) | Avg Time (5k) | Avg Time (20k) |
 | --------- | --------- | ---------- | -------------- | ------------- | ------------- | -------------- |
@@ -464,10 +474,14 @@ There Test are make with different limit for the data view: 250, 1000, 5000 and 
 | TSV       | 31 MB     | 38 170     | 0.00348 s      | 0.01219 s     | 0.06060 s     | 0.25841 s      |
 | TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
 
+> [!NOTE]
+> anyway if you display, you are crazy. Who displays 20k rows
+
 # 📜 Future Plans
 
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
+- Metadata personalization
 - SQL Query history and favorites
 
 # 💪 Motivation
@@ -481,6 +495,6 @@ Most tools either require leaving the editor or converting data manually.
 PRs and feedback are welcome!
 If you want to help improve performance, extend support for new formats, or enhance the UI — please open a PR or issue.
 
-# License
+# 📜 License
 
 MIT License © 2025 Kyytox
