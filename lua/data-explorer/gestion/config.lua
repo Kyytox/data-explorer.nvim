@@ -4,13 +4,14 @@ local M = {}
 
 --- Default configuration options for the plugin.
 ---@class ConfigOptions
----@field limit number: Maximum number of rows to fetch from the data file.
----@field layout string|nil: Layout of the display windows ("vertical" or "horizontal").
----@field files_types table: List of supported file types.
----@field telescope_opts table: Options for Telescope picker.
----@field window_opts table: Options for floating windows.
----@field mappings table: Key mappings for various actions.
----@field hl table: Highlight colors for UI elements.
+---@field limit number Maximum number of rows to fetch
+---@field layout string Layout of the display ("vertical" or "horizontal")
+---@field files_types table Supported file types
+---@field telescope_opts table Telescope UI options
+---@field placeholder_sql table Placeholder SQL query lines
+---@field window_opts table Floating window options
+---@field mappings table Key mappings
+---@field hl table Highlight colors
 M.defaults = {
 	limit = 250, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal

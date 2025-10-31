@@ -9,17 +9,7 @@ local log = require("data-explorer.gestion.log")
 
 local M = {}
 
---- Setup Data Explorer
---- @param opts table|nil: User configuration options.
-function M.setup(opts)
-	-- Check DuckDB installation
-	if not check_duckdb.check_duckdb_or_warn() then
-		return
-	end
-
-	config.setup(opts)
-	log.setup() -- Decomment logging setup for dev
-
+local function set_user_command()
 	-- Launch Data Explorer
 	vim.api.nvim_create_user_command("DataExplorer", function()
 		M.data_explorer()
@@ -39,6 +29,22 @@ local function set_autocommands()
 	})
 end
 
+--- Setup
+--- @param opts table|nil: User configuration options.
+function M.setup(opts)
+	-- Check DuckDB installation
+	if not check_duckdb.check_duckdb_or_warn() then
+		return
+	end
+
+	-- Setup configuration
+	config.setup(opts)
+	log.setup() -- Decomment logging setup for dev
+
+	-- Create User Commands
+	set_user_command()
+end
+
 --- Main function Data Explorer
 function M.data_explorer()
 	-- Check DuckDB installation
@@ -50,19 +56,9 @@ function M.data_explorer()
 
 	-- exctract file types from opts.files_types
 	local files_types = utils.aggregate_file_types(opts)
-	log.debug("Accepted file types: " .. table.concat(files_types, ", "))
 
 	-- Set Autocommands
 	set_autocommands()
-
-	-- Find all files with accepted extensions
-	-- local files = utils.get_files_in_working_directory(files_types)
-
-	-- if #files == 0 then
-	-- 	local type_str = table.concat(files_types, ", ")
-	-- 	log.display_notify(3, "No files found with extensions: " .. type_str)
-	-- 	return
-	-- end
 
 	-- Launch Data Explorer
 	picker.pickers_files(opts, files_types)
@@ -92,10 +88,8 @@ function M.data_explorer_file()
 	end
 
 	-- Check if file is an accepted file type
-	-- Use the helper function with the configured file types
 	if not utils.is_accepted_file_type(file, files_types) then
-		local type_str = table.concat(files_types, ", ")
-		log.display_notify(3, "Current file is not an accepted file type. \nAccepted types: " .. type_str)
+		log.display_notify(3, "File has not an accepted type. \nAccepted types: " .. table.concat(files_types, ", "))
 		return
 	end
 
