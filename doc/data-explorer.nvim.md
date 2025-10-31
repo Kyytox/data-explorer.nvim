@@ -475,7 +475,7 @@ There Test are made with different limits for the data view: 250, 1000, 5000 and
 | TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
 
 > [!NOTE]
-> anyway if you display, you are crazy. Who displays 20k rows
+> But who display 20K rows
 
 # 📜 Future Plans
 

@@ -680,7 +680,7 @@ and 20 000 rows.
   TSV       84 MB   101 553  0.00396 s    0.01302 s   0.06709 s   0.28249 s
   ----------------------------------------------------------------------------
 
-  [!NOTE] anyway if you display, you are crazy. Who displays 20k rows
+  [!NOTE] But who display 20K rows
 
 ==============================================================================
 15. Future Plans                             *data-explorer.nvim-future-plans*
