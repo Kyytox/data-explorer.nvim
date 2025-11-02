@@ -328,7 +328,9 @@ There Test are made with different limits for the data view: 250, 1000, 5000 and
 ## 💪 Motivation
 
 Exploring `.parquet` files directly in Neovim has always been a pain and required jumping between multiple tools.
-While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity—all without having to jump to an external tool.
+
+While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity-all without having to jump to an external tool.
+
 So, I created **data-explorer.nvim**.
 
 <br>
