@@ -23,6 +23,14 @@ M.levels = {
 	ERROR = 4,
 }
 
+----
+----
+----
+-- Logs for development
+-- Usage: log.debug("Debug message")
+--        log.info("Info message")
+--        ...
+
 M.log_file_path = "./logs/data_explorer.log"
 
 M.min_level = M.levels.DEBUG
