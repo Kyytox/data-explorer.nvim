@@ -71,14 +71,14 @@ After all options are validated, default values are applied for any missing opti
 }
 ```
 
-| Parameter           | Type      | Description                                                                                                                   |
-| :------------------ | :-------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| **`limit`**         | `number`  | Maximum number of rows to fetch when displaying data. Use smaller values for very large files to prevent potential slowdowns. |
-| **`layout`**        | `string`  | Main UI layout: `"vertical"` (metadata window on top/left, data on bottom/right) or `"horizontal"`.                           |
-| **`files_types`**   | `table`   | Specifies which file formats are supported and enabled. Set a format to `false` to disable it.                                |
-| files_types.parquet | `boolean` | Enable/disable support for `.parquet` files.                                                                                  |
-| files_types.csv     | `boolean` | Enable/disable support for `.csv` files.                                                                                      |
-| files_types.tsv     | `boolean` | Enable/disable support for `.tsv` files.                                                                                      |
+| Parameter               | Type      | Description                                                                                                                   |
+| :---------------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| **`limit`**             | `number`  | Maximum number of rows to fetch when displaying data. Use smaller values for very large files to prevent potential slowdowns. |
+| **`layout`**            | `string`  | Main UI layout: `"vertical"` (metadata window on top/left, data on bottom/right) or `"horizontal"`.                           |
+| **`files_types`**       | `table`   | Specifies which file formats are supported and enabled. Set a format to `false` to disable it.                                |
+| **files_types.parquet** | `boolean` | Enable/disable support for `.parquet` files.                                                                                  |
+| **files_types.csv**     | `boolean` | Enable/disable support for `.csv` files.                                                                                      |
+| **files_types.tsv**     | `boolean` | Enable/disable support for `.tsv` files.                                                                                      |
 
 ---
 
@@ -107,14 +107,17 @@ These options control the appearance and behavior of the initial file selector.
 }
 ```
 
-| Parameter                                         | Type      | Description                                                           |
-| :------------------------------------------------ | :-------- | :-------------------------------------------------------------------- |
-| **`telescope_opts.layout_strategy`**              | `string`  | Telescope layout strategy (e.g., `"vertical"`, `"horizontal"`, etc.). |
-| **`telescope_opts.finder.include_hidden`**        | `boolean` | Show or hide hidden files in the Telescope file picker.               |
-| **`telescope_opts.finder.exclude_dirs`**          | `table`   | List of directories to exclude from the file search.                  |
-| **`telescope_opts.layout_config.height`**         | `number`  | Height ratio of the Telescope window (relative to Neovim window).     |
-| **`telescope_opts.layout_config.width`**          | `number`  | Width ratio of the Telescope window (relative to Neovim window).      |
-| **`telescope_opts.layout_config.preview_cutoff`** | `number`  | Minimum buffer width before disabling the preview window.             |
+| Parameter                                         | Type      | Description                                                                          |
+| :------------------------------------------------ | :-------- | :----------------------------------------------------------------------------------- |
+| **`telescope_opts.layout_strategy`**              | `string`  | Layout strategy for the Telescope picker. Examples: `"vertical"`, `"horizontal"`.    |
+| **`telescope_opts.layout_config`**                | `table`   | Configuration for the chosen layout strategy.                                        |
+| **`telescope_opts.layout_config.height`**         | `number`  | Height ratio of the Telescope window (`0.0` to `1.0`).                               |
+| **`telescope_opts.layout_config.width`**          | `number`  | Width ratio of the Telescope window (`0.0` to `1.0`).                                |
+| **`telescope_opts.layout_config.preview_cutoff`** | `number`  | Minimum width (in columns) to show the preview window.                               |
+| **`telescope_opts.layout_config.preview_height`** | `number`  | Height ratio of the preview window when using **vertical** layout (`0.0` to `1.0`).  |
+| **`telescope_opts.layout_config.preview_width`**  | `number`  | Width ratio of the preview window when using **horizontal** layout (`0.0` to `1.0`). |
+| **`telescope_opts.finder.include_hidden`**        | `boolean` | Whether to include hidden files in the file search.                                  |
+| **`telescope_opts.finder.exclude_dirs`**          | `table`   | List of directory names to exclude from the file search.                             |
 
 ---
 
@@ -234,15 +237,19 @@ Configure the colors for various UI elements.
 }
 ```
 
-| Parameter                                | Type      | Description                                                         |
-| :--------------------------------------- | :-------- | :------------------------------------------------------------------ |
-| **`hl.windows.bg`**                      | `string`  | Background color for the main UI windows.                           |
-| **`hl.windows.fg`**                      | `string`  | Default foreground (text) color for the windows.                    |
-| **`hl.windows.title`**                   | `string`  | Color of the window titles.                                         |
-| **`hl.windows.footer`**                  | `string`  | Color of the footer/help line.                                      |
-| **`hl.buffer.hl_enable`**                | `boolean` | Enable/disable column-based syntax highlighting for the table data. |
-| **`hl.buffer.header`**                   | `string`  | Highlight color for header row in the data table view.              |
-| **`hl.buffer.col1` to `hl.buffer.col9`** | `string`  | Alternating colors for subsequent columns to improve readability.   |
+| Parameter                                 | Type      | Description                                                   |
+| :---------------------------------------- | :-------- | :------------------------------------------------------------ |
+| **`hl.windows.bg`**                       | `string`  | Background color for main UI windows.                         |
+| **`hl.windows.fg`**                       | `string`  | Foreground color for main UI windows.                         |
+| **`hl.windows.title`**                    | `string`  | Color of the window title.                                    |
+| **`hl.windows.footer`**                   | `string`  | Color of the footer/help line.                                |
+| **`hl.windows.sql_fg`**                   | `string`  | Foreground color for SQL editor window.                       |
+| **`hl.windows.sql_bg`**                   | `string`  | Background color for SQL editor window.                       |
+| **`hl.windows.sql_err_fg`**               | `string`  | Foreground color for SQL error window.                        |
+| **`hl.windows.sql_err_bg`**               | `string`  | Background color for SQL error window.                        |
+| **`hl.buffer.hl_enable`**                 | `boolean` | Enable/disable syntax highlighting in the data table view.    |
+| **`hl.buffer.header`**                    | `string`  | Highlight for column headers in data table view.              |
+| **`hl.buffer.col1` ... `hl.buffer.col9`** | `string`  | Foreground colors for alternating columns in data table view. |
 
 # 🚀 API
 
@@ -473,26 +480,18 @@ This allows you to see what went wrong and adjust your query accordingly.
 You can customize the highlight colors used in DataExplorer via the `hl` config option.
 The following highlight groups are defined:
 
-| Highlight Group            | Options Used From Config             | Description                                       |
-| -------------------------- | ------------------------------------ | ------------------------------------------------- | ------------------------------------------------- |
-| `DataExplorerWindow`       | `hl.windows.bg`                      | Background color for main UI windows.             |
-| `DataExplorerBorder`       | `hl.windows.bg`, `hl.windows.fg`     | Border color for main UI windows.                 |
-| `DataExplorerTitle`        | `hl.windows.bg`, `hl.windows.title`  | Color of the window title.                        |
-| `DataExplorerFooter`       | `hl.windows.bg`, `hl.windows.footer` | Color of the footer/help line.                    |
-| `DataExplorerSQLBorder`    |                                      | `hl.windows.sql_bg`, `hl.windows.sql_fg`          | Border color for SQL editor window.               |
-| `DataExplorerSQLWindow`    | `hl.windows.sql_bg`                  | Background color for SQL editor window.           |
-| `DataExplorerSQLErrBorder` |                                      | `hl.windows.sql_err_bg`, `hl.windows.sql_err_fg`  | Border color for SQL error window.                |
-| `DataExplorerSQLErrWindow` | `hl.windows.sql_err_bg`              | Background color for SQL error window.            |
-| `DataExplorerColHeader`    | `hl.buffer.header`                   | Highlight for column headers in data table view.  |
-| `DataExplorerCol1`         | `hl.buffer.col1`                     | Foreground color for column 1 in data table view. |
-| `DataExplorerCol2`         | `hl.buffer.col2`                     | Foreground color for column 2 in data table view. |
-| `DataExplorerCol3`         |                                      | `hl.buffer.col3`                                  | Foreground color for column 3 in data table view. |
-| `DataExplorerCol4`         | `hl.buffer.col4`                     |                                                   | Foreground color for column 4 in data table view. |
-| `DataExplorerCol5`         | `hl.buffer.col5`                     | Foreground color for column 5 in data table view. |
-| `DataExplorerCol6`         | `hl.buffer.col6`                     | Foreground color for column 6 in data table view. |
-| `DataExplorerCol7`         | `hl.buffer.col7`                     | Foreground color for column 7 in data table view. |
-| `DataExplorerCol8`         | `hl.buffer.col8`                     | Foreground color for column 8 in data table view. |
-| `DataExplorerCol9`         | `hl.buffer.col9`                     | Foreground color for column 9 in data table view. |
+| Highlight Group                           | Options Used From Config                         | Description                                                   |
+| ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
+| `DataExplorerWindow`                      | `hl.windows.bg`                                  | Background color for main UI windows.                         |
+| `DataExplorerBorder`                      | `hl.windows.bg`, `hl.windows.fg`                 | Border color for main UI windows.                             |
+| `DataExplorerTitle`                       | `hl.windows.bg`, `hl.windows.title`              | Color of the window title.                                    |
+| `DataExplorerFooter`                      | `hl.windows.bg`, `hl.windows.footer`             | Color of the footer/help line.                                |
+| `DataExplorerSQLBorder`                   | `hl.windows.sql_bg`, `hl.windows.sql_fg`         | Border color for SQL editor window.                           |
+| `DataExplorerSQLWindow`                   | `hl.windows.sql_bg`                              | Background color for SQL editor window.                       |
+| `DataExplorerSQLErrBorder`                | `hl.windows.sql_err_bg`, `hl.windows.sql_err_fg` | Border color for SQL error window.                            |
+| `DataExplorerSQLErrWindow`                | `hl.windows.sql_err_bg`                          | Background color for SQL error window.                        |
+| `DataExplorerColHeader`                   | `hl.buffer.header`                               | Highlight for column headers in data table view.              |
+| `DataExplorerCol1` ... `DataExplorerCol9` | `hl.buffer.col1` ... `hl.buffer.col9`            | Foreground colors for alternating columns in data table view. |
 
 # ⚠️ Limitations
 

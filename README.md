@@ -39,6 +39,8 @@ Powered by **DuckDB** and **Telescope**.
 This plugin is still under active development.
 If you encounter issues, have ideas for improvements, or want to contribute — please open an issue or a pull request!
 
+Inspired by: [**duckdb.yazi**](https://github.com/wylie102/duckdb.yazi)
+
 <br>
 
 ## ⚡️ Requirements

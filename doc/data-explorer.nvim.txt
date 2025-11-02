@@ -123,12 +123,12 @@ CORE OPTIONS
     }
 <
 
-  ------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------
   Parameter             Type      Description
-  --------------------- --------- ----------------------------------------------------------
-  limit                 number    Maximum number of rows to fetch when displaying data. Use
-                                  smaller values for very large files to prevent potential
-                                  slowdowns.
+  --------------------- --------- --------------------------------------------------------
+  limit                 number    Maximum number of rows to fetch when displaying data.
+                                  Use smaller values for very large files to prevent
+                                  potential slowdowns.
 
   layout                string    Main UI layout: "vertical" (metadata window on top/left,
                                   data on bottom/right) or "horizontal".
@@ -141,7 +141,7 @@ CORE OPTIONS
   files_types.csv       boolean   Enable/disable support for .csv files.
 
   files_types.tsv       boolean   Enable/disable support for .tsv files.
-  ------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
 TELESCOPE OPTIONS
@@ -169,27 +169,36 @@ These options control the appearance and behavior of the initial file selector.
     }
 <
 
-  ----------------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------------------------
   Parameter                                     Type      Description
-  --------------------------------------------- --------- --------------------------------------
-  telescope_opts.layout_strategy                string    Telescope layout strategy (e.g.,
-                                                          "vertical", "horizontal", etc.).
+  --------------------------------------------- --------- ------------------------------------------
+  telescope_opts.layout_strategy                string    Layout strategy for the Telescope picker.
+                                                          Examples: "vertical", "horizontal".
 
-  telescope_opts.finder.include_hidden          boolean   Show or hide hidden files in the
-                                                          Telescope file picker.
+  telescope_opts.layout_config                  table     Configuration for the chosen layout
+                                                          strategy.
 
-  telescope_opts.finder.exclude_dirs            table     List of directories to exclude from
+  telescope_opts.layout_config.height           number    Height ratio of the Telescope window (0.0
+                                                          to 1.0).
+
+  telescope_opts.layout_config.width            number    Width ratio of the Telescope window (0.0
+                                                          to 1.0).
+
+  telescope_opts.layout_config.preview_cutoff   number    Minimum width (in columns) to show the
+                                                          preview window.
+
+  telescope_opts.layout_config.preview_height   number    Height ratio of the preview window when
+                                                          using vertical layout (0.0 to 1.0).
+
+  telescope_opts.layout_config.preview_width    number    Width ratio of the preview window when
+                                                          using horizontal layout (0.0 to 1.0).
+
+  telescope_opts.finder.include_hidden          boolean   Whether to include hidden files in the
+                                                          file search.
+
+  telescope_opts.finder.exclude_dirs            table     List of directory names to exclude from
                                                           the file search.
-
-  telescope_opts.layout_config.height           number    Height ratio of the Telescope window
-                                                          (relative to Neovim window).
-
-  telescope_opts.layout_config.width            number    Width ratio of the Telescope window
-                                                          (relative to Neovim window).
-
-  telescope_opts.layout_config.preview_cutoff   number    Minimum buffer width before disabling
-                                                          the preview window.
-  ----------------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
 FLOATING WINDOW OPTIONS
@@ -328,25 +337,32 @@ Configure the colors for various UI elements.
 <
 
   ----------------------------------------------------------------------------
-  Parameter                Type      Description
-  ------------------------ --------- -----------------------------------------
-  hl.windows.bg            string    Background color for the main UI windows.
+  Parameter                  Type      Description
+  -------------------------- --------- ---------------------------------------
+  hl.windows.bg              string    Background color for main UI windows.
 
-  hl.windows.fg            string    Default foreground (text) color for the
-                                     windows.
+  hl.windows.fg              string    Foreground color for main UI windows.
 
-  hl.windows.title         string    Color of the window titles.
+  hl.windows.title           string    Color of the window title.
 
-  hl.windows.footer        string    Color of the footer/help line.
+  hl.windows.footer          string    Color of the footer/help line.
 
-  hl.buffer.hl_enable      boolean   Enable/disable column-based syntax
-                                     highlighting for the table data.
+  hl.windows.sql_fg          string    Foreground color for SQL editor window.
 
-  hl.buffer.header         string    Highlight color for header row in the
-                                     data table view.
+  hl.windows.sql_bg          string    Background color for SQL editor window.
 
-  hl.buffer.col1 to        string    Alternating colors for subsequent columns
-  hl.buffer.col9                     to improve readability.
+  hl.windows.sql_err_fg      string    Foreground color for SQL error window.
+
+  hl.windows.sql_err_bg      string    Background color for SQL error window.
+
+  hl.buffer.hl_enable        boolean   Enable/disable syntax highlighting in
+                                       the data table view.
+
+  hl.buffer.header           string    Highlight for column headers in data
+                                       table view.
+
+  hl.buffer.col1 …           string    Foreground colors for alternating
+  hl.buffer.col9                       columns in data table view.
   ----------------------------------------------------------------------------
 
 ==============================================================================
@@ -620,74 +636,40 @@ your query accordingly.
 You can customize the highlight colors used in DataExplorer via the `hl` config
 option. The following highlight groups are defined:
 
-  -------------------------------------------------------------------------------------------------
-  Highlight Group            Options Used From       Description              
-                             Config                                           
-  -------------------------- ----------------------- ------------------------ ---------------------
-  DataExplorerWindow         hl.windows.bg           Background color for     
-                                                     main UI windows.         
+  --------------------------------------------------------------------------------
+  Highlight Group            Options Used From Config Description
+  -------------------------- ------------------------ ----------------------------
+  DataExplorerWindow         hl.windows.bg            Background color for main UI
+                                                      windows.
 
-  DataExplorerBorder         hl.windows.bg,          Border color for main UI 
-                             hl.windows.fg           windows.                 
+  DataExplorerBorder         hl.windows.bg,           Border color for main UI
+                             hl.windows.fg            windows.
 
-  DataExplorerTitle          hl.windows.bg,          Color of the window      
-                             hl.windows.title        title.                   
+  DataExplorerTitle          hl.windows.bg,           Color of the window title.
+                             hl.windows.title         
 
-  DataExplorerFooter         hl.windows.bg,          Color of the footer/help 
-                             hl.windows.footer       line.                    
+  DataExplorerFooter         hl.windows.bg,           Color of the footer/help
+                             hl.windows.footer        line.
 
-  DataExplorerSQLBorder                              hl.windows.sql_bg,       Border color for SQL
-                                                     hl.windows.sql_fg        editor window.
+  DataExplorerSQLBorder      hl.windows.sql_bg,       Border color for SQL editor
+                             hl.windows.sql_fg        window.
 
-  DataExplorerSQLWindow      hl.windows.sql_bg       Background color for SQL 
-                                                     editor window.           
+  DataExplorerSQLWindow      hl.windows.sql_bg        Background color for SQL
+                                                      editor window.
 
-  DataExplorerSQLErrBorder                           hl.windows.sql_err_bg,   Border color for SQL
-                                                     hl.windows.sql_err_fg    error window.
+  DataExplorerSQLErrBorder   hl.windows.sql_err_bg,   Border color for SQL error
+                             hl.windows.sql_err_fg    window.
 
-  DataExplorerSQLErrWindow   hl.windows.sql_err_bg   Background color for SQL 
-                                                     error window.            
+  DataExplorerSQLErrWindow   hl.windows.sql_err_bg    Background color for SQL
+                                                      error window.
 
-  DataExplorerColHeader      hl.buffer.header        Highlight for column     
-                                                     headers in data table    
-                                                     view.                    
+  DataExplorerColHeader      hl.buffer.header         Highlight for column headers
+                                                      in data table view.
 
-  DataExplorerCol1           hl.buffer.col1          Foreground color for     
-                                                     column 1 in data table   
-                                                     view.                    
-
-  DataExplorerCol2           hl.buffer.col2          Foreground color for     
-                                                     column 2 in data table   
-                                                     view.                    
-
-  DataExplorerCol3                                   hl.buffer.col3           Foreground color for
-                                                                              column 3 in data
-                                                                              table view.
-
-  DataExplorerCol4           hl.buffer.col4                                   Foreground color for
-                                                                              column 4 in data
-                                                                              table view.
-
-  DataExplorerCol5           hl.buffer.col5          Foreground color for     
-                                                     column 5 in data table   
-                                                     view.                    
-
-  DataExplorerCol6           hl.buffer.col6          Foreground color for     
-                                                     column 6 in data table   
-                                                     view.                    
-
-  DataExplorerCol7           hl.buffer.col7          Foreground color for     
-                                                     column 7 in data table   
-                                                     view.                    
-
-  DataExplorerCol8           hl.buffer.col8          Foreground color for     
-                                                     column 8 in data table   
-                                                     view.                    
-
-  DataExplorerCol9           hl.buffer.col9          Foreground color for     
-                                                     column 9 in data table   
-                                                     view.                    
-  -------------------------------------------------------------------------------------------------
+  DataExplorerCol1 …         hl.buffer.col1 …         Foreground colors for
+  DataExplorerCol9           hl.buffer.col9           alternating columns in data
+                                                      table view.
+  --------------------------------------------------------------------------------
 
 ==============================================================================
 13. Limitations                               *data-explorer.nvim-limitations*
