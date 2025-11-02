@@ -196,6 +196,12 @@ Search for and preview supported data files:
 :DataExplorer
 ```
 
+```vim
+vim.keymap.set("n", "<leader>fd", function()
+  require("data-explorer").DataExplorer()
+end, { noremap = true, silent = true, desc = "Open Data Explorer" })
+```
+
 Telescope will show a list of supported data files in your current working directory.
 Selecting a file opens it in the DataExplorer view with metadata and table view.
 
@@ -209,6 +215,12 @@ Open the currently edited file in DataExplorer (if supported):
 
 ```
 :DataExplorerFile
+```
+
+```vim
+vim.keymap.set("n", "<leader>fD", function()
+  require("data-explorer").DataExplorerFile()
+end, { noremap = true, silent = true, desc = "Open Data Explorer for current file" })
 ```
 
 This bypasses Telescope and directly loads the file into the explorer.
