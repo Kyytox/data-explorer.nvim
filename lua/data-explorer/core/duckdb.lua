@@ -97,6 +97,7 @@ local function run_query(cmd, mode)
 
 	-- Check for command failure status
 	if not success or success ~= true then
+		log.display_notify(4, "DuckDB query execution failed: " .. (result.stderr or "Unknown error"))
 		return nil, result.stderr
 	end
 
@@ -242,9 +243,15 @@ function M.fetch_parse_data(file, mode, query, limit)
 		result, err = parser.parse_csv(csv_text, "|")
 	elseif mode == "metadata" then
 		csv_text, err = prepare_cmd_metadata(file, ext, mode)
+		if err then
+			return nil, err
+		end
 		result, err = parser.parse_raw_text(csv_text)
 	elseif mode == "usr_query" and query then
 		csv_text, err = prepare_cmd_user_query(file, query, mode)
+		if err then
+			return nil, err
+		end
 		result, err = parser.parse_csv(csv_text, ",")
 	end
 
