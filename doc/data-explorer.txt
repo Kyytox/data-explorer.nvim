@@ -1,41 +1,41 @@
-*data-explorer.nvim.txt*                    Data Explorer plugin documentation
+*data-explorer.txt*                         Data Explorer plugin documentation
 
 ==============================================================================
-Table of Contents                       *data-explorer.nvim-table-of-contents*
+Table of Contents                            *data-explorer-table-of-contents*
 
-1. data-explorer.nvim                  |data-explorer.nvim-data-explorer.nvim|
-2. Caution                                        |data-explorer.nvim-caution|
-3. Requirements                              |data-explorer.nvim-requirements|
-4. Features                                      |data-explorer.nvim-features|
-5. Installation                              |data-explorer.nvim-installation|
-6. Config                                          |data-explorer.nvim-config|
-7. API                                                |data-explorer.nvim-api|
-  - DataExplorer                             |data-explorer.nvim-dataexplorer|
-  - DataExplorerFile                     |data-explorer.nvim-dataexplorerfile|
-8. Usage Example                            |data-explorer.nvim-usage-example|
-9. Architecture                              |data-explorer.nvim-architecture|
-10. Windows Layout                         |data-explorer.nvim-windows-layout|
-11. Modules                                       |data-explorer.nvim-modules|
-  - Metadata View                           |data-explorer.nvim-metadata-view|
-  - Data Table View                       |data-explorer.nvim-data-table-view|
-  - User SQL Query                         |data-explorer.nvim-user-sql-query|
-12. Highlights                                 |data-explorer.nvim-highlights|
-13. Limitations                               |data-explorer.nvim-limitations|
-14. Performances                             |data-explorer.nvim-performances|
-15. Future Plans                             |data-explorer.nvim-future-plans|
-16. Motivation                                 |data-explorer.nvim-motivation|
-17. Contribute & Bug Reports     |data-explorer.nvim-contribute-&-bug-reports|
-18. License                                       |data-explorer.nvim-license|
+1. data-explorer.nvim                       |data-explorer-data-explorer.nvim|
+2. Caution                                             |data-explorer-caution|
+3. Requirements                                   |data-explorer-requirements|
+4. Features                                           |data-explorer-features|
+5. Installation                                   |data-explorer-installation|
+6. Config                                               |data-explorer-config|
+7. API                                                     |data-explorer-api|
+  - DataExplorer                                  |data-explorer-dataexplorer|
+  - DataExplorerFile                          |data-explorer-dataexplorerfile|
+8. Usage Example                                 |data-explorer-usage-example|
+9. Architecture                                   |data-explorer-architecture|
+10. Windows Layout                              |data-explorer-windows-layout|
+11. Modules                                            |data-explorer-modules|
+  - Metadata View                                |data-explorer-metadata-view|
+  - Data Table View                            |data-explorer-data-table-view|
+  - User SQL Query                              |data-explorer-user-sql-query|
+12. Highlights                                      |data-explorer-highlights|
+13. Limitations                                    |data-explorer-limitations|
+14. Performances                                  |data-explorer-performances|
+15. Future Plans                                  |data-explorer-future-plans|
+16. Motivation                                      |data-explorer-motivation|
+17. Contribute & Bug Reports          |data-explorer-contribute-&-bug-reports|
+18. License                                            |data-explorer-license|
 
 ==============================================================================
-1. data-explorer.nvim                  *data-explorer.nvim-data-explorer.nvim*
+1. data-explorer.nvim                       *data-explorer-data-explorer.nvim*
 
 **Preview**, **Explore**, and **Query** your data files (`parquet`, `csv`,
 `tsv`) directly inside Neovim Powered by **DuckDB** and **Telescope**.
 
 
 ==============================================================================
-2. Caution                                        *data-explorer.nvim-caution*
+2. Caution                                             *data-explorer-caution*
 
 This plugin is still under active development. If you encounter issues, have
 ideas for improvements, or want to contribute — please open an issue or a
@@ -43,7 +43,7 @@ pull request!
 
 
 ==============================================================================
-3. Requirements                              *data-explorer.nvim-requirements*
+3. Requirements                                   *data-explorer-requirements*
 
 - **Neovim ≥ 0.10** <https://neovim.io>
 - **DuckDB** <https://duckdb.org>, installed and available in your PATH
@@ -53,7 +53,7 @@ pull request!
 
 
 ==============================================================================
-4. Features                                      *data-explorer.nvim-features*
+4. Features                                           *data-explorer-features*
 
   ------------------------------------------------------------------------
   Feature            Description
@@ -76,7 +76,7 @@ pull request!
   ------------------------------------------------------------------------
 
 ==============================================================================
-5. Installation                              *data-explorer.nvim-installation*
+5. Installation                                   *data-explorer-installation*
 
 Example with **lazy.nvim**:
 
@@ -98,7 +98,7 @@ Or with **vim-plug**:
 
 
 ==============================================================================
-6. Config                                          *data-explorer.nvim-config*
+6. Config                                               *data-explorer-config*
 
 The configuration is passed to the plugin’s `setup` function:
 `require("data-explorer").setup({...})`.
@@ -163,7 +163,7 @@ These options control the appearance and behavior of the initial file selector.
             },
             finder = {
                 include_hidden = false,
-                exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
+                exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv", "miniconda3" },
             },
         },
     }
@@ -366,10 +366,10 @@ Configure the colors for various UI elements.
   ----------------------------------------------------------------------------
 
 ==============================================================================
-7. API                                                *data-explorer.nvim-api*
+7. API                                                     *data-explorer-api*
 
 
-DATAEXPLORER                                 *data-explorer.nvim-dataexplorer*
+DATAEXPLORER                                      *data-explorer-dataexplorer*
 
 Search for and preview supported data files:
 
@@ -386,7 +386,7 @@ directory. Selecting a file opens it in the DataExplorer view with metadata and
 table view.
 
 
-DATAEXPLORERFILE                         *data-explorer.nvim-dataexplorerfile*
+DATAEXPLORERFILE                              *data-explorer-dataexplorerfile*
 
 Open the currently edited file in DataExplorer (if supported):
 
@@ -402,7 +402,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 
 ==============================================================================
-8. Usage Example                            *data-explorer.nvim-usage-example*
+8. Usage Example                                 *data-explorer-usage-example*
 
 1. Run `:DataExplorer` to open the Telescope file picker.
 2. Select a file.
@@ -418,7 +418,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 
 ==============================================================================
-9. Architecture                              *data-explorer.nvim-architecture*
+9. Architecture                                   *data-explorer-architecture*
 
 >
                             ┌────────────┐
@@ -452,7 +452,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 
 ==============================================================================
-10. Windows Layout                         *data-explorer.nvim-windows-layout*
+10. Windows Layout                              *data-explorer-windows-layout*
 
 The main DataExplorer window is divided into multiple sections:
 
@@ -511,10 +511,10 @@ all the remaining width.
 
 
 ==============================================================================
-11. Modules                                       *data-explorer.nvim-modules*
+11. Modules                                            *data-explorer-modules*
 
 
-METADATA VIEW                               *data-explorer.nvim-metadata-view*
+METADATA VIEW                                    *data-explorer-metadata-view*
 
 
 METADATA EXTRACTION ~
@@ -568,7 +568,7 @@ The metadata table for `.parquet` files includes the following columns:
   Count         Total number of rows in the column
 ------------------------------------------------------------------------------
 
-DATA TABLE VIEW                           *data-explorer.nvim-data-table-view*
+DATA TABLE VIEW                                *data-explorer-data-table-view*
 
 
 DATA EXTRACTION ~
@@ -607,7 +607,7 @@ The Group names used for highlighting are `DataExplorerCol1`,
 
 ------------------------------------------------------------------------------
 
-USER SQL QUERY                             *data-explorer.nvim-user-sql-query*
+USER SQL QUERY                                  *data-explorer-user-sql-query*
 
 You can write and execute custom SQL queries on the loaded data file. For
 displaying the SQL editor, press the mapping defined in the config (default
@@ -631,7 +631,7 @@ your query accordingly.
 
 
 ==============================================================================
-12. Highlights                                 *data-explorer.nvim-highlights*
+12. Highlights                                      *data-explorer-highlights*
 
 You can customize the highlight colors used in DataExplorer via the `hl` config
 option. The following highlight groups are defined:
@@ -672,7 +672,7 @@ option. The following highlight groups are defined:
   --------------------------------------------------------------------------------
 
 ==============================================================================
-13. Limitations                               *data-explorer.nvim-limitations*
+13. Limitations                                    *data-explorer-limitations*
 
 **General**
 
@@ -699,7 +699,7 @@ option. The following highlight groups are defined:
 
 
 ==============================================================================
-14. Performances                             *data-explorer.nvim-performances*
+14. Performances                                  *data-explorer-performances*
 
 The following table shows approximate load and query times The file is a copy
 of nasa-exoplanet archive data
@@ -739,7 +739,7 @@ and 20 000 rows.
   [!NOTE] But who display 20K rows
 
 ==============================================================================
-15. Future Plans                             *data-explorer.nvim-future-plans*
+15. Future Plans                                  *data-explorer-future-plans*
 
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
@@ -748,7 +748,7 @@ and 20 000 rows.
 
 
 ==============================================================================
-16. Motivation                                 *data-explorer.nvim-motivation*
+16. Motivation                                      *data-explorer-motivation*
 
 Exploring `.parquet` files directly in Neovim has always been a pain. Most
 tools either require leaving the editor or converting data manually.
@@ -757,14 +757,14 @@ data files easy — without leaving Neovim.
 
 
 ==============================================================================
-17. Contribute & Bug Reports     *data-explorer.nvim-contribute-&-bug-reports*
+17. Contribute & Bug Reports          *data-explorer-contribute-&-bug-reports*
 
 PRs and feedback are welcome! If you want to help improve performance, extend
 support for new formats, or enhance the UI — please open a PR or issue.
 
 
 ==============================================================================
-18. License                                       *data-explorer.nvim-license*
+18. License                                            *data-explorer-license*
 
 MIT License 2025 Kyytox
 

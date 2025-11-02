@@ -101,7 +101,7 @@ These options control the appearance and behavior of the initial file selector.
         },
         finder = {
             include_hidden = false,
-            exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
+            exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv", "miniconda3" },
         },
     },
 }

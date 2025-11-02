@@ -34,7 +34,7 @@ M.defaults = {
 		},
 		finder = {
 			include_hidden = false, -- Show hidden files
-			exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
+			exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv", "miniconda3" },
 		},
 	},
 
