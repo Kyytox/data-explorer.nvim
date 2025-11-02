@@ -158,8 +158,8 @@ These options control the appearance and behavior of the initial file selector.
                 height = 0.4,
                 width = 0.9,
                 preview_cutoff = 1,
-                preview_height = 0.5, -- Used for vertical layout
-                preview_width = 0.4, -- Used for horizontal layout
+                preview_height = 0.5,
+                preview_width = 0.4,
             },
             finder = {
                 include_hidden = false,
@@ -309,29 +309,29 @@ Configure the colors for various UI elements.
 >lua
     {
         hl = {
-            windows = {
-                bg = "#11111b",
-                fg = "#cdd6f4",
-                title = "#f5c2e7",
-                footer = "#a6e3a1",
-                sql_fg = "#89b4fa",
-                sql_bg = "#1e1e2e",
-                sql_err_fg = "#f38ba8",
-                sql_err_bg = "#3b1d2a",
-            },
-            buffer = {
-                hl_enable = true,
-                header = "white",
-                col1 = "#f38ba8",
-                col2 = "#89b4fa",
-                col3 = "#a6e3a1",
-                col4 = "#f9e2af",
-                col5 = "#cba6f7",
-                col6 = "#94e2d5",
-                col7 = "#f5c2e7",
-                col8 = "#89b4fa",
-                col9 = "#a6e3a1",
-            },
+          windows = {
+              bg = "#151515",
+              fg = "#cdd6f4",
+              title = "#D97706",
+              footer = "#F87171",
+              sql_fg = "#3B82F6",
+              sql_bg = "#1e1e2e",
+              sql_err_fg = "#EF4444",
+              sql_err_bg = "#3b1d2a",
+          },
+          buffer = {
+              hl_enable = true,
+              header = "white",
+              col1 = "#EF4444",
+              col2 = "#3B82F6",
+              col3 = "#10B981",
+              col4 = "#FBBF24",
+              col5 = "#A78BFA",
+              col6 = "#06B6D4",
+              col7 = "#F59E0B",
+              col8 = "#63A5F7",
+              col9 = "#22C55E",
+          },
         },
     }
 <

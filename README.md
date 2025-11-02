@@ -127,9 +127,9 @@ require("data-explorer").setup({
 
 	-- Query SQL
 	query_sql = {
-		-- Lines displayed in the SQL window when opened
+		-- Lines displayed in the SQL window when opened, {} for no placeholder
 		placeholder_sql = {
-			"SELECT * FROM f LIMIT 1000;",
+			"SELECT * FROM f LIMIT 100;",
 			"-- Warning: Large result could slow down / crash.",
 			"-- To query the file, use 'f' as the table name.",
 		},
@@ -149,27 +149,27 @@ require("data-explorer").setup({
 	-- Highlight colors
 	hl = {
 		windows = {
-			bg = "#11111b",
+			bg = "#151515",
 			fg = "#cdd6f4",
-			title = "#f5c2e7",
-			footer = "#a6e3a1",
-			sql_fg = "#89b4fa",
+			title = "#D97706",
+			footer = "#F87171",
+			sql_fg = "#3B82F6",
 			sql_bg = "#1e1e2e",
-			sql_err_fg = "#f38ba8",
+			sql_err_fg = "#EF4444",
 			sql_err_bg = "#3b1d2a",
 		},
 		buffer = {
 			hl_enable = true,
 			header = "white",
-			col1 = "#f38ba8",
-			col2 = "#89b4fa",
-			col3 = "#a6e3a1",
-			col4 = "#f9e2af",
-			col5 = "#cba6f7",
-			col6 = "#94e2d5",
-			col7 = "#f5c2e7",
-			col8 = "#89b4fa",
-			col9 = "#a6e3a1",
+			col1 = "#EF4444",
+			col2 = "#3B82F6",
+			col3 = "#10B981",
+			col4 = "#FBBF24",
+			col5 = "#A78BFA",
+			col6 = "#06B6D4",
+			col7 = "#F59E0B",
+			col8 = "#63A5F7",
+			col9 = "#22C55E",
 		},
 	},
 })
