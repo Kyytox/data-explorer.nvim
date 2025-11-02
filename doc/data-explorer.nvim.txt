@@ -103,38 +103,38 @@ Or with **vim-plug**:
 
 >lua
     require("data-explorer").setup({
-      limit = 250, -- Max number of rows to fetch
-      layout = "vertical", -- "vertical" or "horizontal"
-      files_types = {
-        parquet = true,
-        csv = true,
-        tsv = true,
-      },
-    
-      -- Telescope options
-      telescope_opts = {
-        layout_strategy = "vertical",
-        layout_config = {
-          height = 0.4,
-          width = 0.9,
-          preview_cutoff = 1,
-          preview_height = 0.5,
-          preview_width = 0.4,
+        limit = 250, -- Maximum number of rows to fetch
+        layout = "vertical", -- Vertical or horizontal
+        files_types = {
+            parquet = true,
+            csv = true,
+            tsv = true,
         },
-        finder = {
+    
+        -- UI/Telescope options
+        telescope_opts = {
+            layout_strategy = "vertical",
+            layout_config = {
+                height = 0.4,
+                width = 0.9,
+                preview_cutoff = 1,
+                preview_height = 0.5, -- Used for vertical layout
+                preview_width = 0.4, -- Used for horizontal layout
+            },
+            finder = {
                 include_hidden = false, -- Show hidden files
                 exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
             },
-      },
+        },
     
-      -- window options
-      window_opts = {
-        border = "rounded",
-        max_height_metadata = 0.30, -- percent of total height (horizontal)
-            max_width_metadata = 0.25,  -- percent of total width (vertical)
-      },
+        -- Floating window options for main display windows
+        window_opts = {
+            border = "rounded",
+            max_height_metadata = 0.25,
+            max_width_metadata = 0.25,
+        },
     
-      -- Query SQL
+        -- Query SQL
         query_sql = {
             -- Lines displayed in the SQL window when opened
             placeholder_sql = {
@@ -144,43 +144,43 @@ Or with **vim-plug**:
             },
         },
     
-      -- Key mappings in DataExplorer windows
-      mappings = {
-        quit = "q",
-        back = "<BS>",
-        focus_meta = "1",
-        focus_data = "2",
-        toggle_sql = "3",
-        rotate_layout = "r",
-        execute_sql = "e",
-      },
+        -- Key mappings
+        mappings = {
+            quit = "q", -- Close the main UI
+            back = "<BS>", -- Go back to file selection
+            focus_meta = "1", -- Focus the metadata window
+            focus_data = "2", -- Focus the data window
+            toggle_sql = "3", -- Toggle the SQL query window
+            rotate_layout = "r", -- Rotate the layout
+            execute_sql = "e", -- Execute the SQL query
+        },
     
-      -- Color highlights
-      hl = {
-        windows = {
-          bg = "#11111b",
-          fg = "#cdd6f4",
-          title = "#f5c2e7",
-          footer = "#a6e3a1",
-          sql_fg = "#89b4fa",
-          sql_bg = "#1e1e2e",
-          sql_err_fg = "#f38ba8",
-          sql_err_bg = "#3b1d2a",
+        -- Highlight colors
+        hl = {
+            windows = {
+                bg = "#11111b",
+                fg = "#cdd6f4",
+                title = "#f5c2e7",
+                footer = "#a6e3a1",
+                sql_fg = "#89b4fa",
+                sql_bg = "#1e1e2e",
+                sql_err_fg = "#f38ba8",
+                sql_err_bg = "#3b1d2a",
+            },
+            buffer = {
+                hl_enable = true,
+                header = "white",
+                col1 = "#f38ba8",
+                col2 = "#89b4fa",
+                col3 = "#a6e3a1",
+                col4 = "#f9e2af",
+                col5 = "#cba6f7",
+                col6 = "#94e2d5",
+                col7 = "#f5c2e7",
+                col8 = "#89b4fa",
+                col9 = "#a6e3a1",
+            },
         },
-        buffer = {
-          hl_enable = true,
-          header = "white",
-          col1 = "#f38ba8",
-          col2 = "#89b4fa",
-          col3 = "#a6e3a1",
-          col4 = "#f9e2af",
-          col5 = "#cba6f7",
-          col6 = "#94e2d5",
-          col7 = "#f5c2e7",
-          col8 = "#89b4fa",
-          col9 = "#a6e3a1",
-        },
-      },
     })
 <
 
