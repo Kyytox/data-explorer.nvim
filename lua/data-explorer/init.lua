@@ -39,7 +39,7 @@ function M.setup(opts)
 
 	-- Setup configuration
 	config.setup(opts)
-	log.setup() -- Decomment logging setup for dev
+	-- log.setup_dev()
 
 	-- Create User Commands
 	set_user_command()

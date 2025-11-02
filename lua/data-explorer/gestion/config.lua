@@ -129,33 +129,40 @@ local function set_highlights(opts)
 	end
 end
 
---- Recursively apply default options to user-provided options.
----@param opts table -- User-provided options.
----@param defaults table -- Default options.
----@return table -- Merged options.
-function M.apply_defaults(opts, defaults)
-	for k, v in pairs(defaults) do
-		if opts[k] == nil then
-			opts[k] = vim.deepcopy(v)
-		elseif type(opts[k]) == "table" and type(v) == "table" then
-			M.apply_defaults(opts[k], v)
+--- Recursively applies default values to the user options.
+--- @param user_opts table: User-defined options.
+--- @param default table: Default options.
+--- @return table: Merged options.
+function M.apply_defaults(user_opts, default)
+	for key, default_value in pairs(default) do
+		local user_value = user_opts[key]
+		if type(default_value) == "table" then
+			if type(user_value) ~= "table" then
+				user_opts[key] = vim.deepcopy(default_value)
+			else
+				user_opts[key] = M.apply_defaults(user_value, default_value)
+			end
+		else
+			if user_value == nil then
+				user_opts[key] = default_value
+			end
 		end
 	end
-	return opts
+	return user_opts
 end
 
----Merges user options with defaults and stores the result.
+--- Setup the configuration with user-defined options.
 --- @param user_opts table|nil: User-defined options.
 function M.setup(user_opts)
 	local opts = user_opts or {}
-	-- Deep merge user options with defaults
-	M.options = M.apply_defaults(vim.deepcopy(opts), M.defaults)
 
-	-- Validate options
-	log.info("Validating configuration options...")
-	config_validation.validate_options(M.defaults, M.options)
+	-- Valid user options
+	M.options = config_validation.valid_user_options(M.defaults, opts)
 
-	-- Set all highlight groups
+	-- Merge user options with defaults
+	M.options = M.apply_defaults(vim.deepcopy(M.options), M.defaults)
+
+	-- Set highlights
 	set_highlights(M.options)
 end
 

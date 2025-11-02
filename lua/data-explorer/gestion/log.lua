@@ -39,7 +39,7 @@ local function ensure_log_file_exists()
 	end
 end
 
-function M.setup(log_file_path, min_level)
+function M.setup_dev(log_file_path, min_level)
 	ensure_log_file_exists()
 	M.log_file_path = log_file_path or M.log_file_path
 	M.min_level = min_level or M.min_level
