@@ -11,14 +11,14 @@ local M = {}
 
 local function set_user_command()
 	-- Launch Data Explorer
-	vim.api.nvim_create_user_command("DataExplorer", function()
-		M.data_explorer()
-	end, { desc = "Open Data Explorer", nargs = 0 })
-
-	-- Launch Data Explorer for current files
-	vim.api.nvim_create_user_command("DataExplorerFile", function()
-		M.data_explorer_file()
-	end, { desc = "Open Data Explorer for current file", nargs = 0 })
+	-- vim.api.nvim_create_user_command("DataExplorer", function()
+	-- 	M.data_explorer()
+	-- end, { desc = "Open Data Explorer", nargs = 0 })
+	--
+	-- -- Launch Data Explorer for current files
+	-- vim.api.nvim_create_user_command("DataExplorerFile", function()
+	-- 	M.data_explorer_file()
+	-- end, { desc = "Open Data Explorer for current file", nargs = 0 })
 end
 
 --- Set Autocommands for Data Explorer
