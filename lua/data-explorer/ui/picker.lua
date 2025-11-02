@@ -35,7 +35,7 @@ end
 ---@param opts table: user options
 ---@param extensions table: file extensions (e.g., {"csv", "tsv", "parquet"})
 function M.pickers_files(opts, extensions)
-	local find_command = utils.build_fd_command(extensions, opts)
+	local find_command = utils.build_fd_command(extensions, opts.telescope_opts.finder)
 
 	pickers
 		.new(opts, {

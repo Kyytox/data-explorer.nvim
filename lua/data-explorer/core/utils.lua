@@ -24,6 +24,7 @@ end
 ---@return table: Command as a list of strings.
 function M.build_fd_command(extensions, opts)
 	local fd_cmd
+
 	if vim.fn.executable("fd") == 1 then
 		fd_cmd = "fd"
 	elseif vim.fn.executable("fdfind") == 1 then
@@ -49,10 +50,10 @@ function M.build_fd_command(extensions, opts)
 		table.insert(cmd, dir)
 	end
 
-	for _, f in ipairs(opts.exclude_files or {}) do
-		table.insert(cmd, "--exclude")
-		table.insert(cmd, f)
-	end
+	-- for _, f in ipairs(opts.exclude_files or {}) do
+	-- 	table.insert(cmd, "--exclude")
+	-- 	table.insert(cmd, f)
+	-- end
 
 	return cmd
 end
