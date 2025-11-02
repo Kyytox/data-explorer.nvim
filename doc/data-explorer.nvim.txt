@@ -9,7 +9,6 @@ Table of Contents                       *data-explorer.nvim-table-of-contents*
 4. Features                                      |data-explorer.nvim-features|
 5. Installation                              |data-explorer.nvim-installation|
 6. Config                                          |data-explorer.nvim-config|
-  - Parameters Details                 |data-explorer.nvim-parameters-details|
 7. API                                                |data-explorer.nvim-api|
   - DataExplorer                             |data-explorer.nvim-dataexplorer|
   - DataExplorerFile                     |data-explorer.nvim-dataexplorerfile|
@@ -101,17 +100,58 @@ Or with **vim-plug**:
 ==============================================================================
 6. Config                                          *data-explorer.nvim-config*
 
+The configuration is passed to the plugin’s `setup` function:
+`require("data-explorer").setup({...})`.
+
+When the setup configuration is launched, a validation of the user options is
+done. If an option is not valid, an WARNING notification is shown with the
+invalid option name and the default value used instead. After all options are
+validated, default values are applied for any missing options.
+
+
+CORE OPTIONS
+
 >lua
-    require("data-explorer").setup({
-        limit = 250, -- Maximum number of rows to fetch
-        layout = "vertical", -- Vertical or horizontal
+    {
+        limit = 250,
+        layout = "vertical",
         files_types = {
             parquet = true,
             csv = true,
             tsv = true,
         },
-    
-        -- UI/Telescope options
+    }
+<
+
+  ------------------------------------------------------------------------------------------
+  Parameter             Type      Description
+  --------------------- --------- ----------------------------------------------------------
+  limit                 number    Maximum number of rows to fetch when displaying data. Use
+                                  smaller values for very large files to prevent potential
+                                  slowdowns.
+
+  layout                string    Main UI layout: "vertical" (metadata window on top/left,
+                                  data on bottom/right) or "horizontal".
+
+  files_types           table     Specifies which file formats are supported and enabled.
+                                  Set a format to false to disable it.
+
+  files_types.parquet   boolean   Enable/disable support for .parquet files.
+
+  files_types.csv       boolean   Enable/disable support for .csv files.
+
+  files_types.tsv       boolean   Enable/disable support for .tsv files.
+  ------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+TELESCOPE OPTIONS
+
+`telescope_opts`
+
+These options control the appearance and behavior of the initial file selector.
+
+>lua
+    {
         telescope_opts = {
             layout_strategy = "vertical",
             layout_config = {
@@ -122,40 +162,143 @@ Or with **vim-plug**:
                 preview_width = 0.4, -- Used for horizontal layout
             },
             finder = {
-                include_hidden = false, -- Show hidden files
+                include_hidden = false,
                 exclude_dirs = { ".git", "node_modules", "__pycache__", "venv", ".venv" },
             },
         },
-    
-        -- Floating window options for main display windows
+    }
+<
+
+  ----------------------------------------------------------------------------------------------
+  Parameter                                     Type      Description
+  --------------------------------------------- --------- --------------------------------------
+  telescope_opts.layout_strategy                string    Telescope layout strategy (e.g.,
+                                                          "vertical", "horizontal", etc.).
+
+  telescope_opts.finder.include_hidden          boolean   Show or hide hidden files in the
+                                                          Telescope file picker.
+
+  telescope_opts.finder.exclude_dirs            table     List of directories to exclude from
+                                                          the file search.
+
+  telescope_opts.layout_config.height           number    Height ratio of the Telescope window
+                                                          (relative to Neovim window).
+
+  telescope_opts.layout_config.width            number    Width ratio of the Telescope window
+                                                          (relative to Neovim window).
+
+  telescope_opts.layout_config.preview_cutoff   number    Minimum buffer width before disabling
+                                                          the preview window.
+  ----------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+FLOATING WINDOW OPTIONS
+
+`window_opts`
+
+These options apply to the main data display windows (Data and Metadata).
+
+>lua
+    {
         window_opts = {
             border = "rounded",
             max_height_metadata = 0.25,
             max_width_metadata = 0.25,
         },
-    
-        -- Query SQL
+    }
+<
+
+  -------------------------------------------------------------------------------------------
+  Parameter                         Type     Description
+  --------------------------------- -------- ------------------------------------------------
+  window_opts.border                string   Border style for the floating windows. Examples:
+                                             "none", "single", "double", "rounded".
+
+  window_opts.max_height_metadata   number   Maximum height ratio for the metadata window
+                                             when using the horizontal layout (0.0 to 1.0).
+
+  window_opts.max_width_metadata    number   Maximum width ratio for the metadata window when
+                                             using the vertical layout (0.0 to 1.0).
+  -------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+SQL QUERY OPTIONS
+
+`query_sql`
+
+These options configure the SQL query editor behavior.
+
+>lua
+    {
         query_sql = {
-            -- Lines displayed in the SQL window when opened
             placeholder_sql = {
                 "SELECT * FROM f LIMIT 1000;",
                 "-- Warning: Large result could slow down / crash.",
                 "-- To query the file, use 'f' as the table name.",
             },
         },
-    
-        -- Key mappings
+    }
+<
+
+  --------------------------------------------------------------------------------------
+  Parameter                   Type    Description
+  --------------------------- ------- --------------------------------------------------
+  query_sql.placeholder_sql   table   Lines displayed in the SQL editor when it is
+                                      opened. Used to give users tips or example
+                                      queries.
+
+  --------------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+KEY MAPPINGS
+
+`mappings`
+
+Customize the key bindings for actions within the main UI.
+
+>lua
+    {
         mappings = {
-            quit = "q", -- Close the main UI
-            back = "<BS>", -- Go back to file selection
-            focus_meta = "1", -- Focus the metadata window
-            focus_data = "2", -- Focus the data window
-            toggle_sql = "3", -- Toggle the SQL query window
-            rotate_layout = "r", -- Rotate the layout
-            execute_sql = "e", -- Execute the SQL query
+            quit = "q",
+            back = "<BS>",
+            focus_meta = "1",
+            focus_data = "2",
+            toggle_sql = "3",
+            rotate_layout = "r",
+            execute_sql = "e",
         },
-    
-        -- Highlight colors
+    }
+<
+
+  ----------------------------------------------------------------------------
+  Parameter                Type     Description
+  ------------------------ -------- ------------------------------------------
+  mappings.quit            string   Key to close the main UI and return to
+                                    Neovim.
+
+  mappings.back            string   Key to go back to the file selection view.
+
+  mappings.focus_meta      string   Key to focus the metadata window.
+
+  mappings.focus_data      string   Key to focus the data table window.
+
+  mappings.toggle_sql      string   Key to toggle the SQL query editor window.
+
+  mappings.rotate_layout   string   Key to switch between vertical and
+                                    horizontal layouts.
+
+  mappings.execute_sql     string   Key to execute the current SQL query.
+  ----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+HIGHLIGHTING OPTIONS
+
+`hl`
+
+Configure the colors for various UI elements.
+
+>lua
+    {
         hl = {
             windows = {
                 bg = "#11111b",
@@ -181,101 +324,30 @@ Or with **vim-plug**:
                 col9 = "#a6e3a1",
             },
         },
-    })
+    }
 <
 
-For more details on configuration options:
+  ----------------------------------------------------------------------------
+  Parameter                Type      Description
+  ------------------------ --------- -----------------------------------------
+  hl.windows.bg            string    Background color for the main UI windows.
 
-- `:help data-explorer.nvim`: Neovim help
+  hl.windows.fg            string    Default foreground (text) color for the
+                                     windows.
 
+  hl.windows.title         string    Color of the window titles.
 
-PARAMETERS DETAILS                     *data-explorer.nvim-parameters-details*
+  hl.windows.footer        string    Color of the footer/help line.
 
-  --------------------------------------------------------------------------------------------------
-  Key                                           Type      Description
-  --------------------------------------------- --------- ------------------------------------------
-  limit                                         number    Maximum number of rows fetched when
-                                                          displaying data. Use smaller values for
-                                                          large files.
+  hl.buffer.hl_enable      boolean   Enable/disable column-based syntax
+                                     highlighting for the table data.
 
-  layout                                        string    Layout of the main UI: "vertical" or
-                                                          "horizontal".
+  hl.buffer.header         string    Highlight color for header row in the
+                                     data table view.
 
-  files_types                                   table     Which file formats are supported and
-                                                          enabled.
-
-  telescope_opts                                table     Telescope layout and preview configuration
-                                                          for file selection.
-
-  telescope_opts.layout_strategy                string    Layout strategy for Telescope ("vertical",
-                                                          "horizontal", etc.).
-
-  telescope_opts.layout_config.height           number    Height (ratio) of the Telescope window.
-
-  telescope_opts.layout_config.width            number    Width (ratio) of the Telescope window.
-
-  telescope_opts.layout_config.preview_cutoff   number    Minimum width before disabling preview.
-
-  telescope_opts.layout_config.preview_height   number    Height ratio for preview in vertical mode.
-
-  telescope_opts.layout_config.preview_width    number    Width ratio for preview in horizontal
-                                                          mode.
-
-  telescope_opts.finder.include_hidden          boolean   Show hidden files in Telescope file
-                                                          picker.
-
-  telescope_opts.finder.exclude_dirs            table     List of directories to exclude from file
-                                                          search.
-
-  window_opts.border                            string    Border style for floating windows ("none",
-                                                          "single", "double", "rounded", etc.).
-
-  window_opts.max_height_metadata               number    Max height ratio for metadata window in
-                                                          horizontal layout (0.0 - 1.0).
-
-  window_opts.max_width_metadata                number    Max width ratio for metadata window in
-                                                          vertical layout (0.0 - 1.0).
-
-  query_sql.placeholder_sql                     table     Lines displayed in the SQL editor when
-                                                          opened.
-
-  mappings.quit                                 string    Key to close the main UI.
-
-  mappings.back                                 string    Go back to file selection view.
-
-  mappings.focus_meta                           string    Focus the metadata window.
-
-  mappings.focus_data                           string    Focus the data table window.
-
-  mappings.toggle_sql                           string    Toggle the SQL query editor window.
-
-  mappings.rotate_layout                        string    Switch between vertical and horizontal
-                                                          layout.
-
-  mappings.execute_sql                          string    Execute the current SQL query.
-
-  hl.windows.bg                                 string    Background color for main UI windows.
-
-  hl.windows.fg                                 string    Default foreground (text) color.
-
-  hl.windows.title                              string    Color of the window title.
-
-  hl.windows.footer                             string    Color of the footer/help line.
-
-  hl.windows.sql_fg                             string    Foreground color of SQL input.
-
-  hl.windows.sql_bg                             string    Background color of SQL input.
-
-  hl.windows.sql_err_fg                         string    Foreground color for SQL errors.
-
-  hl.windows.sql_err_bg                         string    Background color for SQL errors.
-
-  hl.buffer.hl_enable                           boolean   Enable/disable syntax highlighting for
-                                                          table data.
-
-  hl.buffer.col1–col9                           string    Per-column alternating colors for table
-                                                          readability.
-  --------------------------------------------------------------------------------------------------
+  hl.buffer.col1 to        string    Alternating colors for subsequent columns
+  hl.buffer.col9                     to improve readability.
+  ----------------------------------------------------------------------------
 
 ==============================================================================
 7. API                                                *data-explorer.nvim-api*
