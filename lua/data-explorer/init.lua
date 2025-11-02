@@ -36,6 +36,7 @@ function M.setup(opts)
 	if not check_duckdb.check_duckdb_or_warn() then
 		return
 	end
+	log.display_notify(1, "Data Explorer loaded")
 
 	-- Setup configuration
 	config.setup(opts)

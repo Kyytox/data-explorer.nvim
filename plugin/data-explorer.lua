@@ -10,5 +10,15 @@ if vim.g.loaded_data_explorer == 1 then
 end
 vim.g.loaded_data_explorer = 1
 
-local data_explorer = require("data-explorer")
-data_explorer.setup()
+local M = require("data-explorer")
+M.setup()
+
+-- Launch Data Explorer
+vim.api.nvim_create_user_command("DataExplorer", function()
+	M.data_explorer()
+end, { desc = "Open Data Explorer", nargs = 0 })
+
+-- Launch Data Explorer for current files
+vim.api.nvim_create_user_command("DataExplorerFile", function()
+	M.data_explorer_file()
+end, { desc = "Open Data Explorer for current file", nargs = 0 })
