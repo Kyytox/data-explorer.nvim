@@ -261,7 +261,7 @@ The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipa
 
 With a PC with:
 
-- CPU: AMD Ryzen™ 7 7700 x 16
+- CPU: AMD Ryzen™ 7 7700X
 - RAM: 32 GB
 - OS: Arch Linux
 - DuckDB version: 0.8.1
