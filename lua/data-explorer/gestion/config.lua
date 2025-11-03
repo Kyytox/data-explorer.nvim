@@ -26,10 +26,10 @@ M.defaults = {
 	telescope_opts = {
 		layout_strategy = "vertical",
 		layout_config = {
-			height = 0.4,
+			height = 0.7,
 			width = 0.9,
 			preview_cutoff = 1,
-			preview_height = 0.5, -- Used for vertical layout
+			preview_height = 0.6, -- Used for vertical layout
 			preview_width = 0.4, -- Used for horizontal layout
 		},
 		finder = {

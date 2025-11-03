@@ -93,10 +93,10 @@ These options control the appearance and behavior of the initial file selector.
     telescope_opts = {
         layout_strategy = "vertical",
         layout_config = {
-            height = 0.4,
+            height = 0.7,
             width = 0.9,
             preview_cutoff = 1,
-            preview_height = 0.5,
+            preview_height = 0.6,
             preview_width = 0.4,
         },
         finder = {
