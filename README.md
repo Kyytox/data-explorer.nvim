@@ -19,6 +19,12 @@ Powered by **DuckDB** and **Telescope**.
 
 ![video2](https://github.com/user-attachments/assets/2f1cfede-d4d7-4f25-8774-ba1d794d20a7)
 
+https://github.com/user-attachments/assets/0e30cc7f-ed00-4204-ad9a-50c464f086c8
+
+
+https://github.com/user-attachments/assets/2f1cfede-d4d7-4f25-8774-ba1d794d20a7
+
+
 ---
 
 - [Caution](#-caution)
