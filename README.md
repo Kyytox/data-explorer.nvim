@@ -13,6 +13,10 @@ Powered by **DuckDB** and **Telescope**.
 
 </div>
 
+![video1](https://github.com/user-attachments/assets/778b1458-6a0d-4194-8d2f-fb386ea033ab)
+
+![video2](https://github.com/user-attachments/assets/edce99c6-a0f9-4a2c-bad5-0fa6cfa865b9)
+
 ---
 
 - [Caution](#-caution)
