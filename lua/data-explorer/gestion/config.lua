@@ -135,16 +135,18 @@ end
 --- @return table: Merged options.
 function M.apply_defaults(user_opts, default)
 	for key, default_value in pairs(default) do
-		local user_value = user_opts[key]
-		if type(default_value) == "table" then
-			if type(user_value) ~= "table" then
-				user_opts[key] = vim.deepcopy(default_value)
+		if type(key) == "string" then
+			local user_value = user_opts[key]
+			if type(default_value) == "table" then
+				if type(user_value) ~= "table" then
+					user_opts[key] = vim.deepcopy(default_value)
+				else
+					user_opts[key] = M.apply_defaults(user_value, default_value)
+				end
 			else
-				user_opts[key] = M.apply_defaults(user_value, default_value)
-			end
-		else
-			if user_value == nil then
-				user_opts[key] = default_value
+				if user_value == nil then
+					user_opts[key] = default_value
+				end
 			end
 		end
 	end
