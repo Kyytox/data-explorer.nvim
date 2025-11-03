@@ -13,17 +13,9 @@ Powered by **DuckDB** and **Telescope**.
 
 </div>
 
-![video1](https://github.com/user-attachments/assets/0e30cc7f-ed00-4204-ad9a-50c464f086c8)
+https://github.com/user-attachments/assets/b3be9db3-073b-4fea-9bdd-a8a445225c98
 
-![videotest](https://drive.google.com/file/d/1Y2uUSZcUNAJpl7Smm9Pj44FZnFwrA08O/view?usp=drive_link)
-
-![video2](https://github.com/user-attachments/assets/2f1cfede-d4d7-4f25-8774-ba1d794d20a7)
-
-https://github.com/user-attachments/assets/0e30cc7f-ed00-4204-ad9a-50c464f086c8
-
-
-https://github.com/user-attachments/assets/2f1cfede-d4d7-4f25-8774-ba1d794d20a7
-
+https://github.com/user-attachments/assets/6808974e-4c1b-4089-ac61-4ca059729647
 
 ---
 
