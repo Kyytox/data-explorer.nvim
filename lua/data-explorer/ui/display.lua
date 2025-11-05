@@ -30,13 +30,15 @@ end
 function M.prepare_help(opts)
 	return {
 		string.format(
-			" %s: Quit | %s: Rotate | %s: Back file selection | %s: Metadata | %s: Data | %s: SQL Query ",
+			" %s: Quit | %s: Rotate | %s: Next Page | %s: Prev Page | %s: Metadata | %s: Data | %s: SQL Query | %s: Back ",
 			opts.mappings.quit,
 			opts.mappings.rotate_layout,
-			opts.mappings.back,
+			opts.mappings.next_page,
+			opts.mappings.prev_page,
 			opts.mappings.focus_meta,
 			opts.mappings.focus_data,
-			opts.mappings.toggle_sql
+			opts.mappings.toggle_sql,
+			opts.mappings.back
 		),
 	}
 end
@@ -63,88 +65,13 @@ function M.prepare_sql_help(opts)
 	}
 end
 
---- Calculate UTF-8 string length.
---- Useful because #str returns byte length, not character length.
---- And when u have (é,è,ä, ...) it counts as 2 bytes.
----@param str string: Input string.
----@return number: Length of the string in UTF-8 characters.
-local function utf8_len(str)
-	local _, count = str:gsub("[^\128-\193]", "")
-	return count
-end
-
---- Pad string on the right with spaces to a given width.
---- Truncates the string if it exceeds the width.
----@param str string: Input string.
----@param width number: Desired width.
----@return string: Padded or truncated string.
-local function pad_right(str, width)
-	local len = utf8_len(str)
-	if len > width - 1 then
-		local truncated = vim.fn.strcharpart(str, 0, width)
-		return truncated
-	else
-		return str .. string.rep(" ", width - len)
-	end
-end
-
 --- Prepare table data for display.
---- Formats headers and data into aligned table lines.
----@param headers table: Column headers.
 ---@param data table: Table data.
 ---@return table: Formatted table lines.
 function M.prepare_data(data)
 	return {
 		unpack(data),
 	}
-	-- local col_widths = {}
-	--
-	-- -- Determine maximum width for each column
-	-- for _, h in ipairs(headers) do
-	-- 	col_widths[h] = utf8_len(h)
-	-- end
-	-- for _, row in ipairs(data) do
-	-- 	for _, h in ipairs(headers) do
-	-- 		local val = tostring(row[h] or "")
-	-- 		if utf8_len(val) > col_widths[h] then
-	-- 			col_widths[h] = utf8_len(val)
-	-- 		end
-	-- 	end
-	-- end
-	--
-	-- -- Add padding + apply maximum width limit
-	-- for k, w in pairs(col_widths) do
-	-- 	col_widths[k] = w + 1
-	-- end
-	--
-	-- -- Build header line
-	-- local header_line = table.concat(
-	-- 	vim.tbl_map(function(h)
-	-- 		return pad_right(h, col_widths[h])
-	-- 	end, headers),
-	-- 	"│"
-	-- )
-	--
-	-- -- Separator line
-	-- local separator = table.concat(
-	-- 	vim.tbl_map(function(h)
-	-- 		return string.rep("─", col_widths[h])
-	-- 	end, headers),
-	-- 	"┼"
-	-- )
-	--
-	-- -- Table body
-	-- local tbl_lines = { header_line, separator }
-	-- for _, row in ipairs(data) do
-	-- 	local parts = {}
-	-- 	for _, h in ipairs(headers) do
-	-- 		local val = tostring(row[h] or " ")
-	-- 		table.insert(parts, pad_right(val, col_widths[h]))
-	-- 	end
-	-- 	table.insert(tbl_lines, table.concat(parts, "│"))
-	-- end
-	--
-	-- return tbl_lines
 end
 
 --- Determine highlight group based on column index
