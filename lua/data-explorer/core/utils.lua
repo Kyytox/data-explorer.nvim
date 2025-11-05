@@ -113,7 +113,6 @@ function M.get_cached_metadata(file)
 	local ext = file:match("^.+(%..+)$")
 
 	-- Fetch and parse metadata
-	-- metadata, err = duckdb.fetch_parse_data(file, "metadata", nil, nil)
 	metadata, err = duckdb.fetch_metadata(file, ext)
 	if not metadata then
 		return nil, err

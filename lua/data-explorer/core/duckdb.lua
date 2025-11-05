@@ -107,27 +107,25 @@ end
 local function generate_duckdb_command(query, mode, top_store_duckdb, limit)
 	local duckdb_cmd = state.get_variable("duckdb_cmd")
 
-	if mode == "metadata" then
-		return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
+	-- if mode == "metadata" then
+	-- 	return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
+	-- else
+	if top_store_duckdb then
+		local path_db = vim.fn.stdpath("data") .. state.get_variable("data_dir") .. state.get_variable("duckdb_file")
+		return {
+			duckdb_cmd,
+			path_db,
+			"-cmd",
+			".maxrows " .. tostring(limit),
+			"-cmd",
+			".nullvalue ''",
+			"-c",
+			query,
+		}
 	else
-		if top_store_duckdb then
-			local path_db = vim.fn.stdpath("data")
-				.. state.get_variable("data_dir")
-				.. state.get_variable("duckdb_file")
-			return {
-				duckdb_cmd,
-				path_db,
-				"-cmd",
-				".maxrows " .. tostring(limit),
-				"-cmd",
-				".nullvalue ''",
-				"-c",
-				query,
-			}
-		else
-			return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
-		end
+		return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
 	end
+	-- end
 end
 
 ---Prepare query for metadata.
@@ -314,11 +312,15 @@ function M.get_data_pagination(opts, digit)
 	local last_user_query = state.get_state("last_user_query")
 	local file = state.get_state("current_file")
 	local ext = state.get_state("files_metadata", file).file_ext
+	local max_num_page = state.get_state("max_num_page")
 	local page = state.get_state("num_page")
 	local new_page = page + digit
 
 	if new_page < 1 then
 		log.display_notify(3, "Already at the first page.")
+		return
+	elseif new_page > max_num_page then
+		log.display_notify(3, "Already at the last page.")
 		return
 	end
 

@@ -79,6 +79,7 @@ function M.render(opts, file)
 	state.set_state("current_file", nil, file)
 	state.set_state("current_layout", nil, opts.layout)
 	state.set_state("num_page", nil, 1)
+	state.set_state("max_num_page", nil, math.ceil(metadata.count_lines / opts.limit))
 
 	-- Create buffers
 	local nb_meta_lines, nb_data_lines = create_buffers(opts, file, metadata, data)

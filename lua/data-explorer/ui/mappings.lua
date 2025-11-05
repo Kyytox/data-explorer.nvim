@@ -74,7 +74,6 @@ function M.set_common_keymaps(opts)
 				actions_windows.toggle_window_focus(wins.win_sql_err)
 			end
 		end, map_opts)
-		::continue::
 	end
 
 	-- Execution of SQL query
