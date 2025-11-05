@@ -104,12 +104,9 @@ local function run_query(cmd)
 	return out, nil
 end
 
-local function generate_duckdb_command(query, mode, top_store_duckdb, limit)
+local function generate_duckdb_command(query, top_store_duckdb, limit)
 	local duckdb_cmd = state.get_variable("duckdb_cmd")
 
-	-- if mode == "metadata" then
-	-- 	return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
-	-- else
 	if top_store_duckdb then
 		local path_db = vim.fn.stdpath("data") .. state.get_variable("data_dir") .. state.get_variable("duckdb_file")
 		return {
@@ -125,7 +122,6 @@ local function generate_duckdb_command(query, mode, top_store_duckdb, limit)
 	else
 		return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
 	end
-	-- end
 end
 
 ---Prepare query for metadata.
@@ -136,7 +132,7 @@ local function prepare_query_metadata(file, ext)
 	local query = METADATA_QUERIES[ext:sub(2)]
 	query = string.format(query, file)
 
-	local cmd = generate_duckdb_command(query, "metadata", false, 1000)
+	local cmd = generate_duckdb_command(query, false, 1000)
 	return run_query(cmd)
 end
 
@@ -176,7 +172,7 @@ function M.fetch_main_data(file, ext, top_store_duckdb, limit)
 	end
 
 	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, "main_data", top_store_duckdb, limit)
+	local cmd = generate_duckdb_command(query, top_store_duckdb, limit)
 
 	-- Run the query
 	local csv_text, err = run_query(cmd)
@@ -250,7 +246,7 @@ function M.execute_sql_query(opts, buf)
 	end
 
 	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(new_query, "main_data", top_store_duckdb, limit)
+	local cmd = generate_duckdb_command(new_query, top_store_duckdb, limit)
 
 	-- Run the query
 	local out_data, err = run_query(cmd)
@@ -306,7 +302,6 @@ function M.execute_sql_query(opts, buf)
 end
 
 function M.get_data_pagination(opts, digit)
-	local err
 	local top_store_duckdb = opts.use_storage_duckdb
 	local limit = opts.limit
 	local last_user_query = state.get_state("last_user_query")
@@ -327,6 +322,7 @@ function M.get_data_pagination(opts, digit)
 	local offset = (new_page - 1) * limit
 
 	local query
+	local err
 	if last_user_query then -- user has already executed a custom query
 		query, err = prepare_user_query(file, last_user_query, top_store_duckdb, limit, offset)
 	else
