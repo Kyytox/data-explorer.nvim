@@ -19,7 +19,7 @@ local function create_buffers(opts, file, metadata, data)
 	state.set_state("buffers", "buf_meta", buf_meta)
 
 	-- Prepare display data
-	local data_lines = display.prepare_data(data.headers, data.data)
+	local data_lines = display.prepare_data(data)
 	local buf_data = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, data_lines)
 	state.set_state("buffers", "buf_data", buf_data)
@@ -57,17 +57,9 @@ function M.render(opts, file)
 	local err
 	local data = nil
 	local metadata = nil
+	local top_store_duckdb = opts.use_storage_duckdb
 
-	data, err = duckdb.fetch_parse_data(file, "main_data", nil, opts.limit)
-	if not data then
-		log.display_notify(4, "Error fetching data: " .. err)
-		return
-	end
-
-	if #data.data == 0 then
-		log.display_notify(4, "No data found in the file: " .. file)
-		return
-	end
+	local start = os.clock()
 
 	-- Fetch and cache metadata
 	metadata, err = utils.get_cached_metadata(file)
@@ -76,9 +68,17 @@ function M.render(opts, file)
 		return
 	end
 
+	-- data, err = duckdb.fetch_parse_data(file, "main_data", nil, opts.limit)
+	data, err = duckdb.fetch_main_data(file, metadata.file_ext, top_store_duckdb, opts.limit)
+	if not data then
+		log.display_notify(4, "Error fetching data: " .. err)
+		return
+	end
+
 	-- Store current file in state
 	state.set_state("current_file", nil, file)
 	state.set_state("current_layout", nil, opts.layout)
+	state.set_state("num_page", nil, 1)
 
 	-- Create buffers
 	local nb_meta_lines, nb_data_lines = create_buffers(opts, file, metadata, data)
@@ -95,6 +95,10 @@ function M.render(opts, file)
 
 	-- Set keymaps for buffers
 	mappings.set_common_keymaps(opts)
+
+	local finish = os.clock()
+	local elapsed = finish - start
+	log.info(string.format("Main Data for %s in %.4f seconds.", file, elapsed))
 end
 
 return M

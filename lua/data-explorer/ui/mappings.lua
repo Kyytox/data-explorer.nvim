@@ -3,6 +3,7 @@ local duckdb = require("data-explorer.core.duckdb")
 local actions_windows = require("data-explorer.actions.actions_windows")
 local actions_render = require("data-explorer.actions.actions_render")
 local config_windows = require("data-explorer.ui.config_windows")
+local log = require("data-explorer.gestion.log")
 
 local M = {}
 
@@ -27,6 +28,20 @@ function M.set_common_keymaps(opts)
 			config_windows.upd_cursorline_option(true, wins.win_data)
 			config_windows.upd_cursorline_option(false, wins.win_meta)
 		end, map_opts)
+
+		-- Next page of data
+		if key == "buf_data" then
+			vim.keymap.set("n", "J", function()
+				local digit = 1
+				duckdb.get_data_pagination(opts, digit)
+			end, map_opts)
+
+			-- Previous page of data
+			vim.keymap.set("n", "K", function()
+				local digit = -1
+				duckdb.get_data_pagination(opts, digit)
+			end, map_opts)
+		end
 
 		-- Layout rotation
 		vim.keymap.set("n", opts.mappings.rotate_layout, function()

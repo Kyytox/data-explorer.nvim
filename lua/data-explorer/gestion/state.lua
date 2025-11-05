@@ -2,6 +2,8 @@ local M = {}
 
 local VARIABLES = {
 	duckdb_cmd = "duckdb",
+	data_dir = "/data_explorer/",
+	duckdb_file = "data_explorer.db",
 	windows_infos = {
 		meta_title = "Metadata",
 		data_title = "Data",
@@ -22,6 +24,8 @@ local STATE = {
 	current_file = nil,
 	current_layout = nil,
 	tbl_dimensions = {},
+	num_page = 1,
+	last_user_query = nil,
 }
 
 -- Get all state

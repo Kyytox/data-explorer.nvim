@@ -93,55 +93,58 @@ end
 ---@param headers table: Column headers.
 ---@param data table: Table data.
 ---@return table: Formatted table lines.
-function M.prepare_data(headers, data)
-	local col_widths = {}
-
-	-- Determine maximum width for each column
-	for _, h in ipairs(headers) do
-		col_widths[h] = utf8_len(h)
-	end
-	for _, row in ipairs(data) do
-		for _, h in ipairs(headers) do
-			local val = tostring(row[h] or "")
-			if utf8_len(val) > col_widths[h] then
-				col_widths[h] = utf8_len(val)
-			end
-		end
-	end
-
-	-- Add padding + apply maximum width limit
-	for k, w in pairs(col_widths) do
-		col_widths[k] = w + 1
-	end
-
-	-- Build header line
-	local header_line = table.concat(
-		vim.tbl_map(function(h)
-			return pad_right(h, col_widths[h])
-		end, headers),
-		"│"
-	)
-
-	-- Separator line
-	local separator = table.concat(
-		vim.tbl_map(function(h)
-			return string.rep("─", col_widths[h])
-		end, headers),
-		"┼"
-	)
-
-	-- Table body
-	local tbl_lines = { header_line, separator }
-	for _, row in ipairs(data) do
-		local parts = {}
-		for _, h in ipairs(headers) do
-			local val = tostring(row[h] or " ")
-			table.insert(parts, pad_right(val, col_widths[h]))
-		end
-		table.insert(tbl_lines, table.concat(parts, "│"))
-	end
-
-	return tbl_lines
+function M.prepare_data(data)
+	return {
+		unpack(data),
+	}
+	-- local col_widths = {}
+	--
+	-- -- Determine maximum width for each column
+	-- for _, h in ipairs(headers) do
+	-- 	col_widths[h] = utf8_len(h)
+	-- end
+	-- for _, row in ipairs(data) do
+	-- 	for _, h in ipairs(headers) do
+	-- 		local val = tostring(row[h] or "")
+	-- 		if utf8_len(val) > col_widths[h] then
+	-- 			col_widths[h] = utf8_len(val)
+	-- 		end
+	-- 	end
+	-- end
+	--
+	-- -- Add padding + apply maximum width limit
+	-- for k, w in pairs(col_widths) do
+	-- 	col_widths[k] = w + 1
+	-- end
+	--
+	-- -- Build header line
+	-- local header_line = table.concat(
+	-- 	vim.tbl_map(function(h)
+	-- 		return pad_right(h, col_widths[h])
+	-- 	end, headers),
+	-- 	"│"
+	-- )
+	--
+	-- -- Separator line
+	-- local separator = table.concat(
+	-- 	vim.tbl_map(function(h)
+	-- 		return string.rep("─", col_widths[h])
+	-- 	end, headers),
+	-- 	"┼"
+	-- )
+	--
+	-- -- Table body
+	-- local tbl_lines = { header_line, separator }
+	-- for _, row in ipairs(data) do
+	-- 	local parts = {}
+	-- 	for _, h in ipairs(headers) do
+	-- 		local val = tostring(row[h] or " ")
+	-- 		table.insert(parts, pad_right(val, col_widths[h]))
+	-- 	end
+	-- 	table.insert(tbl_lines, table.concat(parts, "│"))
+	-- end
+	--
+	-- return tbl_lines
 end
 
 --- Determine highlight group based on column index
@@ -170,10 +173,11 @@ function M.update_highlights(buf, data_lines)
 	local ns_id = vim.api.nvim_create_namespace("data_explorer_highlight_namespace")
 
 	-- Browse header line for find all | and create table
-	local header_line = data_lines[1]
+	local header_line = data_lines[2]
 	local tbl_pos = {}
-	local col_start = 0
+	local col_start = 4
 	local col_index = 1
+	local hl_group
 	while true do
 		-- Find next |
 		local s, e = string.find(header_line, "│", col_start + 1, true)
@@ -181,27 +185,38 @@ function M.update_highlights(buf, data_lines)
 			break
 		end
 
+		-- Find highlight group
+		hl_group = determine_hl_group(2, col_index)
+
 		-- Store column positions
-		tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = s - 1 }
+		tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = s - 1, hl_group = hl_group }
 		col_index = col_index + 1
 		col_start = e
 	end
 
-	-- Add last column (after last | to end of line)
-	tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = #header_line }
-
 	-- Browse lines and highlight based on tbl_pos
-	for l = 1, #data_lines do
+	local lines_footer = 1
+	if #data_lines <= 6 then
+		lines_footer = 3
+	elseif #data_lines >= 14 then
+		lines_footer = 3
+	end
+
+	for l = 1, #data_lines - lines_footer do
 		for _, col in pairs(tbl_pos) do
 			local value_start = col.start + 1
 			local value_end = col.finish
 			local hl_group = ""
 
-			if l ~= 2 then -- Skip separator line
-				-- Find highlight group
-				hl_group = determine_hl_group(l, col.col_index)
-
+			if l > 4 then -- Skip separator line
 				-- Set extmark for highlight
+				vim.api.nvim_buf_set_extmark(buf, ns_id, l - 1, value_start - 1, {
+					end_col = value_end,
+					hl_group = col.hl_group,
+				})
+			else
+				-- Header line
+				hl_group = determine_hl_group(1, col.col_index)
 				vim.api.nvim_buf_set_extmark(buf, ns_id, l - 1, value_start - 1, {
 					end_col = value_end,
 					hl_group = hl_group,

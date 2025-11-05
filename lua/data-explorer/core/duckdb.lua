@@ -1,5 +1,4 @@
 local log = require("data-explorer.gestion.log")
-local config = require("data-explorer.gestion.config")
 local state = require("data-explorer.gestion.state")
 local display = require("data-explorer.ui.display")
 local parser = require("data-explorer.core.parser")
@@ -39,61 +38,56 @@ local METADATA_QUERIES = {
 	tsv = [[
         CREATE TEMP TABLE tmp AS
         SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t', sample_size=-1);
-         SELECT column_name AS Column,
-                column_type AS Type,
-                approx_unique AS Unique,
-                null_percentage AS Nulls,
-                SUBSTRING(min, 1, 40) AS Min,
-                SUBSTRING(max, 1, 40) AS Max,
-                avg AS Average,
-                std AS Std,
-                q25
-                q50,
-                q75,
-                count AS Count
-          FROM (SUMMARIZE tmp);
+        SELECT column_name AS Column,
+               column_type AS Type,
+               approx_unique AS Unique,
+               null_percentage AS Nulls,
+               SUBSTRING(min, 1, 40) AS Min,
+               SUBSTRING(max, 1, 40) AS Max,
+               avg AS Average,
+               std AS Std,
+               q25
+               q50,
+               q75,
+               count AS Count
+        FROM (SUMMARIZE tmp);
       ]],
 }
 
 local DATA_QUERIES = {
+	parquet = [[SELECT * FROM read_parquet('%s') LIMIT %d OFFSET %d;]],
+	csv = [[SELECT * FROM read_csv_auto('%s', sample_size=-1) LIMIT %d OFFSET %d;]],
+	tsv = [[SELECT * FROM read_csv_auto('%s', sep='\t', sample_size=-1) LIMIT %d OFFSET %d;]],
+}
+
+local TABLE_NAME = "f"
+local DATA_QUERIES_STORE_DUCKDB = {
 	parquet = [[
-      COPY(
-        SELECT * FROM read_parquet('%s') LIMIT %d
-      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+      CREATE OR REPLACE TABLE %s AS SELECT * FROM read_parquet('%s');
+      SELECT * FROM %s LIMIT %d OFFSET %d;
   ]],
 	csv = [[
-      COPY(
-        SELECT * FROM read_csv_auto('%s') LIMIT %d
-      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+      CREATE OR REPLACE TABLE %s AS SELECT * FROM read_csv_auto('%s', sample_size=-1);
+      SELECT * FROM %s LIMIT %d OFFSET %d;
   ]],
 	tsv = [[
-      COPY(
-        SELECT * FROM read_csv_auto('%s', sep='\t') LIMIT %d
-      ) TO STDOUT WITH (FORMAT CSV, HEADER, DELIMITER '|', QUOTE '"');
+      CREATE OR REPLACE TABLE %s AS SELECT * FROM read_csv_auto('%s', sep='\t', sample_size=-1);
+      SELECT * FROM %s LIMIT %d OFFSET %d;
   ]],
 }
 
 --- Runs a DuckDB query and returns the raw CSV output.
 --- This function is the only one that interacts with the shell.
----@param cmd string|table: The command string or table to execute.
----@param mode string: "main_data", "metadata", or "usr_query".
 ---@return string|nil, string|nil: Raw CSV output or error message.
-local function run_query(cmd, mode)
+local function run_query(cmd)
 	local out
 	local success
 	local result
 
-	if mode == "main_data" then
-		-- using io.popen
-		result = io.popen(cmd)
-		out = result:read("*a")
-		success = result:close() ~= nil
-	else
-		-- Use vim.system to run the command because we need to capture stdout AND stderr
-		result = vim.system(cmd, { text = true }):wait()
-		out = result.stdout
-		success = result.code == 0
-	end
+	-- log.debug("Running DuckDB command: " .. table.concat(cmd, " "))
+	result = vim.system(cmd, { text = true }):wait()
+	out = result.stdout
+	success = result.code == 0
 
 	-- Check for command failure status
 	if not success or success ~= true then
@@ -110,23 +104,95 @@ local function run_query(cmd, mode)
 	return out, nil
 end
 
---- Generate command to run DuckDB query
----@param query string: The SQL query to execute.
----@param mode string: "main_data", "metadata", or "usr_query".
----@return string|table: The command string or table to execute.
-local function generate_duckdb_command(query, mode)
+local function generate_duckdb_command(query, mode, top_store_duckdb, limit)
 	local duckdb_cmd = state.get_variable("duckdb_cmd")
-	local cmd = nil
 
-	if mode == "main_data" then
-		cmd = string.format('%s -csv -c "%s"', duckdb_cmd, query:gsub('"', '\\"'))
-	elseif mode == "usr_query" then
-		cmd = { duckdb_cmd, "-csv", "-c", query }
+	if mode == "metadata" then
+		return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
 	else
-		cmd = { duckdb_cmd, "-c", query }
+		if top_store_duckdb then
+			local path_db = vim.fn.stdpath("data")
+				.. state.get_variable("data_dir")
+				.. state.get_variable("duckdb_file")
+			return {
+				duckdb_cmd,
+				path_db,
+				"-cmd",
+				".maxrows " .. tostring(limit),
+				"-cmd",
+				".nullvalue ''",
+				"-c",
+				query,
+			}
+		else
+			return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
+		end
+	end
+end
+
+---Prepare query for metadata.
+---@param file string: Path to the parquet file.
+---@param ext string: File extension (e.g., ".parquet", ".csv").
+---@return string|nil, string|nil: Raw metadata or error message.
+local function prepare_query_metadata(file, ext)
+	local query = METADATA_QUERIES[ext:sub(2)]
+	query = string.format(query, file)
+
+	local cmd = generate_duckdb_command(query, "metadata", false, 1000)
+	return run_query(cmd)
+end
+
+function M.fetch_metadata(file, ext)
+	local csv_text, err = prepare_query_metadata(file, ext)
+	if err then
+		return nil, err
+	end
+	local result, err = parser.parse_raw_text(csv_text)
+
+	if not result then
+		return nil, err
 	end
 
-	return cmd
+	return { headers = result.headers, data = result.data, count_lines = result.count_lines }, nil
+end
+
+---Prepare query for main data.
+local function prepare_query_main_data(file, ext, top_store_duckdb, limit, offset)
+	local query
+
+	if top_store_duckdb then
+		query = DATA_QUERIES_STORE_DUCKDB[ext:sub(2)]
+		query = string.format(query, TABLE_NAME, file, TABLE_NAME, limit, offset)
+	else
+		query = DATA_QUERIES[ext:sub(2)]
+		query = string.format(query, file, limit, offset)
+	end
+
+	return query, nil
+end
+
+function M.fetch_main_data(file, ext, top_store_duckdb, limit)
+	local query, err = prepare_query_main_data(file, ext, top_store_duckdb, limit, 0)
+	if err then
+		return nil, err
+	end
+
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(query, "main_data", top_store_duckdb, limit)
+
+	-- Run the query
+	local csv_text, err = run_query(cmd)
+	if err then
+		return nil, err
+	end
+
+	local result, err = parser.parse_raw_text(csv_text)
+
+	if not result then
+		return nil, err
+	end
+
+	return result.data, nil
 end
 
 --- Validate the user-provided SQL query.
@@ -135,46 +201,19 @@ end
 --- @return boolean success True if the query passes all validation checks.
 --- @return string message A status or error message explaining the result.
 local function validate_sql_query(query)
+	-- Simple validation
+	if query:match("^%s*$") then
+		log.display_notify(3, "SQL query is empty!")
+		return false, "SQL query is empty!"
+	end
+
 	if not string.find(query, "from%s+f") then
 		return false, "Query must use the required syntax 'FROM f' to reference the file."
 	end
 	return true, "Query is valid!"
 end
 
---- Prepare command for fetching metadata.
----@param file string: Path to the parquet file.
----@param ext string: File extension (e.g., ".parquet", ".csv").
----@return string|nil, string|nil: Raw CSV metadata or error message.
-local function prepare_cmd_metadata(file, ext, mode)
-	-- Format the query
-	local query = METADATA_QUERIES[ext:sub(2)]
-	query = string.format(query, file)
-
-	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, mode)
-	return run_query(cmd, mode)
-end
-
---- Prepare command for fetching main data.
----@param file string: Path to the parquet file.
----@param ext string: File extension (e.g., ".parquet", ".csv").
----@param limit number: Number of rows to fetch.
----@return string|nil, string|nil: Raw CSV data or error message.
-local function prepare_cmd_main_data(file, ext, mode, limit)
-	-- Format the query
-	local query = DATA_QUERIES[ext:sub(2)]
-	query = string.format(query, file, limit)
-
-	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, mode)
-	return run_query(cmd, mode)
-end
-
---- Prepare command for executing user-provided SQL query.
----@param file string: Path to the parquet file.
----@param query string: Custom SQL query provided by the user.
----@return string|nil, string|nil: Raw CSV data or error message.
-local function prepare_cmd_user_query(file, query, mode)
+local function prepare_user_query(file, query, top_store_duckdb, limit, offset)
 	-- Convert query to lower case
 	query = string.lower(query)
 
@@ -184,121 +223,55 @@ local function prepare_cmd_user_query(file, query, mode)
 		return nil, err
 	end
 
-	-- transform to 'from ('path/to/file')'
-	local path_file = file:gsub("'", "\\'")
-	query = query:gsub("from%s+f", "FROM '" .. path_file .. "'")
+	-- Remove ; at the end
+	query = query:gsub(";%s*$", "")
 
-	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, mode)
-	return run_query(cmd, mode)
+	if not top_store_duckdb then
+		local path_file = file:gsub("'", "\\'")
+		query = query:gsub("from%s+f", "FROM '" .. path_file .. "'")
+	end
+	query = string.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, limit, offset)
+
+	return query, nil
 end
 
---- Get file size, determine KB or MB.
----@param file string: File path.
----@return string: Size in KB or MB.
-local function get_file_size_mb(file)
-	local size = 0
-	local ext = " KB"
-	local f = io.open(file, "r")
-	if f then
-		local file_size = f:seek("end")
-		size = math.floor(file_size / 1024) -- size in KB
-
-		-- Convert to MB if larger than 1024 KB
-		if size >= 1024 then
-			size = math.floor(size / 1024) + 1 -- size in MB
-			ext = " MB"
-		end
-		f:close()
-	end
-	return tostring(size) .. ext
-end
-
---- Fetch and parse data for a parquet file.
----@param file string|nil: File path.
----@param mode string: "main_data", "metadata", or "usr_query".
----@param query string|nil: Optional SQL query for data fetching.
----@return table|nil, string|nil: Metadata or error message.
-function M.fetch_parse_data(file, mode, query, limit)
-	-- local start = os.clock()
-	local csv_text = nil
-	local err = nil
-
-	if not file or file == "" then
-		log.display_notify(4, "File path is empty!")
-		return nil, "File path is empty"
-	end
-
-	-- Get file size in MB
-	local size = get_file_size_mb(file)
-
-	-- exrtact file extensions
-	local ext = file:match("^.+(%..+)$")
-
-	local result = nil
-
-	-- Fetch Data
-	if mode == "main_data" then
-		csv_text, err = prepare_cmd_main_data(file, ext, mode, limit)
-		result, err = parser.parse_csv(csv_text, "|")
-	elseif mode == "metadata" then
-		csv_text, err = prepare_cmd_metadata(file, ext, mode)
-		if err then
-			return nil, err
-		end
-		result, err = parser.parse_raw_text(csv_text)
-	elseif mode == "usr_query" and query then
-		csv_text, err = prepare_cmd_user_query(file, query, mode)
-		if err then
-			return nil, err
-		end
-		result, err = parser.parse_csv(csv_text, ",")
-	end
-
-	-- Parse Data
-	if not result then
-		return nil, err
-	end
-
-	-- local finish = os.clock()
-	-- local elapsed = finish - start
-	-- log.info(string.format("SQL query executed for %s in %.4f seconds.", file, elapsed))
-	return { headers = result.headers, data = result.data, count_lines = result.count_lines, file_size = size }, nil
-end
-
---- Execute the SQL query write by the user
----@param opts table: Options table.
----@param buf number: Buffer number containing the SQL query.
 function M.execute_sql_query(opts, buf)
 	local file = state.get_state("current_file")
+	local limit = opts.limit
+	local top_store_duckdb = opts.use_storage_duckdb
+	local hl_enable = opts.hl.buffer.hl_enable
 
 	-- Get SQL query from SQL buffer
 	local sql_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 	local sql_query = table.concat(sql_lines, " ")
 
-	-- Simple validation
-	if sql_query:match("^%s*$") then
-		log.display_notify(3, "SQL query is empty!")
-		return "SQL query is empty!"
-	end
-
 	-- Execute SQL query
-	local data, err = M.fetch_parse_data(file, "usr_query", sql_query)
-	if not data then
+	local new_query, err = prepare_user_query(file, sql_query, top_store_duckdb, limit, 0)
+	if not new_query then
 		return err
 	end
 
-	-- Update SQL data buffer with new data
-	local formatted_lines = display.prepare_data(data.headers, data.data)
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(new_query, "main_data", top_store_duckdb, limit)
+
+	-- Run the query
+	local out_data, err = run_query(cmd)
+	if not out_data then
+		return err
+	end
+
+	--Parse Data
+	local result, err = parser.parse_raw_text(out_data)
+	if not result then
+		return err
+	end
+
+	-- Store last user query in state
+	state.set_state("last_user_query", nil, sql_query)
 
 	-- Update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")
-	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, formatted_lines)
-
-	local hl_enable = opts.hl.buffer.hl_enable
-	if hl_enable then
-		display.update_highlights(buf_data, formatted_lines)
-	end
+	M.update_buffer(opts, buf_data, result.data)
 
 	-- Update dimensions of windows
 	-- Calculate window layout
@@ -307,7 +280,7 @@ function M.execute_sql_query(opts, buf)
 		vim.o.columns,
 		vim.o.lines,
 		tonumber(vim.inspect(state.get_state("tbl_dimensions", opts.layout).meta_height)),
-		#data.data
+		#result.data
 	)
 
 	-- get windows layout info according to the layout
@@ -332,6 +305,67 @@ function M.execute_sql_query(opts, buf)
 	)
 
 	return nil
+end
+
+function M.get_data_pagination(opts, digit)
+	local err
+	local top_store_duckdb = opts.use_storage_duckdb
+	local limit = opts.limit
+	local last_user_query = state.get_state("last_user_query")
+	local file = state.get_state("current_file")
+	local ext = state.get_state("files_metadata", file).file_ext
+	local page = state.get_state("num_page")
+	local new_page = page + digit
+
+	if new_page < 1 then
+		log.display_notify(3, "Already at the first page.")
+		return
+	end
+
+	local offset = (new_page - 1) * limit
+
+	local query
+	if last_user_query then -- user has already executed a custom query
+		query, err = prepare_user_query(file, last_user_query, top_store_duckdb, limit, offset)
+	else
+		if top_store_duckdb then
+			query = "SELECT * FROM f"
+			query = string.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, limit, offset)
+		else
+			query = DATA_QUERIES[ext:sub(2)]
+			query = string.format(query, file, limit, offset)
+		end
+	end
+
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(query, "main_data", top_store_duckdb, limit)
+	local csv_text, err = run_query(cmd)
+	if err then
+		return nil, err
+	end
+	local result, err = parser.parse_raw_text(csv_text)
+
+	if not result then
+		return nil, err
+	end
+
+	state.set_state("num_page", nil, new_page)
+
+	-- remove and update buffer data
+	local buf_data = state.get_state("buffers", "buf_data")
+	M.update_buffer(opts, buf_data, result.data)
+end
+
+function M.update_buffer(opts, buf_data, data)
+	local hl_enable = opts.hl.buffer.hl_enable
+
+	-- Update buffer data
+	local formatted_lines = display.prepare_data(data)
+	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, formatted_lines)
+
+	if hl_enable then
+		display.update_highlights(buf_data, formatted_lines)
+	end
 end
 
 return M

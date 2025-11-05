@@ -4,6 +4,21 @@ local log = require("data-explorer.gestion.log")
 
 local M = {}
 
+---Create cache files for process
+function M.create_cache_files()
+	-- -- Check DuckDB installation
+	-- if not check_duckdb.check_duckdb_or_warn() then
+	-- 	return
+	-- end
+
+	local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
+
+	-- Create cache directory if it doesn't exis
+	if vim.fn.isdirectory(dir_data) == 0 then
+		vim.fn.mkdir(dir_data, "p")
+	end
+end
+
 --- Check if file is a accepted file type
 ---@param file string: File path.
 ---@param accepted_types table: List of accepted file extensions.
@@ -58,23 +73,55 @@ function M.build_fd_command(extensions, opts)
 	return cmd
 end
 
---- Get metadata and cache it
+--- Get file size, determine KB or MB.
+---@param file string: File path.
+---@return string: Size in KB or MB.
+local function get_file_size_mb(file)
+	local size = 0
+	local ext = " KB"
+	local f = io.open(file, "r")
+	if f then
+		local file_size = f:seek("end")
+		size = math.floor(file_size / 1024) -- size in KB
+
+		-- Convert to MB if larger than 1024 KB
+		if size >= 1024 then
+			size = math.floor(size / 1024) + 1 -- size in MB
+			ext = " MB"
+		end
+		f:close()
+	end
+	return tostring(size) .. ext
+end
+
+--- Get cached metadata if available, otherwise fetch and cache it.
 ---@param file string: File path.
 ---@return table|nil: Metadata table or nil if error occurs.
 ---@return string|nil: Error message if any.
 function M.get_cached_metadata(file)
-	-- Check cache first
+	local err = nil
 	local metadata = state.get_state("files_metadata", file)
 
 	if metadata then
 		return metadata, nil
 	end
 
+	-- Get file size in MB
+	local size = get_file_size_mb(file)
+
+	-- exrtact file extensions
+	local ext = file:match("^.+(%..+)$")
+
 	-- Fetch and parse metadata
-	metadata, err = duckdb.fetch_parse_data(file, "metadata", nil, nil)
+	-- metadata, err = duckdb.fetch_parse_data(file, "metadata", nil, nil)
+	metadata, err = duckdb.fetch_metadata(file, ext)
 	if not metadata then
 		return nil, err
 	end
+
+	-- Add file size and extension
+	metadata.file_size = size
+	metadata.file_ext = ext
 
 	-- Set Cache metadata
 	state.set_state("files_metadata", file, metadata)

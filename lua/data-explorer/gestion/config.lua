@@ -14,6 +14,7 @@ local M = {}
 ---@field mappings table Key mappings
 ---@field hl table Highlight colors
 M.defaults = {
+	use_storage_duckdb = false,
 	limit = 250, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
 	files_types = {

@@ -28,6 +28,9 @@ function M.setup(opts)
 	-- Setup configuration
 	config.setup(opts)
 	-- log.setup_dev()
+
+	-- Create cache files for process
+	utils.create_cache_files()
 end
 
 --- Main function Data Explorer
