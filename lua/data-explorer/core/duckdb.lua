@@ -131,16 +131,25 @@ end
 local function prepare_query_metadata(file, ext)
 	local query = METADATA_QUERIES[ext:sub(2)]
 	query = string.format(query, file)
-
-	local cmd = generate_duckdb_command(query, false, 1000)
-	return run_query(cmd)
+	return query, nil
 end
 
 function M.fetch_metadata(file, ext)
-	local csv_text, err = prepare_query_metadata(file, ext)
+	local query, err = prepare_query_metadata(file, ext)
 	if err then
 		return nil, err
 	end
+
+	-- Generate the duckdb command
+	local cmd = generate_duckdb_command(query, false, 1000)
+
+	-- Run the query
+	local csv_text, err = run_query(cmd)
+	if err then
+		return nil, err
+	end
+
+	-- Parse Data
 	local result, err = parser.parse_raw_text(csv_text)
 
 	if not result then
@@ -265,7 +274,7 @@ function M.execute_sql_query(opts, buf)
 
 	-- Update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")
-	M.update_buffer(opts, buf_data, result.data)
+	M.update_buffer(opts.hl.buffer.hl_enable, buf_data, result.data)
 
 	-- Update dimensions of windows
 	-- Calculate window layout
@@ -336,7 +345,7 @@ function M.get_data_pagination(opts, digit)
 	end
 
 	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, "main_data", top_store_duckdb, limit)
+	local cmd = generate_duckdb_command(query, top_store_duckdb, limit)
 	local csv_text, err = run_query(cmd)
 	if err then
 		return nil, err
@@ -351,12 +360,10 @@ function M.get_data_pagination(opts, digit)
 
 	-- remove and update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")
-	M.update_buffer(opts, buf_data, result.data)
+	M.update_buffer(opts.hl.buffer.hl_enable, buf_data, result.data)
 end
 
-function M.update_buffer(opts, buf_data, data)
-	local hl_enable = opts.hl.buffer.hl_enable
-
+function M.update_buffer(hl_enable, buf_data, data)
 	-- Update buffer data
 	local formatted_lines = display.prepare_data(data)
 	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, formatted_lines)
