@@ -57,6 +57,17 @@ function M.update_window_dimensions(win, width, height, row, col)
 	end
 end
 
+---Update title of a window
+---@param win integer: Window handle.
+---@param title string: New title.
+function M.update_window_title(win, title)
+	if vim.api.nvim_win_is_valid(win) then
+		vim.api.nvim_win_set_config(win, {
+			title = title,
+		})
+	end
+end
+
 --- Calculate window layout for both vertical and horizontal layouts.
 ---@param opts table: Options table.
 ---@param width number: Width of the available space.

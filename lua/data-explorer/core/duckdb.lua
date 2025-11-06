@@ -227,7 +227,6 @@ function M.execute_sql_query(opts, buf)
 	local file = state.get_state("current_file")
 	local limit = opts.limit
 	local top_store_duckdb = opts.use_storage_duckdb
-	local hl_enable = opts.hl.buffer.hl_enable
 
 	-- Get SQL query from SQL buffer
 	local sql_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
@@ -259,7 +258,8 @@ function M.execute_sql_query(opts, buf)
 
 	-- Update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")
-	M.update_buffer(opts.hl.buffer.hl_enable, buf_data, result.data)
+	local win_data = state.get_state("windows", "win_data")
+	M.update_buffer(opts.hl.buffer.hl_enable, win_data, buf_data, result.data, nil)
 
 	-- Calculate window layout
 	local tbl_dims = config_windows.calculate_window_layout(
@@ -344,16 +344,22 @@ function M.get_data_pagination(opts, digit)
 
 	-- remove and update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")
-	M.update_buffer(opts.hl.buffer.hl_enable, buf_data, result.data)
+	local win_data = state.get_state("windows", "win_data")
+	M.update_buffer(opts.hl.buffer.hl_enable, win_data, buf_data, result.data, new_page)
 end
 
-function M.update_buffer(hl_enable, buf_data, data)
+function M.update_buffer(hl_enable, win_data, buf_data, data, page)
 	-- Update buffer data
-	local formatted_lines = display.prepare_data(data)
-	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, formatted_lines)
+	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, data)
+
+	-- Update title with page number
+	if page then
+		local title = string.format(" Data View - Page %d ", page)
+		config_windows.update_window_title(win_data, title)
+	end
 
 	if hl_enable then
-		display.update_highlights(buf_data, formatted_lines)
+		display.update_highlights(buf_data, data)
 	end
 end
 
