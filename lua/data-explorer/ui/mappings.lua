@@ -31,13 +31,13 @@ function M.set_common_keymaps(opts)
 
 		-- Next page of data
 		if key == "buf_data" then
-			vim.keymap.set("n", "J", function()
+			vim.keymap.set("n", opts.mappings.next_page, function()
 				local digit = 1
 				duckdb.get_data_pagination(opts, digit)
 			end, map_opts)
 
 			-- Previous page of data
-			vim.keymap.set("n", "K", function()
+			vim.keymap.set("n", opts.mappings.prev_page, function()
 				local digit = -1
 				duckdb.get_data_pagination(opts, digit)
 			end, map_opts)
