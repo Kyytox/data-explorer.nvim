@@ -80,28 +80,20 @@ local DATA_QUERIES_STORE_DUCKDB = {
 --- This function is the only one that interacts with the shell.
 ---@return string|nil, string|nil: Raw CSV output or error message.
 local function run_query(cmd)
-	local out
-	local success
 	local result
 
 	-- log.debug("Running DuckDB command: " .. table.concat(cmd, " "))
 	result = vim.system(cmd, { text = true }):wait()
-	out = result.stdout
-	success = result.code == 0
 
-	-- Check for command failure status
-	if not success or success ~= true then
+	if result.code ~= 0 then
 		log.display_notify(4, "DuckDB query execution failed: " .. (result.stderr or "Unknown error"))
 		return nil, result.stderr
 	end
 
-	-- Check for empty output
-	if out == "" then
+	if result.stdout == "" then
 		return nil, "The request returned no data."
 	end
-
-	-- log.info(out)
-	return out, nil
+	return result.stdout, nil
 end
 
 local function generate_duckdb_command(query, top_store_duckdb, limit)
@@ -124,18 +116,27 @@ local function generate_duckdb_command(query, top_store_duckdb, limit)
 	end
 end
 
----Prepare query for metadata.
----@param file string: Path to the parquet file.
----@param ext string: File extension (e.g., ".parquet", ".csv").
----@return string|nil, string|nil: Raw metadata or error message.
-local function prepare_query_metadata(file, ext)
-	local query = METADATA_QUERIES[ext:sub(2)]
-	query = string.format(query, file)
+local function prepare_query(file, ext, mode, top_store_duckdb, limit, offset)
+	local query
+
+	if mode == "metadata" then
+		query = METADATA_QUERIES[ext]
+		query = string.format(query, file)
+	elseif mode == "main_data" then
+		if top_store_duckdb then
+			query = DATA_QUERIES_STORE_DUCKDB[ext]
+			query = string.format(query, TABLE_NAME, file, TABLE_NAME, limit, offset)
+		else
+			query = DATA_QUERIES[ext]
+			query = string.format(query, file, limit, offset)
+		end
+	end
+
 	return query, nil
 end
 
 function M.fetch_metadata(file, ext)
-	local query, err = prepare_query_metadata(file, ext)
+	local query, err = prepare_query(file, ext, "metadata", false, nil, nil)
 	if err then
 		return nil, err
 	end
@@ -159,23 +160,8 @@ function M.fetch_metadata(file, ext)
 	return { headers = result.headers, data = result.data, count_lines = result.count_lines }, nil
 end
 
----Prepare query for main data.
-local function prepare_query_main_data(file, ext, top_store_duckdb, limit, offset)
-	local query
-
-	if top_store_duckdb then
-		query = DATA_QUERIES_STORE_DUCKDB[ext:sub(2)]
-		query = string.format(query, TABLE_NAME, file, TABLE_NAME, limit, offset)
-	else
-		query = DATA_QUERIES[ext:sub(2)]
-		query = string.format(query, file, limit, offset)
-	end
-
-	return query, nil
-end
-
 function M.fetch_main_data(file, ext, top_store_duckdb, limit)
-	local query, err = prepare_query_main_data(file, ext, top_store_duckdb, limit, 0)
+	local query, err = prepare_query(file, ext, "main_data", top_store_duckdb, limit, 0)
 	if err then
 		return nil, err
 	end
@@ -217,7 +203,6 @@ local function validate_sql_query(query)
 end
 
 local function prepare_user_query(file, query, top_store_duckdb, limit, offset)
-	-- Convert query to lower case
 	query = string.lower(query)
 
 	-- Validate SQL query
@@ -230,7 +215,7 @@ local function prepare_user_query(file, query, top_store_duckdb, limit, offset)
 	query = query:gsub(";%s*$", "")
 
 	if not top_store_duckdb then
-		local path_file = file:gsub("'", "\\'")
+		local path_file = vim.fn.fnameescape(file)
 		query = query:gsub("from%s+f", "FROM '" .. path_file .. "'")
 	end
 	query = string.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, limit, offset)
@@ -338,7 +323,7 @@ function M.get_data_pagination(opts, digit)
 			query = "SELECT * FROM f"
 			query = string.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, limit, offset)
 		else
-			query = DATA_QUERIES[ext:sub(2)]
+			query = DATA_QUERIES[ext]
 			query = string.format(query, file, limit, offset)
 		end
 	end

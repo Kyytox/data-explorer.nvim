@@ -110,7 +110,7 @@ function M.get_cached_metadata(file)
 	local size = get_file_size_mb(file)
 
 	-- exrtact file extensions
-	local ext = file:match("^.+(%..+)$")
+	local ext = file:match("^.+(%..+)$"):sub(2)
 
 	-- Fetch and parse metadata
 	metadata, err = duckdb.fetch_metadata(file, ext)
