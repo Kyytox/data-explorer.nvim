@@ -52,15 +52,6 @@ function M.prepare_sql_display(opts)
 	}
 end
 
---- Prepare table data for display.
----@param data table: Table data.
----@return table: Formatted table lines.
-function M.prepare_data(data)
-	return {
-		unpack(data),
-	}
-end
-
 --- Determine highlight group based on column index
 ---@param line number: Line number in the buffer.
 ---@param col_index number: Column index.
