@@ -276,7 +276,6 @@ function M.execute_sql_query(opts, buf)
 	local buf_data = state.get_state("buffers", "buf_data")
 	M.update_buffer(opts.hl.buffer.hl_enable, buf_data, result.data)
 
-	-- Update dimensions of windows
 	-- Calculate window layout
 	local tbl_dims = config_windows.calculate_window_layout(
 		opts,
