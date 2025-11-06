@@ -1,30 +1,5 @@
 local config_windows = require("data-explorer.ui.config_windows")
 
--- describe("get_highlight_for_window", function()
---  it("returns SQL window highlights for win_sql", function()
---    local result = config_windows.get_highlight_for_window("win_sql")
---    assert.are.equal(
---      "Normal:DataExplorerSQLWindow,FloatBorder:DataExplorerSQLBorder,FloatTitle:DataExplorerTitle,FloatFooter:DataExplorerFooter",
---      result
---    )
---  end)
---
---  it("returns SQL error window highlights for win_sql_err", function()
---    local result = config_windows.get_highlight_for_window("win_sql_err")
---    assert.are.equal(
---      "Normal:DataExplorerSQLErrWindow,FloatBorder:DataExplorerSQLErrBorder,FloatTitle:DataExplorerTitle,FloatFooter:DataExplorerFooter",
---      result
---    )
---  end)
---
---  it("returns default highlights for unknown key", function()
---    local result = config_windows.get_highlight_for_window("unknown_key")
---    assert.are.equal(
---      "Normal:DataExplorerWindow,FloatBorder:DataExplorerBorder,FloatTitle:DataExplorerTitle,FloatFooter:DataExplorerFooter",
---      result
---    )
---  end)
-
 describe("calculate_window_layout", function()
 	it("returns correct dimensions for typical input", function()
 		local opts = {
