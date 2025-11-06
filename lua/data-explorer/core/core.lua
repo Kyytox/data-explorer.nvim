@@ -25,26 +25,19 @@ local function create_buffers(opts, file, metadata, data)
 	state.set_state("buffers", "buf_data", buf_data)
 
 	if opts.hl.buffer.hl_enable then
-		-- Update highlights in data buffer
 		display.update_highlights(buf_data, data_lines)
 	end
-
-	-- Prepare display sql
-	local sql_help = display.prepare_sql_help(opts)
-	local buf_sql_help = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_sql_help, 0, -1, false, sql_help)
-	state.set_state("buffers", "buf_sql_help", buf_sql_help)
-
-	-- Create SQL error buffer
-	local buf_sql_err = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_sql_err, 0, -1, false, { "" })
-	state.set_state("buffers", "buf_sql_err", buf_sql_err)
 
 	-- Create SQL buffer
 	local sql_lines = display.prepare_sql_display(opts)
 	local buf_sql = vim.api.nvim_create_buf(false, true)
 	vim.api.nvim_buf_set_lines(buf_sql, 0, -1, false, sql_lines)
 	state.set_state("buffers", "buf_sql", buf_sql)
+
+	-- Create SQL error buffer
+	local buf_sql_err = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(buf_sql_err, 0, -1, false, { "" })
+	state.set_state("buffers", "buf_sql_err", buf_sql_err)
 
 	return #metadata_lines, #data_lines
 end

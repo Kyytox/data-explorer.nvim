@@ -52,19 +52,6 @@ function M.prepare_sql_display(opts)
 	}
 end
 
---- Prepare SQL help display
----@param opts table A table containing configuration, including command keybindings.
----@return table
-function M.prepare_sql_help(opts)
-	return {
-		string.format(
-			"Ex: SELECT * FROM f WHERE ... | %s: Hide | %s: Execute",
-			opts.mappings.toggle_sql,
-			opts.mappings.execute_sql
-		),
-	}
-end
-
 --- Prepare table data for display.
 ---@param data table: Table data.
 ---@return table: Formatted table lines.
