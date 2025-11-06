@@ -61,6 +61,7 @@ After all options are validated, default values are applied for any missing opti
 
 ```lua
 {
+    use_storage_duckdb = false,
     limit = 250,
     layout = "vertical",
     files_types = {
@@ -71,14 +72,15 @@ After all options are validated, default values are applied for any missing opti
 }
 ```
 
-| Parameter               | Type      | Description                                                                                                                   |
-| :---------------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| **`limit`**             | `number`  | Maximum number of rows to fetch when displaying data. Use smaller values for very large files to prevent potential slowdowns. |
-| **`layout`**            | `string`  | Main UI layout: `"vertical"` (metadata window on top/left, data on bottom/right) or `"horizontal"`.                           |
-| **`files_types`**       | `table`   | Specifies which file formats are supported and enabled. Set a format to `false` to disable it.                                |
-| **files_types.parquet** | `boolean` | Enable/disable support for `.parquet` files.                                                                                  |
-| **files_types.csv**     | `boolean` | Enable/disable support for `.csv` files.                                                                                      |
-| **files_types.tsv**     | `boolean` | Enable/disable support for `.tsv` files.                                                                                      |
+| Parameter                | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| :----------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`use_storage_duckdb`** | `boolean` | If the value is `true`, a persistent DuckDB database file (`data_explorer.duckdb`) is used in your Neovim data directory. The data file is then read only once. Therefore, page changes and custom SQL queries will read the table from this file, which improves performance for medium to large files, but the initial load may be somewhat slow. If the value is `false`, the file will be read with every action, which can be resource-intensive for medium and large files. |
+| **`limit`**              | `number`  | Maximum number of rows to fetch when displaying data. Use smaller values for very large files to prevent potential slowdowns.                                                                                                                                                                                                                                                                                                                                                     |
+| **`layout`**             | `string`  | Main UI layout: `"vertical"` (metadata window on top/left, data on bottom/right) or `"horizontal"`.                                                                                                                                                                                                                                                                                                                                                                               |
+| **`files_types`**        | `table`   | Specifies which file formats are supported and enabled. Set a format to `false` to disable it.                                                                                                                                                                                                                                                                                                                                                                                    |
+| **files_types.parquet**  | `boolean` | Enable/disable support for `.parquet` files.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **files_types.csv**      | `boolean` | Enable/disable support for `.csv` files.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **files_types.tsv**      | `boolean` | Enable/disable support for `.tsv` files.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -180,6 +182,8 @@ Customize the key bindings for actions within the main UI.
     mappings = {
         quit = "q",
         back = "<BS>",
+        next_page = "J",
+        prev_page = "K",
         focus_meta = "1",
         focus_data = "2",
         toggle_sql = "3",
@@ -193,6 +197,8 @@ Customize the key bindings for actions within the main UI.
 | :--------------------------- | :------- | :----------------------------------------------------- |
 | **`mappings.quit`**          | `string` | Key to close the main UI and return to Neovim.         |
 | **`mappings.back`**          | `string` | Key to go back to the file selection view.             |
+| **`mappings.next_page`**     | `string` | Key to go to the next page in the data table view.     |
+| **`mappings.prev_page`**     | `string` | Key to go to the previous page in the data table view. |
 | **`mappings.focus_meta`**    | `string` | Key to focus the metadata window.                      |
 | **`mappings.focus_data`**    | `string` | Key to focus the data table window.                    |
 | **`mappings.toggle_sql`**    | `string` | Key to toggle the SQL query editor window.             |
@@ -391,8 +397,7 @@ The data window takes all the remaining width.
 There are read where you find a file in telescope and display it in the preview window.
 When a metadata is read, he is saved in cache but only for the current session when you close the explorer, the cache is cleared.
 
-No transformation is done on the metadata received from DuckDB, they are displayed as is.
-The limitation is that only 40 rows can be displayed in DuckDB output, so if you have more than 40 columns, some will be truncated.
+No transformation is done on the data received from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
 
 #### csv-tsv extract
 
@@ -436,24 +441,41 @@ The metadata table for `.parquet` files includes the following columns:
 
 ### Data Extraction
 
-Data is extracted by executing a simple `SELECT * FROM f LIMIT <limit>;` query on the file, where `<limit>` is defined in the config (default 250 rows).
+According to the configuration option `use_storage_duckdb`, if is true, the data is loaded into a persistent DuckDB database file located in the Neovim data directory (e.g., `~/.local/share/nvim/data_explorer/data_explorer.duckdb`).
 
-When you open the file, DuckDB handles reading the file using COPY TO STDOUT and returning the data in a csv-like format, with columns separated by `|` characters.
-So a simple parsing is done to split the data into rows and columns for display in the table view.
+**Advantage**:
 
-When a custom SQL query is executed, the resulting data is fetched with delimiter ',' because we can't make a COPY TO STDOUT with '|' separator when the user can write any SQL query because we need to catch errors.
-So the parsing with ',' is more greedy of resources.
+- The file is read once and the data is stored in table, so when you change page or execute SQL queries, the data is fetched from the local database file, which is faster for large files.
+- You can read large files
+- If you have complex SQL queries, they will be faster.
+
+**Disadvantage**:
+
+- Reading a file may take longer because the data needs to be written to disk.
+
+If `use_storage_duckdb` is false, the file is read each time you change page or execute SQL queries.
+
+**Advantage**:
+
+- No persistent storage is used, so no disk space is consumed.
+- Reading small and medium files is faster (with the appropriate RAM) because there is no overhead of writing to disk.
+
+**Disadvantage**:
+
+- Large files may be slow to read each time you change page or execute SQL queries.
 
 ### Displaying data
 
-The data table view displays the fetched data in a formatted table with borders and alternating row colors for readability.
-Column widths are adjusted based on the maximum width of data in each column.
+No transformation is done on the data received from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
+
+A pagination system is implemented to navigate through the data table view.
+By default, 250 rows are fetched and displayed at a time (configurable via the `limit` option).
 
 ### Syntax Highlighting
 
 If enabled in the config, syntax highlighting is applied to the data table view.
 
-You can customize the colors used for 9 alternating columns via the `hl.buffer.col1` to `hl.buffer.col9` config options.
+You can customize the colors used for 9 alternating columns via the `hl.buffer.col1` to `hl.buffer.col9` configuration options.
 
 The Group names used for highlighting are `DataExplorerCol1`, `DataExplorerCol2`, ..., `DataExplorerCol9`.
 
@@ -467,8 +489,21 @@ For displaying the SQL editor, press the mapping defined in the config (default 
 The SQL editor window allows you to write any valid SQL query using `f` as the table name representing the loaded data file.
 To execute the SQL query, press the mapping defined in the config (default `e`).
 
+A verification of the SQL query is done before execution to ensure it is valid. You need to write a SQL with a statement `FROM f` to query the loaded file (f is the table name representing the loaded file).
+
+If configuration option `use_storage_duckdb` is true, the query is executed against the persistent DuckDB database file.
+If false, the query is executed directly against the data file each time.
+
 When the query is executed, the resulting data is stored in cache (stdout) and displayed in the data table view.
 The results of the queries are fetched and displayed in the data table view.
+
+### Displaying Query Results
+
+The results of the executed SQL query are displayed in the data table view, replacing the previous data.
+No transformation is done on the data received from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
+
+The same pagination system from the Data Table View is applied to the query results.
+By default, 250 rows are fetched and displayed at a time (configurable via the `limit` option).
 
 ### Error handling
 
@@ -477,8 +512,11 @@ This allows you to see what went wrong and adjust your query accordingly.
 
 # Highlights
 
-You can customize the highlight colors used in DataExplorer via the `hl` config option.
-The following highlight groups are defined:
+You can customize the highlight colors used in DataExplorer via the `hl` configuration option.
+
+## Window Highlights
+
+You can customize the colors used for various UI elements via the `hl.windows` configuration options.
 
 | Highlight Group                           | Options Used From Config                         | Description                                                   |
 | ----------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------- |
@@ -493,30 +531,35 @@ The following highlight groups are defined:
 | `DataExplorerColHeader`                   | `hl.buffer.header`                               | Highlight for column headers in data table view.              |
 | `DataExplorerCol1` ... `DataExplorerCol9` | `hl.buffer.col1` ... `hl.buffer.col9`            | Foreground colors for alternating columns in data table view. |
 
+## Data Buffer Highlights
+
+You can customize the colors used for syntax highlighting in the data table view via the `hl.buffer` configuration options.
+| Highlight Group | Options Used From Config | Description |
+| ---------------------- | ------------------------ | ------------------------------------------------ |
+| `DataExplorerColHeader` | `hl.buffer.header` | Highlight for column headers in data table view. |
+| `DataExplorerCol1` | `hl.buffer.col1` | Foreground color for column 1 in data table view. |
+| ..... | ... | ... |
+| `DataExplorerCol9` | `hl.buffer.col9` | Foreground color for column 9 in data table view. |
+
 # ⚠️ Limitations
 
 **🧩 General**
 
-- Not optimized for large datasets — huge `.csv` / `.parquet` may slow down Neovim.
+- If you don't set true to config `use_storage_duckdb`, large files may be slow to read each time you change page or execute SQL queries.
 - No persistent caching — everything resets when you quit.
 
 **📊 Metadata View**
 
-- DuckDB truncates metadata to **40 columns** max.
-- Type inference for `.csv`/`.tsv` is sample-based → can be inaccurate.
+- It may take a little while for larger files because the entire file is read to properly determine the types
 
 **📈 Data Table View**
 
-- Default fetch: **250 rows**; increasing this may cause high memory usage.
 - Emojis and special characters may misalign columns.
 
 **🧠 SQL Query Editor**
 
-- Queries run synchronously (can block Neovim).
-- No auto-limit → always use `LIMIT` manually.
 - Minimal SQL editor — no autocomplete or highlighting.
 - Only the latest SQL error is shown.
-- Parsing uses `,` delimiter for custom queries, which may affect performance on large results.
 
 # 📏 Performances
 
@@ -543,15 +586,13 @@ There Test are made with different limits for the data view: 250, 1000, 5000 and
 | TSV       | 31 MB     | 38 170     | 0.00348 s      | 0.01219 s     | 0.06060 s     | 0.25841 s      |
 | TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
 
-> [!NOTE]
-> But who display 20K rows
-
 # 📜 Future Plans
 
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
 - Metadata personalization
 - SQL Query history and favorites
+- Reopen last file explored
 
 # 💪 Motivation
 

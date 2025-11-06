@@ -96,6 +96,7 @@ Plug 'kyytox/data-explorer.nvim'
 
 ```lua
 require("data-explorer").setup({
+  use_storage_duckdb = false,
 	limit = 250, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
 	files_types = {
@@ -141,6 +142,8 @@ require("data-explorer").setup({
 	mappings = {
 		quit = "q", -- Close the main UI
 		back = "<BS>", -- Go back to file selection
+    next_page = "J", -- Next page of data
+		prev_page = "K", -- Previous page of data
 		focus_meta = "1", -- Focus the metadata window
 		focus_data = "2", -- Focus the data window
 		toggle_sql = "3", -- Toggle the SQL query window
@@ -178,6 +181,14 @@ require("data-explorer").setup({
 ```
 
 For more details on configuration options:
+
+### Parameter use_storage_duckdb
+
+This option allows you to enable the storage of data from the read file in a temporary DuckDB database file stored on disk (at the path `~/.local/share/nvim/data-explorer/data_explorer.db`).
+
+By default, this option is set to `false`, meaning that the data is loaded directly into DuckDB's in-memory database. This is generally faster for most operations, especially for smaller files. But keep in mind that with each page change and custom query execution, the target file is reread each time.
+
+If you enable this option by setting it to `true`, the data from the read file will be stored in a .db file on disk. But thanks to this, the file is read only once, so page changes and custom query executions will be faster, especially for larger files. However, this approach may consume more disk space and could be slower for initial loading compared to in-memory operations.
 
 - [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt): TXT file
 - `:help data-explorer.nvim-config`: Neovim help
