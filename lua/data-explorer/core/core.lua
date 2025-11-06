@@ -15,17 +15,16 @@ local function create_buffers(opts, file, metadata, data)
 	-- Prepare display metadata
 	local metadata_lines = display.prepare_metadata(file, metadata)
 	local buf_meta = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_meta, 0, -1, false, metadata_lines)
+	vim.api.nvim_buf_set_lines(buf_meta, 0, -1, false, metadata.data)
 	state.set_state("buffers", "buf_meta", buf_meta)
 
 	-- Prepare display data
-	local data_lines = display.prepare_data(data)
 	local buf_data = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, data_lines)
+	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, data)
 	state.set_state("buffers", "buf_data", buf_data)
 
 	if opts.hl.buffer.hl_enable then
-		display.update_highlights(buf_data, data_lines)
+		display.update_highlights(buf_data, data)
 	end
 
 	-- Create SQL buffer
@@ -39,7 +38,7 @@ local function create_buffers(opts, file, metadata, data)
 	vim.api.nvim_buf_set_lines(buf_sql_err, 0, -1, false, { "" })
 	state.set_state("buffers", "buf_sql_err", buf_sql_err)
 
-	return #metadata_lines, #data_lines
+	return #metadata_lines, #data
 end
 
 --- Main Function
