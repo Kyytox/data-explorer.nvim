@@ -273,8 +273,7 @@ With a PC with:
 
 - CPU: AMD Ryzen™ 7 7700X
 - RAM: 32 GB
-- OS: Arch Linux
-- DuckDB version: 0.8.1
+- DuckDB version: 1.4.1
 
 There Test are made with different limits for the data view: 250, 1000, 5000 and 20 000 rows.
 
