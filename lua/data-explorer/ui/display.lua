@@ -111,7 +111,7 @@ function M.update_highlights(buf, data_lines)
 			local value_end = col.finish
 
 			if l > 4 then -- Skip separator line
-				-- Set extmark for highlight
+				-- Set extmark for highligh
 				vim.api.nvim_buf_set_extmark(buf, ns_id, l - 1, value_start - 1, {
 					end_col = value_end,
 					hl_group = col.hl_group,

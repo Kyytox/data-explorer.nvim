@@ -84,6 +84,8 @@ local function generate_duckdb_command(query, top_store_duckdb, limit)
 	local duckdb_cmd = state.get_variable("duckdb_cmd")
 	local args = {
 		duckdb_cmd,
+		-- "-cmd",
+		-- ".timer on",
 		"-cmd",
 		".maxrows " .. tostring(limit),
 		"-cmd",
@@ -349,7 +351,6 @@ function M.get_data_pagination(opts, digit)
 
 	local query
 	local err
-	log.debug("last_user_query: " .. tostring(last_user_query))
 	if type(last_user_query) == "string" and last_user_query ~= "" then
 		query, err = prepare_user_query(file, last_user_query, top_store_duckdb, limit, offset)
 	else

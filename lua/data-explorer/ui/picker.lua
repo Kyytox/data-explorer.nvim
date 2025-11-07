@@ -18,7 +18,6 @@ local function picker_previewer()
 	return previewers.new_buffer_previewer({
 		define_preview = function(self, entry)
 			local file = entry.value
-			-- local start = os.clock()
 
 			-- Fetch and cache metadata
 			local cached, err = utils.get_cached_metadata(file)
@@ -28,10 +27,6 @@ local function picker_previewer()
 			end
 
 			vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, display.prepare_metadata(file, cached))
-
-			-- local finish = os.clock()
-			-- local elapsed = finish - start
-			-- log.info(string.format("Metadata for %s in %.4f seconds.", file, elapsed))
 		end,
 	})
 end

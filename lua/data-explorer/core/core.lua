@@ -97,10 +97,7 @@ function M.render(opts, file)
 
 	-- Set keymaps for buffers
 	mappings.set_common_keymaps(opts)
-
-	-- local finish = os.clock()
-	-- local elapsed = finish - start
-	-- log.info(string.format("Main Data for %s in %.4f seconds.", file, elapsed))
+	-- log.info(string.format("Main Data for %s in %.4f seconds.", file, os.clock() - start))
 end
 
 return M
