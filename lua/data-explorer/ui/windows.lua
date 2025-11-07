@@ -5,7 +5,7 @@ local log = require("data-explorer.gestion.log")
 
 local M = {}
 
---- Create a floating window with the given options.
+--- Create a floating window
 ---@param buffer number: Buffer handle.
 ---@param wins_infos table: Window layout parameters (width, height, row, col, title, etc.).
 ---@param opts table: Options table (for border style, etc.).
@@ -33,8 +33,8 @@ local function create_floating_window(buffer, wins_infos, opts)
 	return win
 end
 
---- Create Metadata and Data windows based on layout
----@param dims table: Calculated dimensions for windows.
+--- Create floating windows
+---@param dims table: Dimensions for windows.
 ---@param opts table: Options table.
 function M.create_windows(opts, dims)
 	-- Clean up old windows
@@ -46,7 +46,7 @@ function M.create_windows(opts, dims)
 	-- Retrieve buffers from state
 	local buffers = state.get_state("buffers")
 
-	-- Create SQL windows
+	-- SQL window
 	local win_sql = create_floating_window(buffers.buf_sql, {
 		title = wins_infos.sql_title,
 		title_pos = "left",
@@ -57,6 +57,7 @@ function M.create_windows(opts, dims)
 		hide = true,
 	}, opts)
 
+	-- SQL Error window
 	local win_sql_err = create_floating_window(buffers.buf_sql_err, {
 		title = wins_infos.sql_err_title,
 		title_pos = "left",
@@ -67,7 +68,7 @@ function M.create_windows(opts, dims)
 		hide = true,
 	}, opts)
 
-	-- Create Metadata and Data windows
+	-- Metadata window
 	local win_meta = create_floating_window(buffers.buf_meta, {
 		title = wins_infos.meta_title,
 		width = dims.meta_width,
@@ -76,6 +77,7 @@ function M.create_windows(opts, dims)
 		col = dims.col_start,
 	}, opts)
 
+	-- Data window
 	local win_data = create_floating_window(buffers.buf_data, {
 		title = wins_infos.data_title,
 		width = dims.data_width,

@@ -5,8 +5,8 @@ local parser = require("data-explorer.core.parser")
 local config_windows = require("data-explorer.ui.config_windows")
 
 local M = {}
-local TABLE_NAME = "f"
 
+local TABLE_NAME = "f"
 local QUERY_TEMPLATE = {
 	parquet = {
 		metadata = [[
@@ -106,7 +106,7 @@ end
 --- @param query string The SQL query to execute.
 --- @param top_storage_duckdb boolean Whether to use the DuckDB storage file.
 --- @param limit number The maximum number of rows to return.
---- @return string|nil The output of the query, or nil if an error occurred.
+--- @return string|nil The output of the query
 --- @return string|nil An error message if an error occurred, or nil on success.
 local function run_query(query, top_storage_duckdb, limit)
 	local cmd = generate_duckdb_command(query, top_storage_duckdb, limit)
@@ -127,12 +127,12 @@ end
 
 --- Prepares a SQL query
 --- @param file string The path to the data file.
---- @param ext string The file extension (e.g., "csv", "parquet").
+--- @param ext string The file extension
 --- @param mode string The mode of the query ("metadata" or "main_data").
 --- @param top_store_duckdb boolean Whether to use the DuckDB storage file.
 --- @param limit number|nil The maximum number of rows to return.
 --- @param offset number|nil The offset for pagination.
---- @return string|nil The prepared SQL query, or nil if an error occurred.
+--- @return string|nil The prepared SQL query
 --- @return string|nil An error message if an error occurred, or nil on success.
 local function prepare_query(file, ext, mode, top_store_duckdb, limit, offset)
 	local temp = QUERY_TEMPLATE[ext]
@@ -153,9 +153,9 @@ local function prepare_query(file, ext, mode, top_store_duckdb, limit, offset)
 end
 
 --- Fetches metadata for the given file.
---- @param file string The path to the data file.
---- @param ext string The file extension (e.g., "csv", "parquet").
---- @return table|nil The metadata including headers, data, and count of lines, or nil if an error occurred.
+--- @param file string The path file.
+--- @param ext string The file extension
+--- @return table|nil The metadata including data, and count of lines
 --- @return string|nil An error message if an error occurred, or nil on success.
 function M.fetch_metadata(file, ext)
 	local query, err = prepare_query(file, ext, "metadata", false, nil, nil)
@@ -181,10 +181,10 @@ end
 
 --- Fetches main data for the given file.
 --- @param file string The path to the data file.
---- @param ext string The file extension (e.g., "csv", "parquet").
+--- @param ext string The file extension
 --- @param top_store_duckdb boolean Whether to use the DuckDB storage file.
 --- @param limit number The maximum number of rows to return.
---- @return table|nil The main data as a table of rows, or nil if an error occurred.
+--- @return table|nil The main data as a table of rows
 --- @return string|nil An error message if an error occurred, or nil on success.
 function M.fetch_main_data(file, ext, top_store_duckdb, limit)
 	local query, err = prepare_query(file, ext, "main_data", top_store_duckdb, limit, 0)
