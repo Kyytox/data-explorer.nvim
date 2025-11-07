@@ -50,20 +50,20 @@ function M.create_windows(opts, dims)
 	local win_sql = create_floating_window(buffers.buf_sql, {
 		title = wins_infos.sql_title,
 		title_pos = "left",
-		width = dims.main_width,
+		width = dims.sql_width,
 		height = dims.sql_height,
 		row = dims.sql_row_start,
-		col = dims.col_start,
+		col = dims.sql_col_start,
 		hide = true,
 	}, opts)
 
 	local win_sql_err = create_floating_window(buffers.buf_sql_err, {
 		title = wins_infos.sql_err_title,
 		title_pos = "left",
-		width = dims.main_width,
+		width = dims.sql_width,
 		height = dims.sql_err_height,
 		row = dims.sql_err_row_start,
-		col = dims.col_start,
+		col = dims.sql_col_start,
 		hide = true,
 	}, opts)
 

@@ -5,153 +5,170 @@ local parser = require("data-explorer.core.parser")
 local config_windows = require("data-explorer.ui.config_windows")
 
 local M = {}
-
--- DuckDB SQL queries
-local METADATA_QUERIES = {
-	parquet = [[
-	     SELECT
-	     path_in_schema AS Column,
-	     type AS Type,
-	     stats_min AS Min,
-	     stats_max AS Max,
-	     stats_null_count AS Nulls,
-	     num_values AS Count
-	     FROM parquet_metadata('%s');
-	   ]],
-	csv = [[
-	       CREATE TEMP TABLE tmp AS
-	       SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1);
-         SELECT column_name AS Column,
-                column_type AS Type,
-                approx_unique AS Unique,
-                null_percentage AS Nulls,
-                SUBSTRING(min, 1, 40) AS Min,
-                SUBSTRING(max, 1, 40) AS Max,
-                avg AS Average,
-                std AS Std,
-                q25
-                q50,
-                q75,
-                count AS Count
-          FROM (SUMMARIZE tmp);
-      ]],
-	tsv = [[
-        CREATE TEMP TABLE tmp AS
-        SELECT * FROM read_csv_auto('%s', auto_detect=true, sep='\t', sample_size=-1);
-        SELECT column_name AS Column,
-               column_type AS Type,
-               approx_unique AS Unique,
-               null_percentage AS Nulls,
-               SUBSTRING(min, 1, 40) AS Min,
-               SUBSTRING(max, 1, 40) AS Max,
-               avg AS Average,
-               std AS Std,
-               q25
-               q50,
-               q75,
-               count AS Count
-        FROM (SUMMARIZE tmp);
-      ]],
-}
-
-local DATA_QUERIES = {
-	parquet = [[SELECT * FROM read_parquet('%s') LIMIT %d OFFSET %d;]],
-	csv = [[SELECT * FROM read_csv_auto('%s', sample_size=-1) LIMIT %d OFFSET %d;]],
-	tsv = [[SELECT * FROM read_csv_auto('%s', sep='\t', sample_size=-1) LIMIT %d OFFSET %d;]],
-}
-
 local TABLE_NAME = "f"
-local DATA_QUERIES_STORE_DUCKDB = {
-	parquet = [[
+
+local QUERY_TEMPLATE = {
+	parquet = {
+		metadata = [[
+      SELECT
+      path_in_schema AS Column,
+      type AS Type,
+      stats_min AS Min,
+      stats_max AS Max,
+      stats_null_count AS Nulls,
+      num_values AS Count
+      FROM parquet_metadata('%s');
+    ]],
+		data = [[SELECT * FROM read_parquet('%s') LIMIT %d OFFSET %d;]],
+		data_store_duckdb = [[
       CREATE OR REPLACE TABLE %s AS SELECT * FROM read_parquet('%s');
       SELECT * FROM %s LIMIT %d OFFSET %d;
-  ]],
-	csv = [[
+    ]],
+	},
+	csv = {
+		metadata = [[
+      WITH tmp AS (SELECT * FROM read_csv_auto('%s', auto_detect=true, sample_size=-1))
+      SELECT
+          column_name AS Column,
+          column_type AS Type,
+          approx_unique AS Unique,
+          null_percentage AS Nulls,
+          SUBSTRING(min, 1, 40) AS Min,
+          SUBSTRING(max, 1, 40) AS Max,
+          avg AS Average,
+          std AS Std,
+          q25,
+          q50,
+          q75,
+          count AS Count
+      FROM (SUMMARIZE (SELECT * FROM tmp));
+    ]],
+		data = [[SELECT * FROM read_csv_auto('%s', sample_size=-1) LIMIT %d OFFSET %d;]],
+		data_store_duckdb = [[
       CREATE OR REPLACE TABLE %s AS SELECT * FROM read_csv_auto('%s', sample_size=-1);
       SELECT * FROM %s LIMIT %d OFFSET %d;
-  ]],
-	tsv = [[
+    ]],
+	},
+	tsv = {
+		metadata = [[
+      WITH tmp AS (SELECT * FROM read_csv_auto('%s', sep='\t', auto_detect=true, sample_size=-1))
+      SELECT
+          column_name AS Column,
+          column_type AS Type,
+          approx_unique AS Unique,
+          null_percentage AS Nulls,
+          SUBSTRING(min, 1, 40) AS Min,
+          SUBSTRING(max, 1, 40) AS Max,
+          avg AS Average,
+          std AS Std,
+          q25,
+          q50,
+          q75,
+          count AS Count
+      FROM (SUMMARIZE (SELECT * FROM tmp));
+    ]],
+		data = [[SELECT * FROM read_csv_auto('%s', sep='\t', sample_size=-1) LIMIT %d OFFSET %d;]],
+		data_store_duckdb = [[
       CREATE OR REPLACE TABLE %s AS SELECT * FROM read_csv_auto('%s', sep='\t', sample_size=-1);
       SELECT * FROM %s LIMIT %d OFFSET %d;
-  ]],
+    ]],
+	},
 }
 
---- Runs a DuckDB query and returns the raw CSV output.
---- This function is the only one that interacts with the shell.
----@return string|nil, string|nil: Raw CSV output or error message.
-local function run_query(cmd)
-	local result
+--- Generates the DuckDB command to execute a query.
+--- @param query string The SQL query to execute.
+--- @param top_store_duckdb boolean Whether to use the DuckDB storage file.
+--- @param limit number The maximum number of rows to return.
+--- @return table The command and its arguments as a table.
+local function generate_duckdb_command(query, top_store_duckdb, limit)
+	local duckdb_cmd = state.get_variable("duckdb_cmd")
+	local args = {
+		duckdb_cmd,
+		"-cmd",
+		".maxrows " .. tostring(limit),
+		"-cmd",
+		".nullvalue ''",
+		"-c",
+		query,
+	}
 
-	-- log.debug("Running DuckDB command: " .. table.concat(cmd, " "))
+	if top_store_duckdb then
+		local path_db = vim.fn.stdpath("data") .. state.get_variable("data_dir") .. state.get_variable("duckdb_file")
+		table.insert(args, 2, path_db)
+	end
+
+	return args
+end
+
+--- Runs a DuckDB query and returns the output.
+--- @param query string The SQL query to execute.
+--- @param top_storage_duckdb boolean Whether to use the DuckDB storage file.
+--- @param limit number The maximum number of rows to return.
+--- @return string|nil The output of the query, or nil if an error occurred.
+--- @return string|nil An error message if an error occurred, or nil on success.
+local function run_query(query, top_storage_duckdb, limit)
+	local cmd = generate_duckdb_command(query, top_storage_duckdb, limit)
+
+	local result
 	result = vim.system(cmd, { text = true }):wait()
 
 	if result.code ~= 0 then
-		log.display_notify(4, "DuckDB query execution failed: " .. (result.stderr or "Unknown error"))
 		return nil, result.stderr
 	end
 
 	if result.stdout == "" then
 		return nil, "The request returned no data."
 	end
+
 	return result.stdout, nil
 end
 
-local function generate_duckdb_command(query, top_store_duckdb, limit)
-	local duckdb_cmd = state.get_variable("duckdb_cmd")
-
-	if top_store_duckdb then
-		local path_db = vim.fn.stdpath("data") .. state.get_variable("data_dir") .. state.get_variable("duckdb_file")
-		return {
-			duckdb_cmd,
-			path_db,
-			"-cmd",
-			".maxrows " .. tostring(limit),
-			"-cmd",
-			".nullvalue ''",
-			"-c",
-			query,
-		}
-	else
-		return { duckdb_cmd, "-cmd", ".maxrows " .. tostring(limit), "-cmd", ".nullvalue ''", "-c", query }
-	end
-end
-
+--- Prepares a SQL query
+--- @param file string The path to the data file.
+--- @param ext string The file extension (e.g., "csv", "parquet").
+--- @param mode string The mode of the query ("metadata" or "main_data").
+--- @param top_store_duckdb boolean Whether to use the DuckDB storage file.
+--- @param limit number|nil The maximum number of rows to return.
+--- @param offset number|nil The offset for pagination.
+--- @return string|nil The prepared SQL query, or nil if an error occurred.
+--- @return string|nil An error message if an error occurred, or nil on success.
 local function prepare_query(file, ext, mode, top_store_duckdb, limit, offset)
-	local query
+	local temp = QUERY_TEMPLATE[ext]
+	local template = (mode == "metadata") and temp.metadata or top_store_duckdb and temp.data_store_duckdb or temp.data
 
+	local query
 	if mode == "metadata" then
-		query = METADATA_QUERIES[ext]
-		query = string.format(query, file)
-	elseif mode == "main_data" then
+		query = string.format(template, file)
+	else
 		if top_store_duckdb then
-			query = DATA_QUERIES_STORE_DUCKDB[ext]
-			query = string.format(query, TABLE_NAME, file, TABLE_NAME, limit, offset)
+			query = string.format(template, TABLE_NAME, file, TABLE_NAME, limit, offset)
 		else
-			query = DATA_QUERIES[ext]
-			query = string.format(query, file, limit, offset)
+			query = string.format(template, file, limit, offset)
 		end
 	end
 
 	return query, nil
 end
 
+--- Fetches metadata for the given file.
+--- @param file string The path to the data file.
+--- @param ext string The file extension (e.g., "csv", "parquet").
+--- @return table|nil The metadata including headers, data, and count of lines, or nil if an error occurred.
+--- @return string|nil An error message if an error occurred, or nil on success.
 function M.fetch_metadata(file, ext)
 	local query, err = prepare_query(file, ext, "metadata", false, nil, nil)
 	if err then
 		return nil, err
 	end
 
-	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, false, 1000)
-
 	-- Run the query
-	local csv_text, err = run_query(cmd)
+	local csv_text, err = run_query(query, false, 1000)
 	if err then
 		return nil, err
 	end
 
 	-- Parse Data
-	local result, err = parser.parse_raw_text(csv_text)
+	local result, err = parser.parse_raw_text(csv_text, "metadata")
 
 	if not result then
 		return nil, err
@@ -160,22 +177,26 @@ function M.fetch_metadata(file, ext)
 	return { headers = result.headers, data = result.data, count_lines = result.count_lines }, nil
 end
 
+--- Fetches main data for the given file.
+--- @param file string The path to the data file.
+--- @param ext string The file extension (e.g., "csv", "parquet").
+--- @param top_store_duckdb boolean Whether to use the DuckDB storage file.
+--- @param limit number The maximum number of rows to return.
+--- @return table|nil The main data as a table of rows, or nil if an error occurred.
+--- @return string|nil An error message if an error occurred, or nil on success.
 function M.fetch_main_data(file, ext, top_store_duckdb, limit)
 	local query, err = prepare_query(file, ext, "main_data", top_store_duckdb, limit, 0)
 	if err then
 		return nil, err
 	end
 
-	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, top_store_duckdb, limit)
-
 	-- Run the query
-	local csv_text, err = run_query(cmd)
+	local csv_text, err = run_query(query, top_store_duckdb, limit)
 	if err then
 		return nil, err
 	end
 
-	local result, err = parser.parse_raw_text(csv_text)
+	local result, err = parser.parse_raw_text(csv_text, nil)
 
 	if not result then
 		return nil, err
@@ -184,13 +205,11 @@ function M.fetch_main_data(file, ext, top_store_duckdb, limit)
 	return result.data, nil
 end
 
---- Validate the user-provided SQL query.
---- Will check for the presence of the required 'FROM f' syntax.
---- @param query string The raw SQL query string provided by the user.
---- @return boolean success True if the query passes all validation checks.
---- @return string message A status or error message explaining the result.
+--- Validates a SQL query provided by the user.
+--- @param query string The SQL query to validate.
+--- @return boolean True if the query is valid, false otherwise.
+--- @return string A message indicating the validation result.
 local function validate_sql_query(query)
-	-- Simple validation
 	if query:match("^%s*$") then
 		log.display_notify(3, "SQL query is empty!")
 		return false, "SQL query is empty!"
@@ -202,6 +221,14 @@ local function validate_sql_query(query)
 	return true, "Query is valid!"
 end
 
+--- Prepares a user-provided SQL query for execution.
+--- @param file string The path to the data file.
+--- @param query string The user-provided SQL query.
+--- @param top_store_duckdb boolean Whether to use the DuckDB storage file.
+--- @param limit number The maximum number of rows to return.
+--- @param offset number The offset for pagination.
+--- @return string|nil The prepared SQL query, or nil if an error occurred.
+--- @return string|nil An error message if an error occurred, or nil on success.
 local function prepare_user_query(file, query, top_store_duckdb, limit, offset)
 	query = string.lower(query)
 
@@ -223,6 +250,10 @@ local function prepare_user_query(file, query, top_store_duckdb, limit, offset)
 	return query, nil
 end
 
+--- Executes a user-provided SQL query and updates the buffer with the results.
+--- @param opts table Options for executing the query, including limit and storage settings.
+--- @param buf number The buffer number containing the SQL query.
+--- @return string|nil An error message if an error occurred, or nil on success.
 function M.execute_sql_query(opts, buf)
 	local file = state.get_state("current_file")
 	local limit = opts.limit
@@ -238,28 +269,26 @@ function M.execute_sql_query(opts, buf)
 		return err
 	end
 
-	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(new_query, top_store_duckdb, limit)
-
 	-- Run the query
-	local out_data, err = run_query(cmd)
+	local out_data, err = run_query(new_query, top_store_duckdb, limit)
 	if not out_data then
 		return err
 	end
 
 	--Parse Data
-	local result, err = parser.parse_raw_text(out_data)
+	local result, err = parser.parse_raw_text(out_data, nil)
 	if not result then
 		return err
 	end
 
 	-- Store last user query in state
 	state.set_state("last_user_query", nil, sql_query)
+	state.set_state("num_page", nil, 1)
 
 	-- Update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")
 	local win_data = state.get_state("windows", "win_data")
-	M.update_buffer(opts.hl.buffer.hl_enable, win_data, buf_data, result.data, nil)
+	M.update_buffer(opts.hl.buffer.hl_enable, win_data, buf_data, result.data, 1)
 
 	-- Calculate window layout
 	local tbl_dims = config_windows.calculate_window_layout(
@@ -294,6 +323,10 @@ function M.execute_sql_query(opts, buf)
 	return nil
 end
 
+--- Retrieves paginated data
+--- @param opts table Options for pagination, including limit and storage settings.
+--- @param digit number The page increment (positive for next page, negative for previous page).
+--- @return string|nil An error message if an error occurred, or nil on success.
 function M.get_data_pagination(opts, digit)
 	local top_store_duckdb = opts.use_storage_duckdb
 	local limit = opts.limit
@@ -316,25 +349,25 @@ function M.get_data_pagination(opts, digit)
 
 	local query
 	local err
-	if last_user_query then -- user has already executed a custom query
+	log.debug("last_user_query: " .. tostring(last_user_query))
+	if type(last_user_query) == "string" and last_user_query ~= "" then
 		query, err = prepare_user_query(file, last_user_query, top_store_duckdb, limit, offset)
 	else
 		if top_store_duckdb then
 			query = "SELECT * FROM f"
 			query = string.format("SELECT * FROM (%s) LIMIT %d OFFSET %d", query, limit, offset)
 		else
-			query = DATA_QUERIES[ext]
+			query = QUERY_TEMPLATE[ext].data
 			query = string.format(query, file, limit, offset)
 		end
 	end
 
 	-- Generate the duckdb command
-	local cmd = generate_duckdb_command(query, top_store_duckdb, limit)
-	local csv_text, err = run_query(cmd)
+	local csv_text, err = run_query(query, top_store_duckdb, limit)
 	if err then
 		return nil, err
 	end
-	local result, err = parser.parse_raw_text(csv_text)
+	local result, err = parser.parse_raw_text(csv_text, nil)
 
 	if not result then
 		return nil, err

@@ -11,7 +11,6 @@ function M.close_windows()
 			vim.api.nvim_win_close(win, true)
 		end
 	end
-
 	-- Remove the window from state
 	-- state.reset_state("windows")
 end

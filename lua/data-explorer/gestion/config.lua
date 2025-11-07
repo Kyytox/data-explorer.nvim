@@ -50,8 +50,7 @@ M.defaults = {
 	query_sql = {
 		-- Lines displayed in the SQL window when opened, {} for no placeholder
 		placeholder_sql = {
-			"SELECT * FROM f LIMIT 100;",
-			"-- Warning: Large result could slow down / crash.",
+			"SELECT * FROM f",
 			"-- To query the file, use 'f' as the table name.",
 		},
 	},

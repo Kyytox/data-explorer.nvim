@@ -6,11 +6,6 @@ local M = {}
 
 ---Create cache files for process
 function M.create_cache_files()
-	-- -- Check DuckDB installation
-	-- if not check_duckdb.check_duckdb_or_warn() then
-	-- 	return
-	-- end
-
 	local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
 
 	-- Create cache directory if it doesn't exis
@@ -22,10 +17,9 @@ end
 --- Check if file is a accepted file type
 ---@param file string: File path.
 ---@param accepted_types table: List of accepted file extensions.
----@return boolean: True if file is accepted, false otherwise.
+---@return boolean: True if is accepted, false otherwise.
 function M.is_accepted_file_type(file, accepted_types)
 	for _, ext in ipairs(accepted_types) do
-		-- Use string.sub for cleaner suffix check
 		if file:sub(-#ext) == ext then
 			return true
 		end
@@ -100,7 +94,7 @@ end
 ---@return string|nil: Error message if any.
 function M.get_cached_metadata(file)
 	local err = nil
-	local metadata = state.get_state("files_metadata", file)
+	local metadata = state.get_state("files_metadata", file) or nil
 
 	if metadata then
 		return metadata, nil

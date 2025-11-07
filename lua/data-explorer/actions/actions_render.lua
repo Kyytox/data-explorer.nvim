@@ -62,11 +62,11 @@ function M.back_to_file_selection(opts)
 	-- exctract file types from opts.files_types
 	local files_types = utils.aggregate_file_types(opts)
 
-	-- Launch Data Explorer
 	actions_windows.close_windows()
 	state.reset_state("windows")
 	state.reset_state("buffers")
 	state.reset_state("current_file")
+	state.reset_state("last_user_query")
 
 	require("data-explorer.ui.picker").pickers_files(opts, files_types)
 end

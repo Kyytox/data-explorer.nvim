@@ -12,7 +12,7 @@ describe("Data Explorer Parser", function()
 │ prenom         │ VARCHAR │     100 │
 └────────────────┴─────────┴─────────┴]]
 
-		local result, err = plugin.parse_raw_text(raw_text)
+		local result, err = plugin.parse_raw_text(raw_text, "metadata")
 		assert.is_nil(err)
 		assert.are.same({
 			"┌────────────────┬─────────┬─────────┬",

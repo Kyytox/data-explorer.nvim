@@ -32,7 +32,12 @@ function M.set_window_options()
 	for key, win in pairs(wins) do
 		local highlight = get_highlight_for_window(key)
 		vim.wo[win].winhighlight = highlight
-		vim.api.nvim_set_option_value("wrap", false, { win = win, scope = "local" })
+
+		if key == "win_sql_err" then
+			vim.api.nvim_set_option_value("wrap", true, { win = win, scope = "local" })
+		else
+			vim.api.nvim_set_option_value("wrap", false, { win = win, scope = "local" })
+		end
 	end
 
 	-- Enable cursorline for the data window by default
@@ -83,9 +88,11 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 
 	-- SQL windows
 	local sql_row_start = math.floor(height * 0.3)
+	local sql_col_start = math.floor(width * 0.15)
+	local sql_width = math.floor(width * 0.7)
 	local sql_height = 7
-	local sql_err_row_start = sql_row_start + sql_height + 2
 	local sql_err_height = 7
+	local sql_err_row_start = sql_row_start + sql_height + 2
 
 	-- Vertical layout
 	-- determine max height
@@ -128,6 +135,8 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 			data_col_start = data_col_start_h,
 			data_row_start = row_start,
 			sql_row_start = sql_row_start,
+			sql_col_start = sql_col_start,
+			sql_width = sql_width,
 			sql_height = sql_height,
 			sql_err_row_start = sql_err_row_start,
 			sql_err_height = sql_err_height,
@@ -145,6 +154,8 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 			data_row_start = data_row_start_v,
 			sql_height = sql_height,
 			sql_row_start = sql_row_start,
+			sql_col_start = sql_col_start,
+			sql_width = sql_width,
 			sql_err_row_start = sql_err_row_start,
 			sql_err_height = sql_err_height,
 			main_width = main_width,

@@ -1,9 +1,8 @@
-local log = require("data-explorer.gestion.log")
 local M = {}
 
 --- Prepare metadata display lines.
 ---@param file string: File path.
----@param metadata table: Metadata table with headers and data.
+---@param metadata table: Metadata infos.
 ---@return table: Lines to display.
 function M.prepare_metadata(file, metadata)
 	if metadata.count_lines == 0 then
@@ -24,8 +23,8 @@ function M.prepare_metadata(file, metadata)
 	}
 end
 
---- Prepare help display lines.
----@param opts table A table containing configuration, including command keybindings.
+--- Prepare foote help
+---@param opts table Condiguration options including key mappings.
 ---@return table: Lines to display.
 function M.prepare_help(opts)
 	return {
@@ -69,24 +68,23 @@ local function determine_hl_group(line, col_index)
 	end
 end
 
---- Update highlights in buffers using extmarks
+--- Update highlights in buffers
 ---@param buf number: Buffer number.
 ---@param data_lines table: Lines of data in the buffer.
----@return nil
 function M.update_highlights(buf, data_lines)
 	-- Create a namespace for highlights
-	local ns_id = vim.api.nvim_create_namespace("data_explorer_highlight_namespace")
+	local ns_id = vim.api.nvim_create_namespace("data_explorer_highlight_ns")
 
-	-- Browse header line for find all | and create table
+	-- Calculate column positions, and their highlight groups
 	local header_line = data_lines[2]
 	local tbl_pos = {}
 	local col_start = 4
 	local col_index = 1
 	local hl_group
 	while true do
-		-- Find next |
-		local s, e = string.find(header_line, "│", col_start + 1, true)
-		if not s then
+		-- Find start and end of column
+		local st, ed = string.find(header_line, "│", col_start + 1, true)
+		if not st then
 			break
 		end
 
@@ -94,9 +92,9 @@ function M.update_highlights(buf, data_lines)
 		hl_group = determine_hl_group(2, col_index)
 
 		-- Store column positions
-		tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = s - 1, hl_group = hl_group }
+		tbl_pos[col_index] = { col_index = col_index, start = col_start, finish = st - 1, hl_group = hl_group }
 		col_index = col_index + 1
-		col_start = e
+		col_start = ed
 	end
 
 	-- Browse lines and highlight based on tbl_pos
@@ -111,7 +109,6 @@ function M.update_highlights(buf, data_lines)
 		for _, col in pairs(tbl_pos) do
 			local value_start = col.start + 1
 			local value_end = col.finish
-			local hl_group = ""
 
 			if l > 4 then -- Skip separator line
 				-- Set extmark for highlight

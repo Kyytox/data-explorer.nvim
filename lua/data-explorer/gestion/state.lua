@@ -1,3 +1,4 @@
+local log = require("data-explorer.gestion.log")
 local M = {}
 
 local VARIABLES = {
@@ -51,6 +52,9 @@ end
 ---@return any
 function M.get_state(field, key)
 	if key ~= nil then
+		if STATE[field] == nil then
+			return nil
+		end
 		return STATE[field][key]
 	end
 	return STATE[field]
@@ -62,7 +66,7 @@ function M.reset_state(field)
 	if field and STATE[field] then
 		STATE[field] = {}
 	else
-		for k in pairs(STATE) do
+		for k, _ in pairs(STATE) do
 			STATE[k] = {}
 		end
 	end

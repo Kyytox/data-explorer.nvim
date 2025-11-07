@@ -10,32 +10,38 @@ local mappings = require("data-explorer.ui.mappings")
 
 local M = {}
 
+--- Create Buffer with lines
+---@param lines table|nil: Lines to set in the buffer.
+---@return number: Buffer number.
+local function create_buffer_with_lines(lines)
+	local buf = vim.api.nvim_create_buf(false, true)
+	if lines then
+		vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+	end
+	return buf
+end
+
 -- Create buffers
 local function create_buffers(opts, file, metadata, data)
-	-- Prepare display metadata
+	-- Metadata
 	local metadata_lines = display.prepare_metadata(file, metadata)
-	local buf_meta = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_meta, 0, -1, false, metadata.data)
+	local buf_meta = create_buffer_with_lines(metadata_lines)
 	state.set_state("buffers", "buf_meta", buf_meta)
 
-	-- Prepare display data
-	local buf_data = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_data, 0, -1, false, data)
+	-- Main data
+	local buf_data = create_buffer_with_lines(data)
 	state.set_state("buffers", "buf_data", buf_data)
-
 	if opts.hl.buffer.hl_enable then
 		display.update_highlights(buf_data, data)
 	end
 
-	-- Create SQL buffer
+	-- SQL buffer
 	local sql_lines = display.prepare_sql_display(opts)
-	local buf_sql = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_sql, 0, -1, false, sql_lines)
+	local buf_sql = create_buffer_with_lines(sql_lines)
 	state.set_state("buffers", "buf_sql", buf_sql)
 
-	-- Create SQL error buffer
-	local buf_sql_err = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(buf_sql_err, 0, -1, false, { "" })
+	-- SQL error
+	local buf_sql_err = create_buffer_with_lines({ "" })
 	state.set_state("buffers", "buf_sql_err", buf_sql_err)
 
 	return #metadata_lines, #data
@@ -43,24 +49,27 @@ end
 
 --- Main Function
 ---@param opts table: Options table.
----@param file string: Path to the parquet file.
+---@param file string: Path to the file.
 function M.render(opts, file)
-	-- Fetch and parse data
+	-- local start = os.clock()
 	local err
 	local data = nil
 	local metadata = nil
 	local top_store_duckdb = opts.use_storage_duckdb
 
-	local start = os.clock()
-
-	-- Fetch and cache metadata
+	-- Fetch metadata
 	metadata, err = utils.get_cached_metadata(file)
 	if not metadata then
 		log.display_notify(4, "Error fetching metadata: " .. err)
 		return
 	end
 
-	-- data, err = duckdb.fetch_parse_data(file, "main_data", nil, opts.limit)
+	if metadata.count_lines == 0 then
+		log.display_notify(3, "The file is empty: " .. file)
+		return
+	end
+
+	-- Fetch main data
 	data, err = duckdb.fetch_main_data(file, metadata.file_ext, top_store_duckdb, opts.limit)
 	if not data then
 		log.display_notify(4, "Error fetching data: " .. err)
@@ -89,9 +98,9 @@ function M.render(opts, file)
 	-- Set keymaps for buffers
 	mappings.set_common_keymaps(opts)
 
-	local finish = os.clock()
-	local elapsed = finish - start
-	log.info(string.format("Main Data for %s in %.4f seconds.", file, elapsed))
+	-- local finish = os.clock()
+	-- local elapsed = finish - start
+	-- log.info(string.format("Main Data for %s in %.4f seconds.", file, elapsed))
 end
 
 return M
