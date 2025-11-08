@@ -6,10 +6,10 @@ local VARIABLES = {
 	data_dir = "/data_explorer/",
 	duckdb_file = "data_explorer.db",
 	windows_infos = {
-		meta_title = " Metadata",
-		data_title = " Data View - Page 1",
-		sql_title = " SQL Query",
-		sql_err_title = " SQL Error",
+		meta_title = " Metadata ",
+		data_title = " Data View - Page 1 ",
+		sql_title = " SQL Query ",
+		sql_err_title = " SQL Error ",
 	},
 }
 
