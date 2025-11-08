@@ -342,10 +342,10 @@ function M.get_data_pagination(opts, digit)
 	local new_page = page + digit
 
 	if new_page < 1 then
-		log.display_notify(3, "Already at the first page.")
+		log.display_notify(3, "First page.")
 		return
 	elseif new_page > max_num_page then
-		log.display_notify(3, "Already at the last page.")
+		log.display_notify(3, "Last page.")
 		return
 	end
 

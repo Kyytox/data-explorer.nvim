@@ -10,10 +10,8 @@ local HISTORY_INDEX = 0
 function M.load_history(history_file)
 	local ok, history = pcall(dofile, history_file)
 	if not ok then
-		log.debug("Failed to load history cache file: ")
 		return false
 	end
-	log.debug("Loaded history: " .. vim.inspect(history))
 	HISTORY = history
 	return true
 end

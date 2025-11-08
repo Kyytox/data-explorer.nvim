@@ -42,7 +42,7 @@ function M.prepare_help(opts)
 	}
 end
 
---- Prepare SQL footer Help display
+--- Prepare SQL footer Help
 ---@param opts table A table containing configuration, including command keybindings.
 ---@return table
 function M.prepare_sql_help(opts)
