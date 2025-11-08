@@ -5,6 +5,7 @@ local VARIABLES = {
 	duckdb_cmd = "duckdb",
 	data_dir = "/data_explorer/",
 	duckdb_file = "data_explorer.db",
+	history_cache = "query_history.lua",
 	windows_infos = {
 		meta_title = " Metadata ",
 		data_title = " Data View - Page 1 ",
@@ -27,6 +28,7 @@ local STATE = {
 	tbl_dimensions = {},
 	num_page = 1,
 	last_user_query = nil,
+	history_index = 0,
 }
 
 -- Get all state

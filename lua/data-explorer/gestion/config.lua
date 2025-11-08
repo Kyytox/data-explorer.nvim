@@ -15,7 +15,7 @@ local M = {}
 ---@field hl table Highlight colors
 M.defaults = {
 	use_storage_duckdb = false,
-	limit = 250, -- Maximum number of rows to fetch
+	limit = 80, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
 	files_types = {
 		parquet = true,
@@ -48,11 +48,7 @@ M.defaults = {
 
 	-- Query SQL
 	query_sql = {
-		-- Lines displayed in the SQL window when opened, {} for no placeholder
-		placeholder_sql = {
-			"SELECT * FROM f",
-			"-- To query the file, use 'f' as the table name.",
-		},
+		history_size = 10, -- Number of queries to keep in history
 	},
 
 	-- Key mappings
@@ -66,6 +62,8 @@ M.defaults = {
 		toggle_sql = "3", -- Toggle the SQL query window
 		rotate_layout = "r", -- Rotate the layout
 		execute_sql = "e", -- Execute the SQL query
+		prev_history = "<Up>", -- Previous query in history
+		next_history = "<Down>", -- Next query in history
 	},
 
 	-- Highlight colors

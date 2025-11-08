@@ -3,6 +3,7 @@ local state = require("data-explorer.gestion.state")
 local display = require("data-explorer.ui.display")
 local parser = require("data-explorer.core.parser")
 local config_windows = require("data-explorer.ui.config_windows")
+local actions_history = require("data-explorer.actions.actions_history")
 
 local M = {}
 
@@ -286,6 +287,7 @@ function M.execute_sql_query(opts, buf)
 	-- Store last user query in state
 	state.set_state("last_user_query", nil, sql_query)
 	state.set_state("num_page", nil, 1)
+	actions_history.add_to_history(sql_query, opts)
 
 	-- Update buffer data
 	local buf_data = state.get_state("buffers", "buf_data")

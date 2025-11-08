@@ -23,7 +23,7 @@ function M.prepare_metadata(file, metadata)
 	}
 end
 
---- Prepare foote help
+--- Prepare footer help
 ---@param opts table Condiguration options including key mappings.
 ---@return table: Lines to display.
 function M.prepare_help(opts)
@@ -42,12 +42,17 @@ function M.prepare_help(opts)
 	}
 end
 
---- Prepare SQL display
+--- Prepare SQL footer Help display
 ---@param opts table A table containing configuration, including command keybindings.
 ---@return table
-function M.prepare_sql_display(opts)
+function M.prepare_sql_help(opts)
 	return {
-		unpack(opts.query_sql.placeholder_sql),
+		string.format(
+			" %s - %s: Navigate History | %s: Execute Query ",
+			opts.mappings.prev_history,
+			opts.mappings.next_history,
+			opts.mappings.execute_sql
+		),
 	}
 end
 

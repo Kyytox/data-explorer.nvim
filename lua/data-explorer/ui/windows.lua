@@ -55,6 +55,8 @@ function M.create_windows(opts, dims)
 		row = dims.sql_row_start,
 		col = dims.sql_col_start,
 		hide = true,
+		footer = table.concat(display.prepare_sql_help(opts), "\n") or nil,
+		footer_pos = "right",
 	}, opts)
 
 	-- SQL Error window

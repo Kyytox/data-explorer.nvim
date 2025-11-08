@@ -2,6 +2,7 @@ local state = require("data-explorer.gestion.state")
 local duckdb = require("data-explorer.core.duckdb")
 local actions_windows = require("data-explorer.actions.actions_windows")
 local actions_render = require("data-explorer.actions.actions_render")
+local actions_history = require("data-explorer.actions.actions_history")
 local config_windows = require("data-explorer.ui.config_windows")
 local log = require("data-explorer.gestion.log")
 
@@ -32,14 +33,12 @@ function M.set_common_keymaps(opts)
 		-- Next page of data
 		if key == "buf_data" then
 			vim.keymap.set("n", opts.mappings.next_page, function()
-				local digit = 1
-				duckdb.get_data_pagination(opts, digit)
+				duckdb.get_data_pagination(opts, 1)
 			end, map_opts)
 
 			-- Previous page of data
 			vim.keymap.set("n", opts.mappings.prev_page, function()
-				local digit = -1
-				duckdb.get_data_pagination(opts, digit)
+				duckdb.get_data_pagination(opts, -1)
 			end, map_opts)
 		end
 
@@ -105,6 +104,26 @@ function M.set_common_keymaps(opts)
 		-- Adjust cursorline settings
 		config_windows.upd_cursorline_option(true, wins.win_data)
 		config_windows.upd_cursorline_option(false, wins.win_meta)
+	end, { buffer = buffers.buf_sql, nowait = true })
+
+	-- Previous History SQL query (arrow up in mode standard)
+	vim.keymap.set("n", opts.mappings.prev_history, function()
+		local query = actions_history.navigate_history(1)
+
+		-- Update SQL buffer
+		if query then
+			vim.api.nvim_buf_set_lines(buffers.buf_sql, 0, -1, false, { query })
+		end
+	end, { buffer = buffers.buf_sql, nowait = true })
+
+	-- Next History SQL query (arrow down in mode standard)
+	vim.keymap.set("n", opts.mappings.next_history, function()
+		local query = actions_history.navigate_history(-1)
+
+		-- Update SQL buffer
+		if query then
+			vim.api.nvim_buf_set_lines(buffers.buf_sql, 0, -1, false, { query })
+		end
 	end, { buffer = buffers.buf_sql, nowait = true })
 end
 

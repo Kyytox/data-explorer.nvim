@@ -1,18 +1,33 @@
 local duckdb = require("data-explorer.core.duckdb")
 local state = require("data-explorer.gestion.state")
 local log = require("data-explorer.gestion.log")
+local actions_history = require("data-explorer.actions.actions_history")
 
 local M = {}
 
 ---Create cache files for process
 function M.create_cache_files(opts)
-	if opts.use_storage_duckdb then
-		local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
+	local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
 
+	-- Create data directory if using DuckDB storage
+	if opts.use_storage_duckdb then
 		-- Create cache directory if it doesn't exis
 		if vim.fn.isdirectory(dir_data) == 0 then
 			vim.fn.mkdir(dir_data, "p")
 		end
+	end
+
+	-- Create history file (lua file)
+	local history_file = dir_data .. state.get_variable("history_cache")
+	if not actions_history.load_history(history_file) then
+		-- Create empty history file
+		local file, err = io.open(history_file, "w")
+		if not file then
+			log.display_notify(3, "Failed to create history cache file: " .. err)
+			return
+		end
+		file:write("return {}")
+		file:close()
 	end
 end
 

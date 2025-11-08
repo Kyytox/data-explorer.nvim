@@ -36,8 +36,7 @@ local function create_buffers(opts, file, metadata, data)
 	end
 
 	-- SQL buffer
-	local sql_lines = display.prepare_sql_display(opts)
-	local buf_sql = create_buffer_with_lines(sql_lines)
+	local buf_sql = create_buffer_with_lines({ "" })
 	state.set_state("buffers", "buf_sql", buf_sql)
 
 	-- SQL error
