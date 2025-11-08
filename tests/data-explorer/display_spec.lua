@@ -71,4 +71,19 @@ describe("Tests Display module", function()
 			" q: Quit | r: Rotate | J: Next Page | K: Prev Page | m: Metadata | d: Data | s: SQL Query | b: Back ",
 		}, lines)
 	end)
+
+	-- Test for SQL help
+	it("prepare_sql_footer_help", function()
+		local opts = {
+			mappings = {
+				execute_sql = "e",
+				prev_history = "<Up>",
+				next_history = "<Down>",
+			},
+		}
+		local lines = display.prepare_sql_help(opts)
+		assert.are.same({
+			" <Up> - <Down>: Navigate History | e: Execute Query ",
+		}, lines)
+	end)
 end)
