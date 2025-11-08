@@ -5,12 +5,14 @@ local log = require("data-explorer.gestion.log")
 local M = {}
 
 ---Create cache files for process
-function M.create_cache_files()
-	local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
+function M.create_cache_files(opts)
+	if opts.use_storage_duckdb then
+		local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
 
-	-- Create cache directory if it doesn't exis
-	if vim.fn.isdirectory(dir_data) == 0 then
-		vim.fn.mkdir(dir_data, "p")
+		-- Create cache directory if it doesn't exis
+		if vim.fn.isdirectory(dir_data) == 0 then
+			vim.fn.mkdir(dir_data, "p")
+		end
 	end
 end
 

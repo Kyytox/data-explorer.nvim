@@ -24,7 +24,7 @@ function M.setup(opts)
 	-- log.setup_dev()
 
 	-- Create cache files for process
-	utils.create_cache_files()
+	utils.create_cache_files(opts)
 end
 
 --- Set Autocommands for Data Explorer
