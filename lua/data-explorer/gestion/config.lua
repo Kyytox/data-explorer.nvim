@@ -15,7 +15,7 @@ local M = {}
 ---@field hl table Highlight colors
 M.defaults = {
 	use_storage_duckdb = false,
-	limit = 50, -- Maximum number of rows to fetch
+	limit = 40, -- Maximum number of rows to fetch per page
 	layout = "vertical", -- Vertical or horizontal
 	files_types = {
 		parquet = true,

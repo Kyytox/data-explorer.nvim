@@ -64,7 +64,7 @@ After all options are validated, default values are applied for any missing opti
 ```lua
 {
     use_storage_duckdb = false,
-    limit = 50,
+    limit = 40,
     layout = "vertical",
     files_types = {
         parquet = true,
@@ -77,7 +77,7 @@ After all options are validated, default values are applied for any missing opti
 | Parameter                | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | :----------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`use_storage_duckdb`** | `boolean` | If the value is `true`, a persistent DuckDB database file (`data_explorer.duckdb`) is used in your Neovim cahce directory. The data file is then read only once. Therefore, page changes and custom SQL queries will read the table from this file, which improves performance for medium to large files, but the initial load may be somewhat slow. If the value is `false`, the file will be read with every action, which can be resource-intensive for medium and large files. |
-| **`limit`**              | `number`  | Maximum number of rows to fetch per page                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **`limit`**              | `number`  | Maximum number of rows to fetch per page, you can navigate through the data using the configured key mappings.                                                                                                                                                                                                                                                                                                                                                                     |
 | **`layout`**             | `string`  | Main UI layout: `"vertical"` (metadata window on top/left, data on bottom/right) or `"horizontal"`.                                                                                                                                                                                                                                                                                                                                                                                |
 | **`files_types`**        | `table`   | Specifies which file formats are supported and enabled. Set a format to `false` to disable it.                                                                                                                                                                                                                                                                                                                                                                                     |
 | **files_types.parquet**  | `boolean` | Enable/disable support for `.parquet` files.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -471,7 +471,7 @@ If `use_storage_duckdb` is false, the file is read each time you change page or 
 No transformation is done on the data received from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
 
 A pagination system is implemented to navigate through the data table view.
-By default, 50 rows are fetched and displayed at a time (configurable via the `limit` option).
+By default, 40 rows are fetched and displayed at a time (configurable via the `limit` option).
 
 ### Syntax Highlighting
 
@@ -505,7 +505,7 @@ The results of the executed SQL query are displayed in the data table view, repl
 No transformation is done on the data received from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
 
 The same pagination system from the Data Table View is applied to the query results.
-By default, 50 rows are fetched and displayed at a time (configurable via the `limit` option).
+By default, 40 rows are fetched and displayed at a time (configurable via the `limit` option).
 
 ### Error handling
 

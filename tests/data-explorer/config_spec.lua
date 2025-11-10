@@ -2,7 +2,7 @@ local config_validation = require("data-explorer.gestion.config_validation")
 
 describe("valid_user_options", function()
 	local defaults = {
-		limit = 250, -- Maximum number of rows to fetch
+		limit = 40, -- Maximum number of rows to fetch
 		layout = "vertical", -- Vertical or horizontal
 		files_types = {
 			parquet = true,

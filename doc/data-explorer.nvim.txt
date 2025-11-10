@@ -120,7 +120,7 @@ CORE OPTIONS
 >lua
     {
         use_storage_duckdb = false,
-        limit = 50,
+        limit = 40,
         layout = "vertical",
         files_types = {
             parquet = true,
@@ -142,7 +142,8 @@ CORE OPTIONS
                                   read with every action, which can be resource-intensive for medium
                                   and large files.
 
-  limit                 number    Maximum number of rows to fetch per page
+  limit                 number    Maximum number of rows to fetch per page, you can navigate through
+                                  the data using the configured key mappings.
 
   layout                string    Main UI layout: "vertical" (metadata window on top/left, data on
                                   bottom/right) or "horizontal".
@@ -630,7 +631,7 @@ No transformation is done on the data received from DuckDB, they are displayed
 as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
 
 A pagination system is implemented to navigate through the data table view. By
-default, 50 rows are fetched and displayed at a time (configurable via the
+default, 40 rows are fetched and displayed at a time (configurable via the
 `limit` option).
 
 
@@ -678,7 +679,7 @@ from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to
 display data in tabular format).
 
 The same pagination system from the Data Table View is applied to the query
-results. By default, 50 rows are fetched and displayed at a time (configurable
+results. By default, 40 rows are fetched and displayed at a time (configurable
 via the `limit` option).
 
 

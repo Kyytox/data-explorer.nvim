@@ -109,7 +109,7 @@ Plug 'kyytox/data-explorer.nvim'
 ```lua
 require("data-explorer").setup({
   use_storage_duckdb = false,
-  limit = 50, -- Maximum number of rows to fetch per page
+  limit = 40, -- Maximum number of rows to fetch per page
   layout = "vertical", -- Vertical or ----------
   files_types = {
     parquet = true,
@@ -267,10 +267,9 @@ This bypasses Telescope and directly loads the file into the explorer.
 
 ## ⚠️ Limitations
 
-- The larger the file, the more time it will take to display the metadata and data, and will consume significant memory.
-- Default view limits data to **250 rows** (configurable).
-- When running **custom SQL queries**, there is **no default limit** — you must specify one manually (e.g., `SELECT * FROM data LIMIT 100;`).
-- Emojis and certain special characters (not all) in data may not render correctly (small column shifts)
+- The larger the file, the more time it will take to display the metadata and data.
+- Emojis and certain special characters (not all) in data may not render correctly (small column shifts).
+- Minimal SQL editor — no autocomplete or highlighting.
 
 <br>
 
