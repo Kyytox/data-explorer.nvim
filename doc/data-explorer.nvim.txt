@@ -25,7 +25,7 @@ Table of Contents                       *data-explorer.nvim-table-of-contents*
 13. Limitations                               |data-explorer.nvim-limitations|
 14. Performances                             |data-explorer.nvim-performances|
 15. Future Plans                             |data-explorer.nvim-future-plans|
-16. Motivation                                 |data-explorer.nvim-motivation|
+16. Motivation & Inspiration     |data-explorer.nvim-motivation-&-inspiration|
 17. Contribute & Bug Reports     |data-explorer.nvim-contribute-&-bug-reports|
 18. License                                       |data-explorer.nvim-license|
 
@@ -260,13 +260,13 @@ These options configure the SQL query editor behavior.
     }
 <
 
-  ---------------------------------------------------------------------------------
+  --------------------------------------------------------------------------
   Parameter                Type     Description
-  ------------------------ -------- -----------------------------------------------
-  query_sql.history_size   number   Number of previous SQL queries to keep in
-                                    history (not yet implemented).
+  ------------------------ -------- ----------------------------------------
+  query_sql.history_size   number   Number of previous SQL queries to keep
+                                    in history
 
-  ---------------------------------------------------------------------------------
+  --------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
 KEY MAPPINGS
@@ -751,14 +751,23 @@ configuration options.
 DATA BUFFER HIGHLIGHTS             *data-explorer.nvim-data-buffer-highlights*
 
 You can customize the colors used for syntax highlighting in the data table
-view via the `hl.buffer` configuration options. | Highlight Group | Options
-Used From Config | Description | | ———————- |
-———————— | ———————————————— | |
-`DataExplorerColHeader` | `hl.buffer.header` | Highlight for column headers in
-data table view. | | `DataExplorerCol1` | `hl.buffer.col1` | Foreground color
-for column 1 in data table view. | | ….. | … | … | | `DataExplorerCol9` |
-`hl.buffer.col9` | Foreground color for column 9 in data table view. |
+view via the `hl.buffer` configuration options.
 
+  -------------------------------------------------------------------------------
+  Highlight Group         Options Used From  Description
+                          Config             
+  ----------------------- ------------------ ------------------------------------
+  DataExplorerColHeader   hl.buffer.header   Highlight for column headers in data
+                                             table view.
+
+  DataExplorerCol1        hl.buffer.col1     Foreground color for column 1 in
+                                             data table view.
+
+  …..                     …                  …
+
+  DataExplorerCol9        hl.buffer.col9     Foreground color for column 9 in
+                                             data table view.
+  -------------------------------------------------------------------------------
 
 ==============================================================================
 13. Limitations                               *data-explorer.nvim-limitations*
@@ -832,16 +841,20 @@ displaying 20,000 lines.
 
 
 ==============================================================================
-16. Motivation                                 *data-explorer.nvim-motivation*
+16. Motivation & Inspiration     *data-explorer.nvim-motivation-&-inspiration*
 
 Exploring `.parquet` files directly in Neovim has always been a pain and
 required jumping between multiple tools.
 
 While working on a separate side project, I constantly needed a quick, native
 way to preview, validate, and query these data files to confirm my assumptions
-and ensure data integrity-all without having to jump to an external tool.
+and ensure data integrity-all.
 
-So, I created **data-explorer.nvim**.
+So, I created **data-explorer.nvim**, inspired by: **duckdb.yazi**
+<https://github.com/wylie102/duckdb.yazi> and his approach to using DuckDB.
+
+Make this plugin allowed me to better understand Neovim, which I’ve been
+using since August 2025, but there are still things I need to understand.
 
 
 ==============================================================================

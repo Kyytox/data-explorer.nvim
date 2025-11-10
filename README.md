@@ -18,6 +18,7 @@ https://github.com/user-attachments/assets/5fbc7868-0fa8-4615-adbf-7ddb15d4a02b
 ---
 
 - [Caution](#-caution)
+- [Motivation & Inspiration](#-motivation--inspiration)
 - [Requirements](#%EF%B8%8F-requirements)
 - [Features](#-features)
 - [Installation](#-installation)
@@ -30,7 +31,6 @@ https://github.com/user-attachments/assets/5fbc7868-0fa8-4615-adbf-7ddb15d4a02b
 - [Performances](#-performances)
 - [Architecture](#%EF%B8%8F-architecture)
 - [Future Plans](#-future-plans)
-- [Motivation](#-motivation)
 - [Contribute & Bug Reports](#-contribute--bug-reports)
 - [License](#-license)
 
@@ -41,7 +41,17 @@ https://github.com/user-attachments/assets/5fbc7868-0fa8-4615-adbf-7ddb15d4a02b
 This plugin is still under active development.
 If you encounter issues, have ideas for improvements, or want to contribute — please open an issue or a pull request!
 
-Inspired by: [**duckdb.yazi**](https://github.com/wylie102/duckdb.yazi)
+<br>
+
+## 💪 Motivation & Inspiration
+
+Exploring `.parquet` files directly in Neovim has always been a pain and required jumping between multiple tools.
+
+While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity-all.
+
+So, I created **data-explorer.nvim**, inspired by: [**duckdb.yazi**](https://github.com/wylie102/duckdb.yazi) and his approach to using DuckDB.
+
+Make this plugin allowed me to better understand Neovim, which I've been using since August 2025, but there are still things I need to understand.
 
 <br>
 
@@ -331,16 +341,6 @@ The difference in the limit (50 or 1000) doesn't really impact performance (0.02
 - Smarter preview caching
 - Metadata personalization
 - SQL Query history and favorites
-
-<br>
-
-## 💪 Motivation
-
-Exploring `.parquet` files directly in Neovim has always been a pain and required jumping between multiple tools.
-
-While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity-all without having to jump to an external tool.
-
-So, I created **data-explorer.nvim**.
 
 <br>
 

@@ -163,9 +163,9 @@ These options configure the SQL query editor behavior.
 }
 ```
 
-| Parameter                    | Type     | Description                                                              |
-| :--------------------------- | :------- | :----------------------------------------------------------------------- |
-| **`query_sql.history_size`** | `number` | Number of previous SQL queries to keep in history (not yet implemented). |
+| Parameter                    | Type     | Description                                       |
+| :--------------------------- | :------- | :------------------------------------------------ |
+| **`query_sql.history_size`** | `number` | Number of previous SQL queries to keep in history |
 
 ---
 
@@ -542,12 +542,13 @@ You can customize the colors used for various UI elements via the `hl.windows` c
 ## Data Buffer Highlights
 
 You can customize the colors used for syntax highlighting in the data table view via the `hl.buffer` configuration options.
-| Highlight Group | Options Used From Config | Description |
-| ---------------------- | ------------------------ | ------------------------------------------------ |
-| `DataExplorerColHeader` | `hl.buffer.header` | Highlight for column headers in data table view. |
-| `DataExplorerCol1` | `hl.buffer.col1` | Foreground color for column 1 in data table view. |
-| ..... | ... | ... |
-| `DataExplorerCol9` | `hl.buffer.col9` | Foreground color for column 9 in data table view. |
+
+| Highlight Group         | Options Used From Config | Description                                       |
+| ----------------------- | ------------------------ | ------------------------------------------------- |
+| `DataExplorerColHeader` | `hl.buffer.header`       | Highlight for column headers in data table view.  |
+| `DataExplorerCol1`      | `hl.buffer.col1`         | Foreground color for column 1 in data table view. |
+| .....                   | ...                      | ...                                               |
+| `DataExplorerCol9`      | `hl.buffer.col9`         | Foreground color for column 9 in data table view. |
 
 # ⚠️ Limitations
 
@@ -601,13 +602,15 @@ The difference in the limit (50 or 1000) doesn't really impact performance (0.02
 - Metadata personalization
 - Reopen last file explored
 
-# 💪 Motivation
+# 💪 Motivation & Inspiration
 
 Exploring `.parquet` files directly in Neovim has always been a pain and required jumping between multiple tools.
 
-While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity-all without having to jump to an external tool.
+While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity-all.
 
-So, I created **data-explorer.nvim**.
+So, I created **data-explorer.nvim**, inspired by: [**duckdb.yazi**](https://github.com/wylie102/duckdb.yazi) and his approach to using DuckDB.
+
+Make this plugin allowed me to better understand Neovim, which I've been using since August 2025, but there are still things I need to understand.
 
 # 🫵🏼 Contribute & Bug Reports
 
