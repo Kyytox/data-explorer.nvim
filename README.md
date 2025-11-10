@@ -109,7 +109,7 @@ Plug 'kyytox/data-explorer.nvim'
 ```lua
 require("data-explorer").setup({
   use_storage_duckdb = false,
-  limit = 50, -- Maximum number of rows to fetch
+  limit = 50, -- Maximum number of rows to fetch per page
   layout = "vertical", -- Vertical or ----------
   files_types = {
     parquet = true,
@@ -193,11 +193,11 @@ For more details on configuration options:
 
 ### Parameter use_storage_duckdb
 
-This option allows you to enable the storage of data from the read file in a temporary DuckDB database file stored on disk (at the path `~/.local/share/nvim/data-explorer/data_explorer.db`).
+This option allows you to enable the storage of data from the read file in a DuckDB database file stored on disk (at the path `~/.cache/nvim/data_explorer/data_explorer.db`).
 
 By default, this option is set to `false`, meaning that the data is loaded directly into DuckDB's in-memory database. This is generally faster for most operations, especially for smaller files. But keep in mind that with each page change and custom query execution, the target file is reread each time.
 
-If you enable this option by setting it to `true`, the data from the read file will be stored in a .db file on disk. But thanks to this, the file is read only once, so page changes and custom query executions will be faster, especially for larger files. However, this approach may consume more disk space and could be slower for initial loading compared to in-memory operations.
+If you enable this option by setting it to `true`, the data from the read file will be stored in a .db file on disk. But thanks to this, the file is read only once, so page changes and custom query executions will be faster, especially for larger files. However, this approach may consume more disk space and could be slower for initial loading compared to in-memory operations (cf. performance table below).
 
 - [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt): TXT file
 - `:help data-explorer.nvim-config`: Neovim help
