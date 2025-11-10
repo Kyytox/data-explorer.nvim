@@ -35,12 +35,7 @@ describe("valid_user_options", function()
 
 		-- Query SQL
 		query_sql = {
-			-- Lines displayed in the SQL window when opened
-			placeholder_sql = {
-				"SELECT * FROM f LIMIT 1000;",
-				"-- Warning: Large result could slow down / crash.",
-				"-- To query the file, use 'f' as the table name.",
-			},
+			history_size = 25,
 		},
 
 		-- Key mappings
@@ -103,15 +98,13 @@ describe("valid_user_options", function()
 		assert.are.equal(0, #err)
 	end)
 
-	it("checks placeholder_sql", function()
-		local opts = { query_sql = { placeholder_sql = "not a table" } }
+	it("checks history_size", function()
+		local opts = { query_sql = { history_size = -10 } }
 		local err = config_validation.check_query_sql(defaults, opts, "query_sql")
 		assert.are.equal(1, #err)
-		assert.are.same(defaults.query_sql.placeholder_sql, opts.query_sql.placeholder_sql)
+		assert.are.same(defaults.query_sql, opts.query_sql)
 
-		opts.query_sql.placeholder_sql = {
-			"SELECT name FROM f;",
-		}
+		opts.query_sql.history_size = 25
 		err = config_validation.check_query_sql(defaults, opts, "query_sql")
 		assert.are.equal(0, #err)
 	end)

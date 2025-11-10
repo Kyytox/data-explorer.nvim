@@ -68,7 +68,7 @@ function M.check_query_sql(defaults, opts, key)
 	end
 
 	if not check_number(opts[key], "history_size") then
-		opts[key].placeholder_sql = defaults[key].placeholder_sql
+		opts[key].history_size = defaults[key].history_size
 		table.insert(errs, "history_size must be a number. Reverting to default.")
 	end
 	return errs
