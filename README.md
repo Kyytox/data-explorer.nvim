@@ -13,7 +13,7 @@ Powered by **DuckDB** and **Telescope**.
 
 </div>
 
-https://github.com/user-attachments/assets/2532fe6b-05f0-4423-9f83-71bf78787fc3
+https://github.com/user-attachments/assets/8898638c-7ad4-49d5-9779-e43ef5ad53ae
 
 ---
 
