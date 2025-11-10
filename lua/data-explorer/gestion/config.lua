@@ -15,7 +15,7 @@ local M = {}
 ---@field hl table Highlight colors
 M.defaults = {
 	use_storage_duckdb = false,
-	limit = 80, -- Maximum number of rows to fetch
+	limit = 50, -- Maximum number of rows to fetch
 	layout = "vertical", -- Vertical or horizontal
 	files_types = {
 		parquet = true,
@@ -48,7 +48,7 @@ M.defaults = {
 
 	-- Query SQL
 	query_sql = {
-		history_size = 10, -- Number of queries to keep in history
+		history_size = 25, -- Number of queries to keep in history
 	},
 
 	-- Key mappings

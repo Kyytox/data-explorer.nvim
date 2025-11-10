@@ -67,9 +67,9 @@ function M.check_query_sql(defaults, opts, key)
 		table.insert(errs, "query_sql must be a table. Reverting to default.")
 	end
 
-	if not check_table(opts[key], "placeholder_sql") then
+	if not check_number(opts[key], "history_size") then
 		opts[key].placeholder_sql = defaults[key].placeholder_sql
-		table.insert(errs, "placeholder_sql must be a table. Reverting to default.")
+		table.insert(errs, "history_size must be a number. Reverting to default.")
 	end
 	return errs
 end
