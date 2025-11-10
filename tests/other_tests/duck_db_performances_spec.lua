@@ -3,12 +3,12 @@ local plenary = require("plenary")
 
 describe("DuckDB Performance Tests", function()
 	local lst_files = {
-		"/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_small_file.tsv",
-		"/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_small_file.csv",
-		"/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_small_file.parquet",
+		-- "/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_small_file.tsv",
+		-- "/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_small_file.csv",
+		-- "/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_small_file.parquet",
 		-- "/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_big_file.tsv",
-		-- "/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_big_file.csv",
-		-- "/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_big_file.parquet",
+		"/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_big_file.csv",
+		"/media/kytox/Dev/data-explorer.nvim/tests/data_test/nasa_big_file.parquet",
 	}
 
 	local avergage_time = function(lst_times, limit, mode)
@@ -43,11 +43,11 @@ describe("DuckDB Performance Tests", function()
 
 			print(
 				string.format(
-					"File: %s     | Mode: %s | Limit: %d | Avg Time: %.5f s | Min Time: %.5f s | Max Time: %.5f s  ",
+					"Avg Time: %.5f s | File: %s | Mode: %s | Limit: %d |  Min Time: %.5f s | Max Time: %.5f s  ",
+					total_time / count,
 					file_path:match("^.+/(.+)$"),
 					mode,
 					limit,
-					total_time / count,
 					min_time,
 					max_time
 				)
@@ -61,23 +61,31 @@ describe("DuckDB Performance Tests", function()
 		local err
 
 		for _, file_path in ipairs(lst_files) do
-			local iterations = 2
+			local iterations = 5
 			for i = 1, iterations do
-				local start = os.clock()
+				-- local start = os.clock()
 
 				local file = plenary.path.new(file_path):absolute()
 				local ext = file:match("^.+(%..+)$"):sub(2)
 
 				local result, err = duckdb.fetch_main_data(file, ext, true, limit)
+				-- local result, err = duckdb.fetch_main_data(file, ext, false, limit)
 
-				local finish = os.clock()
-				local elapsed = finish - start
+				-- get last lilne result
+				-- You need to decomment timer in duckdb.lua in cmd duckdb
+				local last_line = result[#result]
+
+				-- get number after 'real' in last line
+				local elapsed = tonumber(last_line:match("real%s+([%d%.]+)"))
+
+				-- local finish = os.clock()
+				-- local elapsed = finish - start
 				local infos = { file_path = file, mode = mode, limit = limit, iteration = i, time = elapsed }
 				table.insert(lst_times, infos)
 				i = i + 1
 
 				-- break 1 second between iterations
-				-- vim.wait(500)
+				vim.wait(700)
 
 				-- print(string.format("SQL query executed in: %.5f seconds for file: %s", elapsed, file_path))
 			end
@@ -85,21 +93,21 @@ describe("DuckDB Performance Tests", function()
 		avergage_time(lst_times, limit, mode)
 	end
 
-	it("Performance Test - Main Data 250 rows", function()
-		test_run(lst_files, 70, "main_data")
+	it("Performance Test - Main Data 50 rows", function()
+		test_run(lst_files, 50, "main_data")
 	end)
 
-	it("Performance Test - Main Data 1000 rows", function()
-		test_run(lst_files, 1000, "main_data")
-	end)
+	-- it("Performance Test - Main Data 1000 rows", function()
+	-- 	test_run(lst_files, 1000, "main_data")
+	-- end)
 
-	it("Performance Test - Main Data 5000 rows", function()
-		test_run(lst_files, 5000, "main_data")
-	end)
+	-- it("Performance Test - Main Data 5000 rows", function()
+	-- 	test_run(lst_files, 5000, "main_data")
+	-- end)
 
-	it("Performance Test - Main Data 20000 rows", function()
-		test_run(lst_files, 20000, "main_data")
-	end)
+	-- it("Performance Test - Main Data 20000 rows", function()
+	-- 	test_run(lst_files, 20000, "main_data")
+	-- end)
 end)
 
 -- describe("DuckDB Performance Tests", function()

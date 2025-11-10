@@ -275,21 +275,19 @@ With a PC with:
 - RAM: 32 GB
 - DuckDB version: 1.4.1
 
-There Test are made with different limits for the data view: 250, 1000, 5000 and 20 000 rows.
+There Test are made with option `use_storage_duckdb = false` and `true` with a limit between 50 and 1000 rows.
+The difference in the limit (50 or 1000) doesn't really impact performance (0.02 s difference) unless you're displaying 20,000 lines.
 
 <br>
 
-| File Type | File Size | Total Rows | Avg Time (250) | Avg Time (1k) | Avg Time (5k) | Avg Time (20k) |
-| --------- | --------- | ---------- | -------------- | ------------- | ------------- | -------------- |
-| Parquet   | 9 MB      | 500 000    | 0.00339 s      | 0.01183 s     | 0.05608 s     | 0.23005 s      |
-| Parquet   | 19 MB     | 1 003 391  | 0.00352 s      | 0.01331 s     | 0.06220 s     | 0.26294 s      |
-| CSV       | 31 MB     | 38 170     | 0.00313 s      | 0.01181 s     | 0.05682 s     | 0.24263 s      |
-| CSV       | 84 MB     | 101 553    | 0.00352 s      | 0.01306 s     | 0.06429 s     | 0.27679 s      |
-| TSV       | 31 MB     | 38 170     | 0.00348 s      | 0.01219 s     | 0.06060 s     | 0.25841 s      |
-| TSV       | 84 MB     | 101 553    | 0.00396 s      | 0.01302 s     | 0.06709 s     | 0.28249 s      |
-
-> [!NOTE]
-> But who display 20K rows
+| File Type | File Size | Total Rows | Avg Time <br> (use_storage_duckdb = False) | Avg Time <br> (use_storage_duckdb = True) |
+| --------- | --------- | ---------- | ------------------------------------------ | ----------------------------------------- |
+| Parquet   | 9 MB      | 500 000    | 0.021 s                                    | 2.11 s                                    |
+| Parquet   | 19 MB     | 1 003 391  | 0.031 s                                    | 4.25 s                                    |
+| CSV       | 31 MB     | 38 170     | 0.336 s                                    | 0.534 s                                   |
+| CSV       | 84 MB     | 101 553    | 0.798 s                                    | 1.2 s                                     |
+| TSV       | 31 MB     | 38 170     | 0.294 s                                    | 0.498 s                                   |
+| TSV       | 84 MB     | 101 553    | 0.729 s                                    | 1.60 s                                    |
 
 <br>
 
