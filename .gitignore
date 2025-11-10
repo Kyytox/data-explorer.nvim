@@ -2,5 +2,5 @@ scripts/
 assets/
 logs/
 tests/data_test/
-panvimdoc/*
+panvimdoc/
 pre_readme.txt
