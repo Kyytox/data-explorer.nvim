@@ -96,7 +96,7 @@ local function generate_duckdb_command(query, top_store_duckdb, limit)
 	}
 
 	if top_store_duckdb then
-		local path_db = vim.fn.stdpath("data") .. state.get_variable("data_dir") .. state.get_variable("duckdb_file")
+		local path_db = vim.fn.stdpath("cache") .. state.get_variable("data_dir") .. state.get_variable("duckdb_file")
 		table.insert(args, 2, path_db)
 	end
 

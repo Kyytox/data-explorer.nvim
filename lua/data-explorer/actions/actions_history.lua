@@ -24,7 +24,7 @@ end
 
 --- Save history to cache file
 function M.save_history()
-	local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
+	local dir_data = vim.fn.stdpath("cache") .. state.get_variable("data_dir")
 	local history_file = dir_data .. state.get_variable("history_cache")
 	local file, err = io.open(history_file, "w")
 	if not file then

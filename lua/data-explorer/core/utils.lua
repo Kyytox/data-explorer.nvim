@@ -7,7 +7,7 @@ local M = {}
 
 ---Create cache files for process
 function M.create_cache_files(opts)
-	local dir_data = vim.fn.stdpath("data") .. state.get_variable("data_dir")
+	local dir_data = vim.fn.stdpath("cache") .. state.get_variable("data_dir")
 
 	-- Create data directory if using DuckDB storage
 	if opts.use_storage_duckdb then
