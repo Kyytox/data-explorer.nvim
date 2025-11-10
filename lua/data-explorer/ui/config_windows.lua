@@ -87,7 +87,7 @@ function M.calculate_window_layout(opts, width, height, nb_metadata_lines, nb_da
 	local main_width = math.floor(width * 0.99)
 
 	-- SQL windows
-	local sql_row_start = math.floor(height * 0.3)
+	local sql_row_start = math.floor(height * 0.35)
 	local sql_col_start = math.floor(width * 0.15)
 	local sql_width = math.floor(width * 0.7)
 	local sql_height = 7
