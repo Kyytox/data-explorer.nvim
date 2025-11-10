@@ -13,9 +13,7 @@ Powered by **DuckDB** and **Telescope**.
 
 </div>
 
-
 https://github.com/user-attachments/assets/2532fe6b-05f0-4423-9f83-71bf78787fc3
-
 
 ---
 
@@ -272,6 +270,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 - The larger the file, the more time it will take to display the metadata and data.
 - Emojis and certain special characters (not all) in data may not render correctly (small column shifts).
 - Minimal SQL editor — no autocomplete or highlighting.
+- SQL errors don't provide detailed messages because the query is encapsulated in a select limit offset query (for page management) (feature to improve).
 
 <br>
 
@@ -341,7 +340,7 @@ The difference in the limit (50 or 1000) doesn't really impact performance (0.02
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
 - Metadata personalization
-- SQL Query history and favorites
+- Better SQL Error handling
 
 <br>
 

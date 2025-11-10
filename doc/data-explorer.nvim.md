@@ -569,6 +569,7 @@ You can customize the colors used for syntax highlighting in the data table view
 
 - Minimal SQL editor — no autocomplete or highlighting.
 - Only the latest SQL error is shown.
+- SQL errors don't provide detailed messages because the query is encapsulated in a select limit offset query (for page management) (feature to improve).
 
 # 📏 Performances
 
