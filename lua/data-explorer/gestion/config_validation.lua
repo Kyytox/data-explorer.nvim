@@ -213,9 +213,12 @@ function M.check_mappings(defaults, opts, key)
 	end
 
 	for sub_key, value in pairs(opts[key]) do
-		if type(value) ~= "string" then
+		if type(value) ~= "string" or value == "" then
 			opts[key][sub_key] = defaults[key][sub_key]
-			table.insert(errs, "Mapping for " .. sub_key .. " must be a string. Reverting to default.")
+			table.insert(
+				errs,
+				"Mapping for " .. sub_key .. " must be a string and cannot be empty. Reverting to default."
+			)
 		end
 	end
 	return errs
