@@ -70,7 +70,11 @@ pull request!
 
   Table View         Display file contents in a formatted, colorized table
 
+  Pagination         Navigate large datasets page by page
+
   Custom SQL Queries Run SQL queries on your data, see results instantly
+
+  SQL Query History  History of executed SQL queries
 
   Configurable       Limit, Layouts, mappings, colors, highlights
 
@@ -116,7 +120,7 @@ CORE OPTIONS
 >lua
     {
         use_storage_duckdb = false,
-        limit = 250,
+        limit = 50,
         layout = "vertical",
         files_types = {
             parquet = true,
@@ -251,23 +255,18 @@ These options configure the SQL query editor behavior.
 >lua
     {
         query_sql = {
-            placeholder_sql = {
-                "SELECT * FROM f LIMIT 1000;",
-                "-- Warning: Large result could slow down / crash.",
-                "-- To query the file, use 'f' as the table name.",
-            },
+            history_size = 25,
         },
     }
 <
 
-  --------------------------------------------------------------------------------------
-  Parameter                   Type    Description
-  --------------------------- ------- --------------------------------------------------
-  query_sql.placeholder_sql   table   Lines displayed in the SQL editor when it is
-                                      opened. Used to give users tips or example
-                                      queries.
+  ---------------------------------------------------------------------------------
+  Parameter                Type     Description
+  ------------------------ -------- -----------------------------------------------
+  query_sql.history_size   number   Number of previous SQL queries to keep in
+                                    history (not yet implemented).
 
-  --------------------------------------------------------------------------------------
+  ---------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
 KEY MAPPINGS
@@ -288,6 +287,8 @@ Customize the key bindings for actions within the main UI.
             toggle_sql = "3",
             rotate_layout = "r",
             execute_sql = "e",
+            prev_history = "<Up>",
+            next_history = "<Down>",
         },
     }
 <
@@ -316,6 +317,12 @@ Customize the key bindings for actions within the main UI.
                                     horizontal layouts.
 
   mappings.execute_sql     string   Key to execute the current SQL query.
+
+  mappings.prev_history    string   Key to navigate to the previous SQL query
+                                    in history.
+
+  mappings.next_history    string   Key to navigate to the next SQL query in
+                                    history.
   ----------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 
@@ -593,8 +600,7 @@ DATA EXTRACTION ~
 
 According to the configuration option `use_storage_duckdb`, if is true, the
 data is loaded into a persistent DuckDB database file located in the Neovim
-data directory (e.g.,
-`~/.local/share/nvim/data_explorer/data_explorer.duckdb`).
+cache directory (`~/.cache/nvim/data_explorer/data_explorer.db`).
 
 **Advantage**:
 
@@ -625,7 +631,7 @@ No transformation is done on the data received from DuckDB, they are displayed
 as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
 
 A pagination system is implemented to navigate through the data table view. By
-default, 250 rows are fetched and displayed at a time (configurable via the
+default, 50 rows are fetched and displayed at a time (configurable via the
 `limit` option).
 
 
@@ -673,7 +679,7 @@ from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to
 display data in tabular format).
 
 The same pagination system from the Data Table View is applied to the query
-results. By default, 250 rows are fetched and displayed at a time (configurable
+results. By default, 50 rows are fetched and displayed at a time (configurable
 via the `limit` option).
 
 
@@ -683,6 +689,16 @@ If there is an error in the SQL query (syntax error, invalid table/column
 names, etc.), the error message from DuckDB is captured and displayed in a
 separate SQL Error window. This allows you to see what went wrong and adjust
 your query accordingly.
+
+
+HISTORY ~
+
+A history of valid executed SQL queries is stored in cache file in the Neovim
+cache directory (`~/.cache/nvim/data_explorer/sql_history.log`). You can
+navigate through the history using the configured mappings (default `<Up>` and
+`<Down>`).
+
+The history size is configurable via the `query_sql.history_size` option.
 
 
 ==============================================================================
@@ -810,7 +826,6 @@ and 20 000 rows.
 - Support for more formats (`.json`, `.sqlite`, etc.)
 - Smarter preview caching
 - Metadata personalization
-- SQL Query history and favorites
 - Reopen last file explored
 
 

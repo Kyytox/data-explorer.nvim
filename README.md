@@ -64,7 +64,9 @@ Inspired by: [**duckdb.yazi**](https://github.com/wylie102/duckdb.yazi)
 | File Search        | Find data files using Telescope                       |
 | Metadata Display   | Show column names, types, and other details           |
 | Table View         | Display file contents in a formatted, colorized table |
+| Pagination         | Navigate large datasets page by page                  |
 | Custom SQL Queries | Run SQL queries on your data, see results instantly   |
+| SQL Query History  | History of executed SQL queries                       |
 | Configurable       | Limit, Layouts, mappings, colors, highlights          |
 | Commands           | `DataExplorer`, `DataExplorerFile`                    |
 
@@ -97,7 +99,7 @@ Plug 'kyytox/data-explorer.nvim'
 ```lua
 require("data-explorer").setup({
   use_storage_duckdb = false,
-  limit = 250, -- Maximum number of rows to fetch
+  limit = 50, -- Maximum number of rows to fetch
   layout = "vertical", -- Vertical or ----------
   files_types = {
     parquet = true,
@@ -130,11 +132,7 @@ require("data-explorer").setup({
 
   -- Query SQL
   query_sql = {
-    -- Lines displayed in the SQL window when opened, {} for no placeholder
-    placeholder_sql = {
-      "SELECT * FROM f LIMIT 100;",
-      "-- To query the file, use 'f' as the table name.",
-    },
+    history_size = 25, -- Number of queries to keep in history
   },
 
   -- Key mappings
@@ -148,6 +146,8 @@ require("data-explorer").setup({
     toggle_sql = "3", -- Toggle the SQL query window
     rotate_layout = "r", -- Rotate the layout
     execute_sql = "e", -- Execute the SQL query
+    prev_history = "<Up>", -- Previous query in history
+    next_history = "<Down>", -- Next query in history
   },
 
   -- Highlight colors
