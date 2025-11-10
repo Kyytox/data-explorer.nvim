@@ -9,12 +9,8 @@ local M = {}
 function M.create_cache_files(opts)
 	local dir_data = vim.fn.stdpath("cache") .. state.get_variable("data_dir")
 
-	-- Create data directory if using DuckDB storage
-	if opts.use_storage_duckdb then
-		-- Create cache directory if it doesn't exis
-		if vim.fn.isdirectory(dir_data) == 0 then
-			vim.fn.mkdir(dir_data, "p")
-		end
+	if vim.fn.isdirectory(dir_data) == 0 then
+		vim.fn.mkdir(dir_data, "p")
 	end
 
 	-- Create history file (lua file)
