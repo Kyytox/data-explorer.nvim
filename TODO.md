@@ -1,0 +1,4 @@
+- [] add more types of files
+- [] improve the configuration system, as it seems to take some time
+- [] improve sql errors handling, while trying to keep the pagination system for custom SQL queries
+- [] add features for launch last visited file
