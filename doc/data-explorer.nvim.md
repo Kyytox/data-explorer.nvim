@@ -56,7 +56,7 @@ Plug 'kyytox/data-explorer.nvim'
 The configuration is passed to the plugin's `setup` function: `require("data-explorer").setup({...})`.
 
 When the setup configuration is launched, a validation of the user options is done.
-If an option is not valid, an WARNING notification is shown with the invalid option name and the default value used instead.
+If an option is not valid, a WARNING notification is shown with the invalid option name and the default value was used instead.
 After all options are validated, default values are applied for any missing options.
 
 #### Core Options
@@ -76,7 +76,7 @@ After all options are validated, default values are applied for any missing opti
 
 | Parameter                | Type      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | :----------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`use_storage_duckdb`** | `boolean` | If the value is `true`, a persistent DuckDB database file (`data_explorer.duckdb`) is used in your Neovim cahce directory. The data file is then read only once. Therefore, page changes and custom SQL queries will read the table from this file, which improves performance for medium to large files, but the initial load may be somewhat slow. If the value is `false`, the file will be read with every action, which can be resource-intensive for medium and large files. |
+| **`use_storage_duckdb`** | `boolean` | If the value is `true`, a persistent DuckDB database file (`data_explorer.duckdb`) is used in your Neovim cache directory. The data file is then read only once. Therefore, page changes and custom SQL queries will read the table from this file, which improves performance for medium to large files, but the initial load may be somewhat slow. If the value is `false`, the file will be read with every action, which can be resource-intensive for medium and large files. |
 | **`limit`**              | `number`  | Maximum number of rows to fetch per page, you can navigate through the data using the configured key mappings.                                                                                                                                                                                                                                                                                                                                                                     |
 | **`layout`**             | `string`  | Main UI layout: `"vertical"` (metadata window on top/left, data on bottom/right) or `"horizontal"`.                                                                                                                                                                                                                                                                                                                                                                                |
 | **`files_types`**        | `table`   | Specifies which file formats are supported and enabled. Set a format to `false` to disable it.                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -367,7 +367,7 @@ The layout can be either vertical (metadata on the left, data on the right) or h
           └────────────────┘
 ```
 
-The max height of metadata window is 30% (by default) of the total height, but can be configured via `max_height_metadata` option.
+The max height of the metadata window is 25% (by default) of the total height, but can be configured via the `max_height_metadata` option.
 The data window takes all the remaining height.
 
 `Vertical Layout:`
@@ -387,7 +387,7 @@ The data window takes all the remaining height.
     └─────────────────────────────────┘
 ```
 
-The max width of the metadata window is 25% (by default) of the total width, but can be configured via `max_width_metadata` option.
+The max width of the metadata window is 25% (by default) of the total width, but can be configured via the `max_width_metadata` option.
 The data window takes all the remaining width.
 
 # Modules
@@ -396,8 +396,8 @@ The data window takes all the remaining width.
 
 ### Metadata Extraction
 
-There are read where you find a file in telescope and display it in the preview window.
-When a metadata is read, he is saved in cache but only for the current session when you close the explorer, the cache is cleared.
+There is a read where you find a file in Telescope and display it in the preview window.
+When metadata is read, it is saved in the cache but only for the current session when you close the explorer, the cache is cleared.
 
 No transformation is done on the data received from DuckDB, they are displayed as is with mode `duckbox` (mode of DuckDB to display data in tabular format).
 
@@ -405,7 +405,7 @@ No transformation is done on the data received from DuckDB, they are displayed a
 
 For `.csv` and `.tsv` files, DuckDB creates a temporary table to infer column names and types by reading a sample of the data.
 
-The metadata table for `.csv` and `.tsv` files includes the foll owing columns:
+The metadata table for `.csv` and `.tsv` files includes the following columns:
 
 | Column Name | Description                                          |
 | ----------- | ---------------------------------------------------- |
@@ -424,7 +424,7 @@ The metadata table for `.csv` and `.tsv` files includes the foll owing columns:
 
 #### parquet display
 
-For `.parquet` files, DuckDB can directly read the schema without loading the entire file, making it efficient for large datasets, DuckDB use the function `parquet_metadata` to extract metadata.
+For `.parquet` files, DuckDB can directly read the schema without loading the entire file, making it efficient for large datasets, DuckDB uses the function `parquet_metadata` to extract metadata.
 
 The metadata table for `.parquet` files includes the following columns:
 
@@ -443,11 +443,11 @@ The metadata table for `.parquet` files includes the following columns:
 
 ### Data Extraction
 
-According to the configuration option `use_storage_duckdb`, if is true, the data is loaded into a persistent DuckDB database file located in the Neovim cache directory (`~/.cache/nvim/data_explorer/data_explorer.db`).
+According to the configuration option `use_storage_duckdb`, if it is true, the data is loaded into a persistent DuckDB database file located in the Neovim cache directory (`~/.cache/nvim/data_explorer/data_explorer.db`).
 
 **Advantage**:
 
-- The file is read once and the data is stored in table, so when you change page or execute SQL queries, the data is fetched from the local database file, which is faster for large files.
+- The file is read once, the data is stored in a table, so when you change pages or execute SQL queries, the data is fetched from the local database file, which is faster for large files.
 - You can read large files
 - If you have complex SQL queries, they will be faster.
 
@@ -491,9 +491,9 @@ For displaying the SQL editor, press the mapping defined in the config (default 
 The SQL editor window allows you to write any valid SQL query using `f` as the table name representing the loaded data file.
 To execute the SQL query, press the mapping defined in the config (default `e`).
 
-A verification of the SQL query is done before execution to ensure it is valid. You need to write a SQL with a statement `FROM f` to query the loaded file (f is the table name representing the loaded file).
+A verification of the SQL query is done before execution to ensure it is valid. You need to write an SQL with a statement `FROM f` to query the loaded file (f is the table name representing the loaded file).
 
-If configuration option `use_storage_duckdb` is true, the query is executed against the persistent DuckDB database file.
+If the configuration option `use_storage_duckdb` is true, the query is executed against the persistent DuckDB database file.
 If false, the query is executed directly against the data file each time.
 
 When the query is executed, the resulting data is stored in cache (stdout) and displayed in the data table view.
@@ -514,7 +514,7 @@ This allows you to see what went wrong and adjust your query accordingly.
 
 ### History
 
-A history of valid executed SQL queries is stored in cache file in the Neovim cache directory (`~/.cache/nvim/data_explorer/sql_history.log`). You can navigate through the history using the configured mappings (default `<Up>` and `<Down>`).
+A history of valid executed SQL queries is stored in the cache file in the Neovim cache directory (`~/.cache/nvim/data_explorer/sql_history.log`). You can navigate through the history using the configured mappings (default `<Up>` and `<Down>`).
 
 The history size is configurable via the `query_sql.history_size` option.
 
@@ -554,12 +554,12 @@ You can customize the colors used for syntax highlighting in the data table view
 
 **🧩 General**
 
-- If you don't set true to config `use_storage_duckdb`, large files may be slow to read each time you change page or execute SQL queries.
+- If you don't set true to config `use_storage_duckdb`, large files may be slow to read each time you change pages or execute SQL queries.
 - No persistent caching — everything resets when you quit.
 
 **📊 Metadata View**
 
-- It may take a little while for larger files because the entire file is read to properly determine the types
+- It may take a little while for larger files because the entire file is read to properly determine the types.
 
 **📈 Data Table View**
 
@@ -582,7 +582,7 @@ With a PC with:
 - RAM: 32 GB
 - DuckDB version: 1.4.1
 
-There Test are made with option `use_storage_duckdb = false` and `true` with a limit between 50 and 1000 rows.
+Their test are made with the option `use_storage_duckdb = false` and `true` with a limit between 50 and 1000 rows.
 The difference in the limit (50 or 1000) doesn't really impact performance (0.02 s difference) unless you're displaying 20,000 lines.
 
 <br>
@@ -607,11 +607,11 @@ The difference in the limit (50 or 1000) doesn't really impact performance (0.02
 
 Exploring `.parquet` files directly in Neovim has always been a pain and required jumping between multiple tools.
 
-While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity-all.
+While working on a separate side project, I constantly needed a quick, native way to preview, validate, and query these data files to confirm my assumptions and ensure data integrity.
 
 So, I created **data-explorer.nvim**, inspired by: [**duckdb.yazi**](https://github.com/wylie102/duckdb.yazi) and his approach to using DuckDB.
 
-Make this plugin allowed me to better understand Neovim, which I've been using since August 2025, but there are still things I need to understand.
+Making this plugin allowed me to better understand Neovim, which I've been using since August 2025, but there are still things I need to understand.
 
 # 🫵🏼 Contribute & Bug Reports
 
