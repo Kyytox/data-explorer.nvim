@@ -48,6 +48,7 @@ Example with **lazy.nvim**:
 Or with **vim-plug**:
 
 ```vim
+Plug 'nvim-telescope/telescope.nvim'
 Plug 'kyytox/data-explorer.nvim'
 ```
 

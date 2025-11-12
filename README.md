@@ -99,6 +99,7 @@ Example with **lazy.nvim**:
 Or with **vim-plug**:
 
 ```vim
+Plug 'nvim-telescope/telescope.nvim'
 Plug 'kyytox/data-explorer.nvim'
 ```
 
@@ -193,7 +194,6 @@ For more details on configuration options:
 
 - [Details Configurations](https://github.com/Kyytox/data-explorer.nvim/blob/master/doc/data-explorer.nvim.txt): TXT file
 - `:help data-explorer.nvim-config`: Neovim help
-
 
 ### Parameter use_storage_duckdb
 
