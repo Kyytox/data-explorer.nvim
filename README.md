@@ -280,7 +280,7 @@ This bypasses Telescope and directly loads the file into the explorer.
 The following table shows approximate load and query times
 The file is a copy of [nasa-exoplanet archive data](https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=PS) with a lot of lines duplicated.
 
-With a PC with:
+With a PC:
 
 - CPU: AMD Ryzen™ 7 7700X
 - RAM: 32 GB
