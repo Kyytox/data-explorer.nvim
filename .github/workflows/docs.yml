@@ -10,9 +10,11 @@ on:
 jobs:
   docs:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     name: pandoc to vimdoc
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: panvimdoc
         uses: kdheepak/panvimdoc@main
         with:
@@ -30,8 +32,7 @@ jobs:
           docmappingprojectname: true
           shiftheadinglevelby: 0
           incrementheadinglevelby: 0
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "Auto generate Vim doc"
           branch: ${{ github.head_ref }}
-          token: ${{ secrets.AUTO_COMMIT_TOKEN }}
