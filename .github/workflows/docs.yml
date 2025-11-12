@@ -1,4 +1,4 @@
-name: Doc generation
+name: Doc Vim generation
 
 on:
   push:
