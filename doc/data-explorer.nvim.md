@@ -621,4 +621,4 @@ If you want to help improve performance, extend support for new formats, or enha
 
 # 📜 License
 
-MIT License © 2025 Kyytox.
+MIT License © 2025 Kyytox
