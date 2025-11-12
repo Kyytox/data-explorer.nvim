@@ -18,11 +18,11 @@ jobs:
         with:
           vimdoc: data-explorer.nvim
           pandoc: "doc/data-explorer.nvim.md"
-          version: "NVIM v0.8.0"
+          version: "NVIM v0.11.3"
           toc: true
-          description: "Data Explorer is a Neovim plugin that allows you to explore and visualize data files (.parquet, .csv, .tsv) directly within Neovim."
+          description: "Data Explorer is a Neovim plugin that allows you to explore and visualize data files (.parquet, .csv, .tsv) directly within Neovim. Powered by DuckDB and Telescope."
           titledatepattern: "%Y %B %d"
-          demojify: false
+          demojify: true
           dedupsubheadings: false
           treesitter: true
           ignorerawblocks: true
