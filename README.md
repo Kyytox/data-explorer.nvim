@@ -286,7 +286,7 @@ With a PC:
 - RAM: 32 GB
 - DuckDB version: 1.4.1
 
-There Test are made with option `use_storage_duckdb = false` and `true` with a limit between 50 and 1000 rows.
+There tests are made with option `use_storage_duckdb = false` and `true` with a limit between 50 and 1000 rows.
 The difference in the limit (50 or 1000) doesn't really impact performance (0.02 s difference) unless you're displaying 20,000 lines.
 
 <br>
