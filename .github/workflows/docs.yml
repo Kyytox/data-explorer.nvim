@@ -33,4 +33,5 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Auto generate Vim doc"
-          branch: "master"
+          branch: ${{ github.head_ref }}
+          token: ${{ secrets.AUTO_COMMIT_TOKEN }}
